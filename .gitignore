@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Virtual environment
+venv/
+env/
+ENV/
+.sahayakenv/
+.sahayakenv/
+.sahayakenv/
+*.env
+*.venv
+
+# Django stuff
+*.sqlite3
+db.sqlite3
+*.db
+media/
+staticfiles/
+static/
+
+# Migrations (optional: sometimes you want to commit these)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+# Uncomment this if you don’t want migration files tracked:
+# */migrations/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# pytest / coverage
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.tox/
