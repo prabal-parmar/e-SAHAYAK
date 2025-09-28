@@ -23,7 +23,6 @@ class EmployerModel(models.Model):
 
 class WorkerModel(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="worker_profile")
-    employer = models.ForeignKey(EmployerModel, on_delete=models.CASCADE, related_name="workers", blank=True, null=True)
     skill = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=[("M", "Male"), ("F", "Female"), ("O", "Other")])
     contact_number = models.CharField(max_length=10)

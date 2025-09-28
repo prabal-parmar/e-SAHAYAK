@@ -2,9 +2,11 @@ from django.urls import path, include
 from Employer import views
 
 urlpatterns = [
-    path('connection/add-request/<str:worker_id>/', views.add_worker, name="Adding Worker"),
-    path('all-workers/', views.get_all_workers, name="All Workers of Employer"),
-    path('mark-entry-time/<str:worker_id>/', views.mark_entry_time, name="Mark Entry Time"),
-    path('mark-leaving-time/<str:worker_id>/', views.mark_leaving_time, name="Mark Leaving Time"),
+    path('work/all-workers/', views.get_all_workers_working_today, name="All Workers of Employer"),
+    path('work/mark-entry-time/', views.mark_entry_time, name="Mark Entry Time"),
+    path('work/mark-leaving-time/', views.mark_leaving_time, name="Mark Leaving Time"),
+    path('work/mark-overtime-start-time/', views.add_overtime_start_time, name="Mark Overtime Start Time"),
+    path('work/mark-overtime-end-time/', views.add_overtime_end_time, name="Mark Overtime End Time"),
+    path('worker-data/<str:worker_id>/', views.fetch_worker_attendance_data, name="Worker Data")
 
 ]

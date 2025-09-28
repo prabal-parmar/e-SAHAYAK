@@ -3,54 +3,67 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from Employer.models import Connections, ConnectionRequest
+from .models import Attendences, HourWage
+from datetime import datetime
+from decimal import Decimal
 # Create your views here.
 
-def worker_home(request):
-    return HttpResponse("Worker Home")
+hour_pay = HourWage.objects.first().hourly_wage
+extra_hour_pay = HourWage.objects.first().overtime_wage
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def connection_response(request, id, res):
-
-    if request.user.role != "worker":
-        return Response({"error": "Only Worker have right to accept request from employer"}, status=status.HTTP_403_FORBIDDEN)
-    
-    worker = request.user.worker_profile
-
-    connection_request = ConnectionRequest.objects.filter(id = id, receiver=worker, status="pending").first()
-
-    if not connection_request:
-        return Response({"error": "No request from any employer"}, status=status.HTTP_404_NOT_FOUND)
-    
-    if res == "yes":
-        connection_request.status = "accepted"
-        connection_request.save()
-        worker.employer=connection_request.sender
-        worker.save()
-        try:
-            employer = connection_request.sender
-            Connections.objects.create(employer=employer, worker=worker)
-            return Response({"message": "Worker added to Employer"}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({"error": "Connection already stablished"}, status=status.HTTP_400_BAD_REQUEST)
-    elif res == "no":
-        connection_request.status = "declined"
-        connection_request.save()
-        return Response({"message": "Connection declined by worker"}, status=status.HTTP_200_OK)
-    else:
-        return Response({"error": "Invalid response by worker"}, status=status.HTTP_400_BAD_REQUEST)
-    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_all_requests(request):
+def todays_wage(request):
+
     if request.user.role != "worker":
         return Response({"error": "Worker have right to see all requests from Employer"}, status=status.HTTP_403_FORBIDDEN)
     
-    worker = request.user.worker_profile
+    worker_user = request.user
+    if worker_user.role != "worker":
+        return Response({"error": "Not a worker"}, status=status.HTTP_403_FORBIDDEN)
+    
+    worker = worker_user.worker_profile
+    if not worker:
+        return Response({"error": "Unable to fetch worker"}, status=status.HTTP_403_FORBIDDEN)
+    
+    today_date = datetime.today().now().date()
+    attendances = Attendences.objects.filter(worker=worker, date=today_date).all()
 
-    all_requests = ConnectionRequest.objects.filter(receiver=worker, status="pending").all().values()
+    total_salary = 0
+    extra_salary = 0
+    for attendance in attendances:
+        total_salary += Decimal(attendance.total_time)*hour_pay
+        extra_salary += Decimal(attendance.extra_time)*extra_hour_pay
 
-    return Response({"message": "All Connection Requests fetched successfully", "all_requests": all_requests}, status=status.HTTP_200_OK)
+    return Response({"message": "Todays salary calculated", 
+                     "total_salary": total_salary,
+                     "extra_salary": extra_salary}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def fetch_this_month_salary(request, month, year):
+
+    worker_user = request.user
+    if worker_user.role != "worker":
+        return Response({"error": "Not a worker"}, status=status.HTTP_403_FORBIDDEN)
+    
+    worker = worker_user.worker_profile
+    if not worker:
+        return Response({"error": "Unable to fetch worker"}, status=status.HTTP_403_FORBIDDEN)
+    
+    
+    attendances = Attendences.objects.filter(worker=worker, date__month=month, date__year=year).all()
+
+    total_salary = 0
+    extra_salary = 0
+    for attendance in attendances:
+        total_salary += Decimal(attendance.total_time)*hour_pay
+        extra_salary += Decimal(attendance.extra_time)*extra_hour_pay
+    
+    return Response({"message": "Total salary calculated", 
+                     "total_salary": total_salary, 
+                     "extra_salary": extra_salary}, status=status.HTTP_200_OK)
+    
 
 

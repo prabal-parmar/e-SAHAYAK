@@ -32,7 +32,7 @@ class WorkerRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkerModel
-        fields = ["username", "email", "password", "role", "employer", "skill", "gender", "contact_number", "address"]
+        fields = ["username", "email", "password", "role", "skill", "gender", "contact_number", "address"]
     
     def create(self, validated_data):
         username = validated_data.pop('username')
