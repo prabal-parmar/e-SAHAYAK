@@ -3,9 +3,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from .models import Attendences, HourWage
+from .models import Attendences, HourWage, ReportModel
+from Users.models import WorkerModel, EmployerModel
 from datetime import datetime
 from decimal import Decimal
+from .serializers import ReportSerializer
 # Create your views here.
 
 hour_pay = HourWage.objects.first().hourly_wage
@@ -66,4 +68,41 @@ def fetch_this_month_salary(request, month, year):
                      "extra_salary": extra_salary}, status=status.HTTP_200_OK)
     
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def report_section(request):
+
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    if worker.role != "worker":
+        return Response({"error": "Only worker have right to see and send reports to Employer."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # GET Route
+    if request.method=="GET":
+        worker = worker.worker_profile
+        all_reports = ReportModel.objects.filter(worker=worker).all().values()
+
+        return Response({"message": "All reports fetched.", "reports": all_reports}, status=status.HTTP_200_OK)
+    
+    #POST Route
+    if request.method=="POST":
+        employer_id = request.data.get("employer")
+        if not employer_id:
+            return Response({"error": "Needs Employer Id for submitting report"}, status=status.HTTP_404_NOT_FOUND)
+        
+        employer = EmployerModel.objects.filter(id=employer_id).first()
+        if not employer:
+            return Response({"error": "Employer not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        data = request.data.copy()
+
+        data["worker"] = worker
+        serializer = ReportSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Report Submitted successfuly"}, status=status.HTTP_201_CREATED)
+        return Response({"error": "Unexpected error occured"}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Attendences, HourWage
+from .models import Attendences, HourWage, ReportModel
 from datetime import datetime
 # Register your models here.
 
@@ -45,3 +45,8 @@ class AttendencesAdmin(admin.ModelAdmin):
 class SalaryConfigAdmin(admin.ModelAdmin):
     list_display = ("hourly_wage", "overtime_wage",)
     search_fields = ("hourly_rate", "overtime_wage",)
+
+@admin.register(ReportModel)
+class WorkerReports(admin.ModelAdmin):
+    list_display = ("worker", "employer", "reason", "message", "status",)
+    search_fields = ("worker", "employer", "status",)

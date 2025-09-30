@@ -74,4 +74,3 @@ def signup_worker(request):
         return Response({"message": "Worker Register Successfully"}, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
