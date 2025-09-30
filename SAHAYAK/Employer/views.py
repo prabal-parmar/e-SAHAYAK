@@ -30,7 +30,9 @@ def get_all_workers_working_today(request):
 @api_view(['POST', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def mark_entry_time(request):
-
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
+    
     employer = request.user.employer_profile
 
     if not employer:
@@ -70,7 +72,9 @@ def mark_entry_time(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mark_leaving_time(request):
-
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
+    
     allowed_fields = {"employer", "worker", "leaving_time"}
     extra_fields = set(request.data.keys()) - allowed_fields
 
@@ -99,12 +103,13 @@ def mark_leaving_time(request):
         serializer.save()
         return Response({"message": "Leaving time marked"}, status=status.HTTP_201_CREATED)  
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)  
-
-    
+  
 # Today's attendance data for worker
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def fetch_worker_attendance_data(request, worker_id):
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
     employer_user = request.user
 
     worker = WorkerModel.objects.filter(user__username=worker_id).first()
@@ -124,7 +129,9 @@ def fetch_worker_attendance_data(request, worker_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_overtime_start_time(request):
-
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
+    
     allowed_fields = {"employer", "worker", "overtime", "overtime_entry_time"}
     extra_fields = set(request.data.keys()) - allowed_fields
 
@@ -161,6 +168,9 @@ def add_overtime_start_time(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_overtime_end_time(request):
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
+    
     employer = request.user.employer_profile
 
     allowed_fields = {"employer", "worker", "overtime_leaving_time"}

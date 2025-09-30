@@ -47,4 +47,25 @@ class HourWage(models.Model):
     def __str__(self):
         return f"Hourly Wage - {self.hourly_wage}"
     
+class ReportModel(models.Model):
+
+    REASON_CHOICES = (
+        ("salary", "Salary"),
+        ("attendance", "Attendance"),
+        ("behaviour", "Behaviour"),
+        ("other", "Other")
+    )
+
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("resolved", "Resolved")
+    )
+
+    worker = models.ForeignKey('Users.WorkerModel', on_delete=models.CASCADE, related_name='reports')
+    employer = models.ForeignKey('Users.EmployerModel', on_delete=models.CASCADE, related_name='reports')
+    message = models.TextField(default="No message regarding report.", blank=True, null=True)
+
+    reason = models.CharField(max_length=10, choices=REASON_CHOICES, default="other")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+
 
