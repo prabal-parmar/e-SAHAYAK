@@ -3,11 +3,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from .models import Attendences, HourWage, ReportModel
+from .models import Attendences, HourWage, ReportWorkerModel
 from Users.models import WorkerModel, EmployerModel
 from datetime import datetime
 from decimal import Decimal
-from .serializers import ReportSerializer
+from .serializers import ReportWorkerSerializer
 # Create your views here.
 
 hour_pay = HourWage.objects.first().hourly_wage
@@ -82,7 +82,7 @@ def report_section(request):
     # GET Route
     if request.method=="GET":
         worker = worker.worker_profile
-        all_reports = ReportModel.objects.filter(worker=worker).all().values()
+        all_reports = ReportWorkerModel.objects.filter(worker=worker).all().values()
 
         return Response({"message": "All reports fetched.", "reports": all_reports}, status=status.HTTP_200_OK)
     
@@ -99,7 +99,7 @@ def report_section(request):
         data = request.data.copy()
 
         data["worker"] = worker
-        serializer = ReportSerializer(data=request.data)
+        serializer = ReportWorkerSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()

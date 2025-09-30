@@ -47,7 +47,7 @@ class HourWage(models.Model):
     def __str__(self):
         return f"Hourly Wage - {self.hourly_wage}"
     
-class ReportModel(models.Model):
+class ReportWorkerModel(models.Model):
 
     REASON_CHOICES = (
         ("salary", "Salary"),
