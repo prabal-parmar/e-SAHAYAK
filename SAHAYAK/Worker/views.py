@@ -98,11 +98,11 @@ def report_section(request):
         
         data = request.data.copy()
 
-        data["worker"] = worker
+        data["worker"] = worker.worker_profile.id
         serializer = ReportWorkerSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Report Submitted successfuly"}, status=status.HTTP_201_CREATED)
-        return Response({"error": "Unexpected error occured"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -48,5 +48,5 @@ class SalaryConfigAdmin(admin.ModelAdmin):
 
 @admin.register(ReportWorkerModel)
 class WorkerReports(admin.ModelAdmin):
-    list_display = ("worker", "employer", "reason", "message", "status",)
-    search_fields = ("worker", "employer", "status",)
+    list_display = ("worker", "employer", "reason", "message", "status", "date",)
+    search_fields = ("worker", "employer", "status","date",)

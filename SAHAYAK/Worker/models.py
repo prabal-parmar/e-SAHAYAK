@@ -63,8 +63,8 @@ class ReportWorkerModel(models.Model):
 
     worker = models.ForeignKey('Users.WorkerModel', on_delete=models.CASCADE, related_name='reports')
     employer = models.ForeignKey('Users.EmployerModel', on_delete=models.CASCADE, related_name='reports')
-    message = models.TextField(default="No message regarding report.", blank=True, null=True)
-
+    message = models.TextField(default="No message regarding report by worker.", blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
     reason = models.CharField(max_length=10, choices=REASON_CHOICES, default="other")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
 
