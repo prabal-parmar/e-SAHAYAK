@@ -4,11 +4,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from Users.models import CustomUser, WorkerModel
-from Worker.models import Attendences
-from .models import WorkersWorkModel
+from Worker.models import Attendences, ReportWorkerModel
+from .models import WorkersWorkModel, ReportEmployerModel
 from datetime import date, datetime
 from django.utils import timezone
 from Worker.serializers import AttendanceSerializer
+from .serializers import ReportEmployerSerializer
 # Create your views here.
 
 
@@ -80,7 +81,7 @@ def mark_leaving_time(request):
 
     if extra_fields:
         return Response({"error": f"Unexpected fields sent: {', '.join(extra_fields)}"}, 
-                        status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     
     worker_id = request.data.get("worker")
     
@@ -137,7 +138,7 @@ def add_overtime_start_time(request):
 
     if extra_fields:
         return Response({"error": f"Unexpected fields sent: {', '.join(extra_fields)}"}, 
-                        status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     
     employer = request.user.employer_profile
     if not employer:
@@ -178,7 +179,7 @@ def add_overtime_end_time(request):
 
     if extra_fields:
         return Response({"error": f"Unexpected fields sent: {', '.join(extra_fields)}"}, 
-                        status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     
     if not employer:
         return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -202,3 +203,47 @@ def add_overtime_end_time(request):
         attendance = serializer.save()
         return Response({"message": "Leaving time for Overtime added"}, status=status.HTTP_201_CREATED)
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+# Report Section for Employer
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_reports_by_worker(request):
+
+    employer = request.user.employer_profile
+    if not employer:
+        return Response({"error": "You are not loggedIn"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.user.role != "employer":
+        return Response({"error": "You are not a Employer"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    all_reports = ReportWorkerModel.objects.filter(employer=employer).all().values()
+
+    return Response({"message": "All Reports by Worker fetched.", "reports": all_reports}, status=status.HTTP_200_OK)
+
+# Report by Employer
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def report_by_employer(request):
+
+    if request.user.role!="employer":
+        return Response({"error": "Only Employer can see the reports"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method=="GET":
+        all_reports_by_employer = ReportEmployerModel.objects.filter(employer=employer).all().values()
+
+        return Response({"message": "All reports by employer fetched successfully.", 
+                         "reports": all_reports_by_employer}, status=status.HTTP_200_OK)
+    
+    if request.method=="POST":
+        data = request.data.copy()
+        data["employer"] = employer.employer_profile.id
+        serializer = ReportEmployerSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Report submitted successfully."}, status=status.HTTP_201_CREATED)
+        return Response({"error": "Some unexpected error occured."}, status=status.HTTP_400_BAD_REQUEST)
