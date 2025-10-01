@@ -27,6 +27,3 @@ class ReportEmployerModel(models.Model):
     reason = models.CharField(max_length=10, choices=REASON_CHOICES, default="other")
     message = models.TextField(default="No message regarding report by Employer.", blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
-
-
-
