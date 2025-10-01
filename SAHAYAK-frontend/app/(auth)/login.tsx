@@ -33,7 +33,7 @@ const LandingSection = () => (
         source={require("../../assets/images/AS_logo.png")}
         style={landingStyles.headerLogo}
       />
-      <View style={landingStyles.headerTextContainer}>
+      <View>
         <Text style={landingStyles.headerText}>GOVERNMENT OF INDIA</Text>
         <Text style={landingStyles.subHeaderText}>
           Ministry of Labour & Employment
