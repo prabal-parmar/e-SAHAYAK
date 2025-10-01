@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { landingStyles, loginStyles } from "./styles";
+import { employerLogin } from "@/api/auth_routes";
 
 type FeatureCardProps = {
   icon: React.ReactElement;
@@ -90,6 +91,17 @@ const LoginSection = () => {
     <FontAwesome5 name="briefcase" size={24} color="#7A869A" />
   );
   const workerIcon = <FontAwesome5 name="user-tie" size={24} color="#7A869A" />;
+
+  const handelEmployerLogin = async () => {
+    if (Username && password){
+      const response = await employerLogin(Username, password);
+      console.log(response)
+    }
+    else{
+      console.log("Enter Username and Password")
+      return null;
+    }
+  }
 
   return (
     <View style={loginStyles.container}>
@@ -183,7 +195,8 @@ const LoginSection = () => {
             />
           </View>
           <TouchableOpacity style={loginStyles.loginButton} onPress={() => {}}>
-            <Text style={loginStyles.loginButtonText}>
+            <Text style={loginStyles.loginButtonText}
+              onPress={handelEmployerLogin}>
               नियुक्ता के रूप में साइन इन करें
             </Text>
           </TouchableOpacity>
