@@ -6,19 +6,102 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { register } from "./styles";
+import { register } from "../../components/styles/authStyles";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
+import { registerEmployer, registerWorker } from "@/api/auth_routes";
 
 type Role = "Employer" | "Worker";
 type Gender = "Male" | "Female" | "Other";
 
 export default function RegistrationPage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [gender, setGender] = useState<Gender | null>(null);
+  const [gender, setGender] = useState("");
+  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [skill, setSkill] = useState("");
+  const [address, setAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const router = useRouter();
+
+  const emptyForm = () => {
+    setUsername("");
+    setSelectedRole(null);
+    setGender("");
+    setFirstName("");
+    setLastName("");
+    setContactNumber("");
+    setSkill("");
+    setAddress("");
+    setPassword("");
+    setEmail("");
+    setOrgName("");
+  };
+
+  const handelRegisterWorker = async () => {
+    const data = {
+      firstName: firstName,
+      lastName: lastName,
+      gender: gender,
+      contactNumber: contactNumber,
+      skill: skill,
+      address: address,
+      username: username.toLowerCase(),
+      password: password,
+    };
+
+    if (
+      firstName &&
+      lastName &&
+      gender &&
+      contactNumber &&
+      skill &&
+      address &&
+      username &&
+      password &&
+      selectedRole === "Worker"
+    ) {
+      await registerWorker(data);
+      emptyForm();
+      router.replace("/login");
+    } else {
+      console.log("All fields are required!");
+    }
+  };
+
+  const handelRegisterEmployer = async () => {
+    const data = {
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      contactNumber: contactNumber,
+      location: address,
+      password: password,
+      orgName: orgName,
+    };
+    if (
+      username &&
+      email &&
+      contactNumber &&
+      address &&
+      password &&
+      orgName &&
+      selectedRole === "Employer"
+    ) {
+      await registerEmployer(data);
+      emptyForm();
+      router.replace("/login");
+    } else {
+      console.log("All fields are required!");
+    }
+  };
 
   const renderLandingSelection = () => (
     <View style={register.landingContainer}>
@@ -44,9 +127,7 @@ export default function RegistrationPage() {
         <View style={register.cardTextContainer}>
           <Text style={register.cardTitle}>Register as Employer</Text>
           <Text style={register.cardDescription}>
-            Manage compliance, and connect with workers.
-            <br/>
-            अनुपालन प्रबंधन करें और श्रमिकों से जुड़ें।
+            {`Manage compliance, and connect with workers.\nअनुपालन प्रबंधन करें और श्रमिकों से जुड़ें।`}
           </Text>
         </View>
       </TouchableOpacity>
@@ -63,9 +144,7 @@ export default function RegistrationPage() {
         <View style={register.cardTextContainer}>
           <Text style={register.cardTitle}>Register as Worker</Text>
           <Text style={register.cardDescription}>
-            Build your profile, and ensure your rights are protected.
-            <br/>
-            अपनी प्रोफ़ाइल बनाएँ और सुनिश्चित करें कि आपके अधिकार सुरक्षित हैं।
+            {`Build your profile, and ensure your rights are protected.\nअपनी प्रोफ़ाइल बनाएँ और सुनिश्चित करें कि आपके अधिकार सुरक्षित हैं।`}
           </Text>
         </View>
       </TouchableOpacity>
@@ -80,15 +159,32 @@ export default function RegistrationPage() {
       >
         <Text style={register.backButtonText}>‹ Change Role</Text>
       </TouchableOpacity>
-
+      <View style={{ alignItems: "center" }}>
+        <Image
+          source={require("../../assets/images/logo.png")}
+          style={{ width: 40, height: 40 }}
+        />
+      </View>
       <Text style={register.formTitle}>Create {selectedRole} Account</Text>
 
       {selectedRole === "Employer" ? (
         <>
           <View style={register.inputContainer}>
+            <Text style={register.inputLabel}>Organization Name</Text>
+            <TextInput
+              style={register.input}
+              value={orgName}
+              onChangeText={setOrgName}
+              placeholder="Your company's name"
+              placeholderTextColor="#B0B8C4"
+            />
+          </View>
+          <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Username</Text>
             <TextInput
               style={register.input}
+              value={username}
+              onChangeText={setUsername}
               placeholder="Choose a username"
               placeholderTextColor="#B0B8C4"
             />
@@ -97,6 +193,8 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Email</Text>
             <TextInput
               style={register.input}
+              value={email}
+              onChangeText={setEmail}
               placeholder="your.email@company.com"
               keyboardType="email-address"
               placeholderTextColor="#B0B8C4"
@@ -106,6 +204,8 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Contact Number</Text>
             <TextInput
               style={register.input}
+              value={contactNumber}
+              onChangeText={setContactNumber}
               placeholder="Enter your phone number"
               keyboardType="phone-pad"
               placeholderTextColor="#B0B8C4"
@@ -115,16 +215,10 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Password</Text>
             <TextInput
               style={register.input}
+              value={password}
+              onChangeText={setPassword}
               placeholder="Create a strong password"
               secureTextEntry
-              placeholderTextColor="#B0B8C4"
-            />
-          </View>
-          <View style={register.inputContainer}>
-            <Text style={register.inputLabel}>Organization Name</Text>
-            <TextInput
-              style={register.input}
-              placeholder="Your company's name"
               placeholderTextColor="#B0B8C4"
             />
           </View>
@@ -132,10 +226,18 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Location</Text>
             <TextInput
               style={register.input}
+              value={address}
+              onChangeText={setAddress}
               placeholder="e.g., Mumbai, Maharashtra"
               placeholderTextColor="#B0B8C4"
             />
           </View>
+          <TouchableOpacity
+            style={register.registerButton}
+            onPress={handelRegisterEmployer}
+          >
+            <Text style={register.registerButtonText}>Create Account</Text>
+          </TouchableOpacity>
         </>
       ) : (
         <>
@@ -145,6 +247,8 @@ export default function RegistrationPage() {
               <TextInput
                 style={register.input}
                 placeholder="Ramesh"
+                value={firstName}
+                onChangeText={setFirstName}
                 placeholderTextColor="#B0B8C4"
               />
             </View>
@@ -152,6 +256,8 @@ export default function RegistrationPage() {
               <Text style={register.inputLabel}>Last Name</Text>
               <TextInput
                 style={register.input}
+                value={lastName}
+                onChangeText={setLastName}
                 placeholder="Singh"
                 placeholderTextColor="#B0B8C4"
               />
@@ -185,6 +291,8 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Contact Number</Text>
             <TextInput
               style={register.input}
+              value={contactNumber}
+              onChangeText={setContactNumber}
               placeholder="Your phone number"
               keyboardType="phone-pad"
               placeholderTextColor="#B0B8C4"
@@ -194,6 +302,8 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Skill</Text>
             <TextInput
               style={register.input}
+              value={skill}
+              onChangeText={setSkill}
               placeholder="e.g., Carpenter, Electrician"
               placeholderTextColor="#B0B8C4"
             />
@@ -202,6 +312,8 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Address</Text>
             <TextInput
               style={register.input}
+              value={address}
+              onChangeText={setAddress}
               placeholder="Your current address"
               placeholderTextColor="#B0B8C4"
             />
@@ -210,6 +322,8 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Username</Text>
             <TextInput
               style={register.input}
+              value={username}
+              onChangeText={setUsername}
               placeholder="Choose a username"
               placeholderTextColor="#B0B8C4"
             />
@@ -218,17 +332,21 @@ export default function RegistrationPage() {
             <Text style={register.inputLabel}>Password</Text>
             <TextInput
               style={register.input}
+              value={password}
+              onChangeText={setPassword}
               placeholder="Create a strong password"
               secureTextEntry
               placeholderTextColor="#B0B8C4"
             />
           </View>
+          <TouchableOpacity
+            style={register.registerButton}
+            onPress={handelRegisterWorker}
+          >
+            <Text style={register.registerButtonText}>Create Account</Text>
+          </TouchableOpacity>
         </>
       )}
-
-      <TouchableOpacity style={register.registerButton}>
-        <Text style={register.registerButtonText}>Create Account</Text>
-      </TouchableOpacity>
 
       <View style={register.loginContainer}>
         <Text style={register.loginText}>Already have an account?</Text>
@@ -243,8 +361,11 @@ export default function RegistrationPage() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#FF9933" }}>
-        <LinearGradient colors={["#FF9933", "#138808"]} style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <LinearGradient
+          colors={["#FF9933", "#138808"]}
+          style={StyleSheet.absoluteFill}
+        >
           <ScrollView contentContainerStyle={register.scrollContainer}>
             {selectedRole ? renderRegistrationForm() : renderLandingSelection()}
           </ScrollView>
