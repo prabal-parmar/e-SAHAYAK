@@ -26,20 +26,18 @@ class EmployerRegisterSerializer(serializers.ModelSerializer):
     
 class WorkerRegisterSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)
-    email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True, style={"input_type": "password"})
     role = serializers.CharField(write_only=True, default="worker")
 
     class Meta:
         model = WorkerModel
-        fields = ["username", "email", "password", "role", "skill", "gender", "contact_number", "address"]
+        fields = ["username", "password", "role", "skill", "gender", "contact_number", "address"]
     
     def create(self, validated_data):
         username = validated_data.pop('username')
-        email = validated_data.pop("email")
         password = validated_data.pop("password")
         role = validated_data.pop("role", "worker")
 
-        user = User.objects.create_user(username=username, email=email, password=password, role=role)
+        user = User.objects.create_user(username=username, password=password, role=role)
         worker = WorkerModel.objects.create(user=user, **validated_data)
         return worker

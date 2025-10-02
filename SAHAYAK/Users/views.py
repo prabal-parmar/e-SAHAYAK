@@ -22,6 +22,7 @@ def login_employer(request):
         refresh = RefreshToken.for_user(employer)
         return Response(
             {
+                "role": "employer",
                 "message": "Employer Login Successful",
                 "employer": {
                     "username": employer.username
@@ -40,8 +41,9 @@ def signup_employer(request):
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "Employer Register Successfully"}, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def login_worker(request):
@@ -54,6 +56,7 @@ def login_worker(request):
         refresh = RefreshToken.for_user(worker)
         return Response(
             {
+                "role": "worker",
                 "message": "Worker Login Successful",
                 "employer": {
                     "username": worker.username,
@@ -72,5 +75,6 @@ def signup_worker(request):
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "Worker Register Successfully"}, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        print(serializer.errors) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
