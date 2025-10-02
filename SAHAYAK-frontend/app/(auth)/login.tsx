@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -10,10 +10,11 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { landingStyles, loginStyles } from "./styles";
-import { employerLogin } from "@/api/auth_routes";
+import { landingStyles, loginStyles } from "../../components/styles/authStyles";
+import { employerLogin, workerLogin } from "@/api/auth_routes";
 
 type FeatureCardProps = {
   icon: React.ReactElement;
@@ -55,19 +56,19 @@ const LandingSection = () => (
     <View style={landingStyles.cardGrid}>
       <FeatureCard
         icon={<FontAwesome5 name="briefcase" size={32} color="#fff" />}
-        text="नियुक्ता पोर्टल\nEmployer Portal"
+        text={`नियुक्ता पोर्टल\nEmployer Portal`}
       />
       <FeatureCard
         icon={<FontAwesome5 name="users" size={32} color="#fff" />}
-        text="श्रमिक पोर्टल\nWorker Portal"
+        text={`श्रमिक पोर्टल\nWorker Portal`}
       />
       <FeatureCard
         icon={<FontAwesome5 name="clock" size={32} color="#fff" />}
-        text="समय ट्रैकिंग\nTime Tracking"
+        text={`समय ट्रैकिंग\nTime Tracking`}
       />
       <FeatureCard
         icon={<FontAwesome5 name="shield-alt" size={32} color="#fff" />}
-        text="अनुपालन\nCompliance"
+        text={`अनुपालन\nCompliance`}
       />
     </View>
 
@@ -86,6 +87,8 @@ const LoginSection = () => {
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
+  const router = useRouter();
+
   const smallLockIcon = <MaterialIcons name="lock" size={24} color="#7A869A" />;
   const employerIcon = (
     <FontAwesome5 name="briefcase" size={24} color="#7A869A" />
@@ -93,15 +96,46 @@ const LoginSection = () => {
   const workerIcon = <FontAwesome5 name="user-tie" size={24} color="#7A869A" />;
 
   const handelEmployerLogin = async () => {
-    if (Username && password){
+    if (Username && password) {
       const response = await employerLogin(Username, password);
-      console.log(response)
-    }
-    else{
-      console.log("Enter Username and Password")
+      if(response && response.data.access && response.data.refresh){
+        if(response.data.role === "employer"){
+          router.replace("/(employer)");
+        }
+        else{
+          console.log("Something went wrong!")
+        }
+      }
+      else{
+        console.log("Invalid Credentials")
+      }
+      console.log(response);
+    } else {
+      console.log("Enter Username and Password");
       return null;
     }
-  }
+  };
+
+  const handelWorkerLogin = async () => {
+    if (Username && password) {
+      const response = await workerLogin(Username, password);
+      if(response && response.data.access && response.data.refresh){
+        if(response.data.role === "worker"){
+          router.replace("/(worker)");
+        }
+        else{
+          console.log("Something went wrong!")
+        }
+      }
+      else{
+        console.log("Invalid Credentials")
+      }
+      console.log(response);
+    } else {
+      console.log("Enter Username and Password");
+      return null;
+    }
+  };
 
   return (
     <View style={loginStyles.container}>
@@ -194,9 +228,10 @@ const LoginSection = () => {
               onBlur={() => setIsPasswordFocused(false)}
             />
           </View>
-          <TouchableOpacity style={loginStyles.loginButton} onPress={() => {}}>
-            <Text style={loginStyles.loginButtonText}
-              onPress={handelEmployerLogin}>
+          <TouchableOpacity style={loginStyles.loginButton} onPress={handelEmployerLogin}>
+            <Text
+              style={loginStyles.loginButtonText}
+            >
               नियुक्ता के रूप में साइन इन करें
             </Text>
           </TouchableOpacity>
@@ -239,7 +274,7 @@ const LoginSection = () => {
               onBlur={() => setIsPasswordFocused(false)}
             />
           </View>
-          <TouchableOpacity style={loginStyles.loginButton} onPress={() => {}}>
+          <TouchableOpacity style={loginStyles.loginButton} onPress={handelWorkerLogin}>
             <Text style={loginStyles.loginButtonText}>
               श्रमिक के रूप में साइन इन करें
             </Text>
@@ -273,7 +308,11 @@ const CombinedLoginPage = () => {
   return (
     <>
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#FF9933" }}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <LinearGradient
+            colors={["#FF9933", "#138808"]}
+            style={StyleSheet.absoluteFill}
+          />
           <StatusBar barStyle="light-content" />
           <LinearGradient colors={["#FF9933", "#138808"]} style={{ flex: 1 }}>
             <ScrollView
