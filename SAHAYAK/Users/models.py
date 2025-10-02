@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
@@ -23,6 +24,7 @@ class EmployerModel(models.Model):
 
 class WorkerModel(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="worker_profile")
+    email = models.EmailField(_("email address"), blank=True, null=True, unique=False)
     skill = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=[("M", "Male"), ("F", "Female"), ("O", "Other")])
     contact_number = models.CharField(max_length=10)
