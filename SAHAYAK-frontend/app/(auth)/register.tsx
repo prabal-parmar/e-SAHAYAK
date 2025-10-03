@@ -148,6 +148,14 @@ export default function RegistrationPage() {
           </Text>
         </View>
       </TouchableOpacity>
+            <TouchableOpacity
+        style={register.loginButton}
+        onPress={() => router.push("/login")}
+      >
+        <Text style={register.loginButtonText}>
+          Already have an account? Login
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 

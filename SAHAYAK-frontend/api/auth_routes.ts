@@ -1,6 +1,28 @@
 import axios from "axios"
 import * as SecureStore from "expo-secure-store";
 
+const API_URL = "http://127.0.0.1:8000/api";
+
+export async function refreshAccessToken() {
+  const refresh = await SecureStore.getItemAsync("refreshToken");
+
+  if (!refresh) return null;
+
+  try {
+    const response = await axios.post(`${API_URL}/token/refresh/`, { refresh });
+    const newAccess = response.data.access;
+
+    if (newAccess) {
+      await SecureStore.setItemAsync("accessToken", newAccess);
+      return newAccess;
+    }
+  } catch (error) {
+    console.error("Refresh failed", error);
+    return null;
+  }
+}
+
+
 async function saveTokens(accessToken: string, refreshToken: string, role: string) {
   try {
     await SecureStore.setItemAsync("accessToken", accessToken);
@@ -21,7 +43,7 @@ export async function getTokens() {
 
 export const employerLogin = async (username: string, password: string) => {
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/login-employer/', 
+        const response = await axios.post(`${API_URL}/login-employer/`,
             {username: username, password: password}
         )
         if (response.data.access && response.data.refresh){
@@ -38,7 +60,7 @@ export const employerLogin = async (username: string, password: string) => {
 
 export const workerLogin = async (username: string, password: string) => {
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/login-worker/', 
+        const response = await axios.post(`${API_URL}/login-worker/`, 
             {username: username, password: password}
         )
         if (response.data.access && response.data.refresh){
@@ -63,7 +85,7 @@ export const logout = async () => {
 type RegisterData = Record<string, any>;
 export const registerWorker = async (data: RegisterData) => {
     try {
-        await axios.post('http://127.0.0.1:8000/api/register-worker/',
+        await axios.post(`${API_URL}/register-worker/`,
             {
              first_name: data["firstName"], 
              last_name: data["lastName"],
@@ -83,7 +105,7 @@ export const registerWorker = async (data: RegisterData) => {
 
 export const registerEmployer = async (data: RegisterData) => {
     try {
-        await axios.post('http://127.0.0.1:8000/api/register-employer/',
+        await axios.post(`${API_URL}/register-employer/`,
             {
              org_name: data["orgName"],
              username: data["username"],

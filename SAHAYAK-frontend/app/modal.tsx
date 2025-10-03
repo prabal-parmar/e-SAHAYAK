@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import {
   Image,
   Platform,
@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 const LANDING_PAGE_GRADIENT = ["#FF9933", "#138808"];
 
 export default function ModalScreen() {
+  const router = useRouter()
   return (
     <View style={styles.container}>
       <LinearGradient
