@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { landingStyles, loginStyles } from "../../components/styles/authStyles";
-import { employerLogin, workerLogin } from "@/api/auth_routes";
+import { employerLogin, workerLogin } from "@/api/Auth/auth_routes";
 
 type FeatureCardProps = {
   icon: React.ReactElement;
@@ -98,16 +98,14 @@ const LoginSection = () => {
   const handelEmployerLogin = async () => {
     if (Username && password) {
       const response = await employerLogin(Username, password);
-      if(response && response.data.access && response.data.refresh){
-        if(response.data.role === "employer"){
+      if (response && response.data.access && response.data.refresh) {
+        if (response.data.role === "employer") {
           router.replace("/(employer)");
+        } else {
+          console.log("Something went wrong!");
         }
-        else{
-          console.log("Something went wrong!")
-        }
-      }
-      else{
-        console.log("Invalid Credentials")
+      } else {
+        console.log("Invalid Credentials");
       }
       // console.log(response);
     } else {
@@ -119,16 +117,14 @@ const LoginSection = () => {
   const handelWorkerLogin = async () => {
     if (Username && password) {
       const response = await workerLogin(Username, password);
-      if(response && response.data.access && response.data.refresh){
-        if(response.data.role === "worker"){
+      if (response && response.data.access && response.data.refresh) {
+        if (response.data.role === "worker") {
           router.replace("/(worker)");
+        } else {
+          console.log("Something went wrong!");
         }
-        else{
-          console.log("Something went wrong!")
-        }
-      }
-      else{
-        console.log("Invalid Credentials")
+      } else {
+        console.log("Invalid Credentials");
       }
       // console.log(response);
     } else {
@@ -228,10 +224,11 @@ const LoginSection = () => {
               onBlur={() => setIsPasswordFocused(false)}
             />
           </View>
-          <TouchableOpacity style={loginStyles.loginButton} onPress={handelEmployerLogin}>
-            <Text
-              style={loginStyles.loginButtonText}
-            >
+          <TouchableOpacity
+            style={loginStyles.loginButton}
+            onPress={handelEmployerLogin}
+          >
+            <Text style={loginStyles.loginButtonText}>
               नियुक्ता के रूप में साइन इन करें
             </Text>
           </TouchableOpacity>
@@ -274,7 +271,10 @@ const LoginSection = () => {
               onBlur={() => setIsPasswordFocused(false)}
             />
           </View>
-          <TouchableOpacity style={loginStyles.loginButton} onPress={handelWorkerLogin}>
+          <TouchableOpacity
+            style={loginStyles.loginButton}
+            onPress={handelWorkerLogin}
+          >
             <Text style={loginStyles.loginButtonText}>
               श्रमिक के रूप में साइन इन करें
             </Text>

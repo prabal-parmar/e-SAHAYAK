@@ -13,7 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { register } from "../../components/styles/authStyles";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
-import { registerEmployer, registerWorker } from "@/api/auth_routes";
+import { registerEmployer, registerWorker } from "@/api/Auth/auth_routes";
 
 type Role = "Employer" | "Worker";
 type Gender = "Male" | "Female" | "Other";
@@ -148,7 +148,7 @@ export default function RegistrationPage() {
           </Text>
         </View>
       </TouchableOpacity>
-            <TouchableOpacity
+      <TouchableOpacity
         style={register.loginButton}
         onPress={() => router.push("/login")}
       >

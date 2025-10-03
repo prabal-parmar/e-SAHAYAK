@@ -41,8 +41,8 @@ const SIZES = {
 };
 
 const guidelineBaseWidth = 375;
-const scale = (size: number) => (screenWidth / guidelineBaseWidth) * size;
-const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
+const scale = (size) => (screenWidth / guidelineBaseWidth) * size;
+const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export const landingStyles = StyleSheet.create({
   container: {
