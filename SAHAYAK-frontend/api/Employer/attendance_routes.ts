@@ -1,5 +1,4 @@
-import apiClient from "./axiosInstance";
-import { getTokens } from "./auth_routes";
+import apiClient from "../Auth/axiosInstance";
 
 const API_URL = "http://127.0.0.1:8000/api";
 
