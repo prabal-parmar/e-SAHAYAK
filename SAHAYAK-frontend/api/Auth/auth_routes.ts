@@ -9,7 +9,9 @@ export async function refreshAccessToken() {
   if (!refresh) return null;
 
   try {
-    const response = await axios.post(`${API_URL}/token/refresh/`, { refresh });
+    const response = await axios.post(`${API_URL}/token/refresh/`, 
+        { refresh },
+        { headers: { "Content-Type": "application/json" } });
     const newAccess = response.data.access;
 
     if (newAccess) {
