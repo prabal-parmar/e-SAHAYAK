@@ -105,39 +105,34 @@ shiftSection: {
     marginBottom: 10,
 },
 
-// The tappable header for each shift
 shiftHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F4F7FC', // A light background to stand out
+    backgroundColor: '#F4F7FC',
     padding: 15,
     borderRadius: 10,
 },
 
-// Groups the shift name and worker count badge together
 shiftHeaderTitle: {
     flexDirection: 'row',
     alignItems: 'center',
 },
 
-// Style for the text "Shift 1", "Shift 2", etc.
 shiftName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#2C3E50',
 },
 
-// The small circle showing the number of workers
 workerCountBadge: {
-    backgroundColor: '#3498DB', // A pleasant blue
+    backgroundColor: '#3498DB',
     borderRadius: 10,
     marginLeft: 10,
     paddingHorizontal: 8,
     paddingVertical: 3,
 },
 
-// The number inside the badge
 workerCountText: {
     color: '#FFFFFF',
     fontSize: 12,
@@ -151,13 +146,11 @@ expandIcon: {
     color: '#7A869A',
 },
 
-// The container for the list of workers that expands/collapses
 shiftContent: {
     paddingTop: 5,
     paddingHorizontal: 5,
 },
 
-// --- Re-used styles from previous design (keep these as they are) ---
 attendanceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

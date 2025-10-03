@@ -15,5 +15,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "assets/images/app_images.js"  ]
+, "assets/images/app_images.js", "components/styles/authStyles.js", "components/styles/employer_profile.js", "components/styles/attendanceStyles.js"  ]
 }

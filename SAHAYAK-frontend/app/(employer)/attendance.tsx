@@ -19,7 +19,7 @@ import {
   getAllWorkersWorking,
   markClockInTime,
   markClockOutTime,
-} from "@/api/employer_routes";
+} from "@/api/Employer/attendance_routes";
 
 type Shift = { id: string; label: string; name: string };
 type PickerMode =
@@ -183,7 +183,6 @@ export default function AttendancePage() {
 
   useEffect(() => {
     fetchAllWorkers();
-    console.log("started")
   }, []);
 
   const handleClockIn = async () => {
@@ -220,7 +219,7 @@ export default function AttendancePage() {
       const entryDateTime = new Date(`${worker.date}T${worker.entry_time}`);
       setClockInTime(entryDateTime);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -254,7 +253,7 @@ export default function AttendancePage() {
   };
 
   const getShiftLabel = (shiftName: string): string => {
-    const shift = SHIFTS_DATA.find(s => s.name === shiftName);
+    const shift = SHIFTS_DATA.find((s) => s.name === shiftName);
     return shift ? shift.label : "Unknown Shift";
   };
 
@@ -428,51 +427,53 @@ export default function AttendancePage() {
           )}
         </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Today's Attendance</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Today's Attendance</Text>
 
-            {!workingWorkers || workingWorkers.length === 0 ? (
-              <View style={styles.noAttendanceContainer}>
-                <Text style={styles.noAttendanceText}>
-                  No attendance marked today
-                </Text>
-              </View>
-            ) : (
-              Object.keys(workersByShift || {}).map((shiftName) => (
-                <View key={shiftName} style={styles.shiftSection}>
-                  <TouchableOpacity
-                    style={styles.shiftHeader}
-                    onPress={() => toggleShift(shiftName)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.shiftHeaderTitle}>
-                      <Text style={styles.shiftName}>{getShiftLabel(shiftName)}</Text>
-                      <View style={styles.workerCountBadge}>
-                        <Text style={styles.workerCountText}>
-                          {workersByShift?.[shiftName]?.length || 0}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={styles.expandIcon}>
-                      {expandedShifts[shiftName] ? "−" : "+"}
+          {!workingWorkers || workingWorkers.length === 0 ? (
+            <View style={styles.noAttendanceContainer}>
+              <Text style={styles.noAttendanceText}>
+                No attendance marked today
+              </Text>
+            </View>
+          ) : (
+            Object.keys(workersByShift || {}).map((shiftName) => (
+              <View key={shiftName} style={styles.shiftSection}>
+                <TouchableOpacity
+                  style={styles.shiftHeader}
+                  onPress={() => toggleShift(shiftName)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.shiftHeaderTitle}>
+                    <Text style={styles.shiftName}>
+                      {getShiftLabel(shiftName)}
                     </Text>
-                  </TouchableOpacity>
+                    <View style={styles.workerCountBadge}>
+                      <Text style={styles.workerCountText}>
+                        {workersByShift?.[shiftName]?.length || 0}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.expandIcon}>
+                    {expandedShifts[shiftName] ? "−" : "+"}
+                  </Text>
+                </TouchableOpacity>
 
-                  {expandedShifts[shiftName] && (
-                    <View style={styles.shiftContent}>
-                      {workersByShift && workersByShift[shiftName].map((worker, index) => (
+                {expandedShifts[shiftName] && (
+                  <View style={styles.shiftContent}>
+                    {workersByShift &&
+                      workersByShift[shiftName].map((worker, index) => (
                         <TouchableOpacity
                           onPress={() => handelClockOut(worker)}
                           key={index}
                         >
                           <View style={styles.attendanceRow}>
                             <View style={styles.workerInfo}>
-                              {!worker?.leaving_time
-                                ? 
+                              {!worker?.leaving_time ? (
                                 <View style={styles.statusIndicatorGreen} />
-                                :
+                              ) : (
                                 <View style={styles.statusIndicatorRed} />
-                              }
+                              )}
                               <View>
                                 <Text style={styles.workerName}>
                                   {worker?.username || "Unknown"}
@@ -491,12 +492,12 @@ export default function AttendancePage() {
                           </View>
                         </TouchableOpacity>
                       ))}
-                    </View>
-                  )}
-                </View>
-              ))
-            )}
-          </View>
+                  </View>
+                )}
+              </View>
+            ))
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
