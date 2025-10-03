@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from Users.models import CustomUser, WorkerModel
+from Users.models import CustomUser, WorkerModel, EmployerModel
 from Worker.models import Attendences, ReportWorkerModel
 from .models import WorkersWorkModel, ReportEmployerModel
 from datetime import date, datetime
@@ -11,6 +11,7 @@ from django.utils import timezone
 from Worker.serializers import AttendanceSerializer
 from .serializers import ReportEmployerSerializer
 from django.db.models import F
+from Users.serializers import EmployerRegisterSerializer
 # Create your views here.
 
 
@@ -314,3 +315,34 @@ def get_workers_working_now(request):
     print(all_workers_working)
     return Response({"message": "All username of workers working sent.", 
                      "workers": all_workers_working}, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def get_employer_data(request):
+    if request.user.role!="employer":
+        return Response({"error": "Only Employer have this right."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    employer_profile = EmployerModel.objects.filter(user=employer).first()
+    if request.method=="GET":
+        data = {
+        "username": employer_profile.user.username,
+        "org_name": employer_profile.org_name,
+        "email": employer_profile.user.email,
+        "location": employer_profile.location,
+        "contact_number": employer_profile.contact_number
+        }
+        # print(employer_profile)
+        return Response({"message":"Employer data sent", "employer": data}, status=status.HTTP_200_OK)
+    
+    if request.method=="PATCH":
+        serializer = EmployerRegisterSerializer(employer_profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Profile Updated Successfully."}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"error": "Error in updating Employer profile"}, status=status.HTTP_400_BAD_REQUEST)
+    

@@ -17,7 +17,7 @@ class EmployerModel(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="employer_profile")
     org_name = models.CharField(max_length=100)
     location= models.CharField(max_length=100)
-
+    contact_number = models.CharField(max_length=10)
     def __str__(self):
         return self.org_name
 

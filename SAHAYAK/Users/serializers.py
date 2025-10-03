@@ -12,7 +12,7 @@ class EmployerRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmployerModel
-        fields = ["username", "email", "password", "role", "org_name", "location"]
+        fields = ["username", "email", "password", "role", "org_name", "location", "contact_number"]
 
     def create(self, validated_data):
         username = validated_data.pop("username")
