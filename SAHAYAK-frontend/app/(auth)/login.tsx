@@ -109,7 +109,7 @@ const LoginSection = () => {
       else{
         console.log("Invalid Credentials")
       }
-      console.log(response);
+      // console.log(response);
     } else {
       console.log("Enter Username and Password");
       return null;
@@ -130,7 +130,7 @@ const LoginSection = () => {
       else{
         console.log("Invalid Credentials")
       }
-      console.log(response);
+      // console.log(response);
     } else {
       console.log("Enter Username and Password");
       return null;

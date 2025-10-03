@@ -567,5 +567,18 @@ export const register = StyleSheet.create({
     fontSize: moderateScale(10),
     lineHeight: moderateScale(20),
   },
+    loginButton: {
+    marginTop: 20,
+    backgroundColor: "#3d322580", 
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  loginButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
 
