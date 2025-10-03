@@ -11,5 +11,6 @@ urlpatterns = [
     path('worker-reports/', views.get_reports_by_worker, name="Reported by Worker"),
     path('reports/', views.report_by_employer, name="Reports by User"),
     path('all-workers/', views.get_all_workers, name="All workers username"),
-    path('worker-working/', views.get_workers_working_now, name="Workers Working")
+    path('worker-working/', views.get_workers_working_now, name="Workers Working"),
+    path('profile/', views.get_employer_data, name="Employer Profile")
 ]
