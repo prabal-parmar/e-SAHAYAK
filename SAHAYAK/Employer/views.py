@@ -10,20 +10,24 @@ from datetime import date, datetime
 from django.utils import timezone
 from Worker.serializers import AttendanceSerializer
 from .serializers import ReportEmployerSerializer
+from django.db.models import F
 # Create your views here.
 
 
 # All workers working today under employer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_all_workers_working_today(request):
+def get_all_workers_worked_on_date(request):
     if request.user.role != "employer":
         return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
     
     employer = request.user.employer_profile
 
-    todays_date = timezone.localdate()
-    all_workers_working_today = WorkersWorkModel.objects.filter(employer=employer, date=todays_date).all().values()
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    date = request.data.get("date")
+    all_workers_working_today = WorkersWorkModel.objects.filter(employer=employer, date=date).all().values()
 
     return Response({"message": "All Worker Working Today Fetched", "workers": all_workers_working_today}, status=status.HTTP_200_OK)
 
@@ -41,7 +45,7 @@ def mark_entry_time(request):
     
     worker_id = request.data.get("worker")
 
-    worker = WorkerModel.objects.filter(id = worker_id).first()
+    worker = CustomUser.objects.filter(username = worker_id).first().worker_profile
     if not worker:
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
     
@@ -50,11 +54,14 @@ def mark_entry_time(request):
     
     if (not request.data.get("entry_time") and request.data.get("leaving_time")):
         return Response({"error": "You need to add entry time also."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     attendance = Attendences.objects.filter(worker=worker, date=timezone.localdate()).first()
 
     if request.method=="PATCH":
-        serializer = AttendanceSerializer(attendance, data=request.data)
+        data = request.data.copy()
+        data["worker"] = worker.id
+        data["employer"] = employer
+        serializer = AttendanceSerializer(attendance, data=data)
         if serializer.is_valid():
             attendance = serializer.save()
             return Response({"message": "Entry time marked"}, status=status.HTTP_201_CREATED)
@@ -62,11 +69,15 @@ def mark_entry_time(request):
     if request.method=="POST":
         if attendance:
             return Response({"error": "Worker entry time is marked already"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = AttendanceSerializer(data=request.data)
+        data = request.data.copy()
+        data["worker"] = worker.id
+        data["employer"] = employer.id
+        serializer = AttendanceSerializer(data=data)
         if serializer.is_valid():
             attendance = serializer.save()
             return Response({"message": "Entry time updated"}, status=status.HTTP_201_CREATED)
+        else:
+            print(serializer.errors)
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 # Leaving time for normal shift
@@ -76,7 +87,11 @@ def mark_leaving_time(request):
     if request.user.role != "employer":
         return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
     
-    allowed_fields = {"employer", "worker", "leaving_time"}
+    employer = request.user.employer_profile
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    allowed_fields = {"worker", "leaving_time", "date", "description"}
     extra_fields = set(request.data.keys()) - allowed_fields
 
     if extra_fields:
@@ -85,25 +100,31 @@ def mark_leaving_time(request):
     
     worker_id = request.data.get("worker")
     
-    worker = WorkerModel.objects.filter(id = worker_id).first()
+    worker = CustomUser.objects.filter(username = worker_id).first().worker_profile
     if not worker:
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    today = timezone.localdate()
+    today = request.data.get("date") or timezone.localdate()
 
-    attendance = Attendences.objects.filter(worker=worker, date=today).first()
-    
+    attendance = Attendences.objects.filter(worker=worker, employer=employer, date=today).first()
+    leaving_time_str = request.data.get("leaving_time")
+    leaving_time = datetime.strptime(leaving_time_str, "%H:%M").time()
     if not attendance:
         return Response({"error": "Entry time not marked"}, status=status.HTTP_400_BAD_REQUEST)
-    elif attendance.entry_time < request.data.get("leaving_time"):
-        return Response({"error": "Leaving time can not be smaller than entry time"})
+    # elif attendance.entry_time < leaving_time:
+    #     return Response({"error": "Leaving time can not be smaller than entry time"})
     
-    serializer = AttendanceSerializer(attendance, data=request.data, partial=True)
+    data = request.data.copy()
+    data["worker"] = worker.id
+    data["employer"] = employer.id
+    serializer = AttendanceSerializer(attendance, data=data, partial=True)
 
     if serializer.is_valid():
         serializer.save()
-        return Response({"message": "Leaving time marked"}, status=status.HTTP_201_CREATED)  
-    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)  
+        return Response({"message": "Leaving time marked"}, status=status.HTTP_201_CREATED)
+    else:
+        print(serializer.errors)
+        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)  
   
 # Today's attendance data for worker
 @api_view(['GET'])
@@ -247,3 +268,49 @@ def report_by_employer(request):
             serializer.save()
             return Response({"message": "Report submitted successfully."}, status=status.HTTP_201_CREATED)
         return Response({"error": "Some unexpected error occured."}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_workers(request):
+
+    if request.user.role!="employer":
+        return Response({"error": "Only Employer can see the reports"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    all_workers = CustomUser.objects.filter(role="worker").values("username")
+
+    return Response({"message": "All workers username sent.", "workers": all_workers}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_workers_working_now(request):
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer can see the reports"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user.employer_profile
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    all_workers_working = WorkerModel.objects.filter(attendances__date=timezone.localdate(),
+                                                     attendances__employer=employer).values(username=F("user__username"),
+                                                                                            shift=F("attendances__shift"), 
+                                                                                            entry_time=F("attendances__entry_time"), 
+                                                                                            date=F("attendances__date"),
+                                                                                            leaving_time=F("attendances__leaving_time"))
+
+    workers = []
+    for row in all_workers_working:
+        workers.append({
+            "username": row["username"],
+            "shift": row["shift"],
+            "entry_time": str(row["entry_time"]) if row["entry_time"] else None,
+            "date": str(row["date"]) if row["date"] else None,
+            "leaving_time": str(row["leaving_time"]) if row["leaving_time"] else None,
+        })
+
+    print(all_workers_working)
+    return Response({"message": "All username of workers working sent.", 
+                     "workers": all_workers_working}, status=status.HTTP_200_OK)
