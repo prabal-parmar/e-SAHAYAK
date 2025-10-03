@@ -19,7 +19,8 @@ class Attendences(models.Model):
     overtime = models.BooleanField(default=False)
     overtime_entry_time = models.TimeField(blank=True, null=True)
     overtime_leaving_time = models.TimeField(blank=True, null=True)
-    
+    description = models.TextField(blank=True, null=True, default="No work description.")
+
     @property
     def total_time(self):
         if self.leaving_time:

@@ -14,7 +14,8 @@ class AttendencesAdmin(admin.ModelAdmin):
         "overtime_entry_time",
         "overtime_leaving_time",
         "get_total_time", 
-        "get_extra_time"
+        "get_extra_time",
+        "description"
     )
     list_filter = ("date", "worker") 
     search_fields = ("worker__user__username",)
