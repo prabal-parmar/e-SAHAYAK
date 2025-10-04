@@ -312,7 +312,7 @@ def get_workers_working_now(request):
             "leaving_time": str(row["leaving_time"]) if row["leaving_time"] else None,
         })
 
-    print(all_workers_working)
+    # print(workers)
     return Response({"message": "All username of workers working sent.", 
                      "workers": all_workers_working}, status=status.HTTP_200_OK)
 
