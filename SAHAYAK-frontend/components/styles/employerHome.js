@@ -14,7 +14,8 @@ export const styles = StyleSheet.create({
       paddingTop: Platform.OS === 'ios' ? moderateScale(50) : moderateScale(40),
       paddingBottom: moderateScale(20),
       borderBottomLeftRadius: moderateScale(30),
-      borderBottomRightRadius: moderateScale(30),
+      height: "25.5%",
+    //   borderBottomRightRadius: moderateScale(30),
   },
   headerTopRow: {
       flexDirection: 'row',

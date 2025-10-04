@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,48 +12,36 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from '../../components/styles/employerHome'
+import { getAllWorkersWorking } from '@/api/Employer/attendance_routes';
+import { getEmployerProfile } from '@/api/Employer/profile_routes';
+import { useEmployer } from '@/context/EmployerText';
+import { useFocusEffect } from "@react-navigation/native";
 
-type Shift = 'Shift 1' | 'Shift 2' | 'Overtime';
+type Shift = { id: string; label: string; name: string };
+const SHIFTS_DATA: Shift[] = [
+  { id: "1", label: "Shift 1", name: "shift1" },
+  { id: "2", label: "Shift 2", name: "shift2" },
+  { id: "3", label: "Overtime", name: "overtime" },
+];
 
-type Worker = {
-  id: string;
-  username: string;
-  role: string;
-  shift: Shift;
-  clockIn: Date;
-  leaving_time: string;
-};
-
-const mockEmployer = {
-  username: "rajesh_k",
-  organizationName: "SRAM - Ministry of Labour",
-};
 const { width: screenWidth } = Dimensions.get('window');
 const guidelineBaseWidth = 375;
 const scale = (size: any) => (screenWidth / guidelineBaseWidth) * size;
 const moderateScale = (size: any, factor = 0.5) => size + (scale(size) - size) * factor;
 
-const ALL_WORKERS_DATA: Worker[] = [
-  { id: '1', username: 'Prabal Parmar', role: 'Engineer', shift: 'Shift 1', clockIn: new Date(new Date().setHours(9, 1, 0)), leaving_time: 'pp' },
-  { id: '2', username: 'Parth Gangrade', role: 'Logistics', shift: 'Shift 1', clockIn: new Date(new Date().setHours(9, 3, 0)), leaving_time: '' },
-  { id: '3', username: 'Naveen Katara', role: 'Carpenter', shift: 'Shift 2', clockIn: new Date(new Date().setHours(17, 5, 0)), leaving_time: 'nk' },
-  { id: '4', username: 'Sunita Devi', role: 'Quality Control', shift: 'Shift 1', clockIn: new Date(new Date().setHours(9, 8, 0)), leaving_time: '' },
-  { id: '5', username: 'Amit Kumar', role: 'Logistics', shift: 'Overtime', clockIn: new Date(new Date().setHours(1, 15, 0)), leaving_time: 'ak' },
-];
 
+interface Worker {
+  username: string;
+  entry_time: string;
+  skill: string;
+  leaving_time: string;
+  shift: string;
+  date: string;
+}
 
 const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
 }
-
-const formatDuration = (ms: number) => {
-  if (ms < 0) ms = 0;
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -72,26 +60,62 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, label, colors }) => (
   </LinearGradient>
 );
 
-
 export default function EmployerHomePage() {
+
+  const {employer, setEmployer} = useEmployer()
   const [currentTime, setCurrentTime] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedShifts, setExpandedShifts] = useState<{ [key: string]: boolean }>({
-    'Shift 1': true,
-  });
+  const [expandedShifts, setExpandedShifts] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [workers, setWorkers] = useState<Worker[] | null>(null)
+  const [shift1Count, setShift1Count] = useState<Number>(0)
+  const [shift2Count, setShift2Count] = useState<Number>(0)
+  const [overtimeCount, setOverTimeCount] = useState<Number>(0)
 
-  useEffect(() => {
+  const fetchWorkingWorkers = async () => {
+    try {
+      const allWorkers = await getAllWorkersWorking();
+      const currentWorkingWorkers = allWorkers.filter(
+        (w: any) => !w.leaving_time
+      );
+      // console.log(currentWorkingWorkers)
+      let shift1workers = currentWorkingWorkers?.filter((w: Worker) => w.shift === 'shift1').length || 0;
+      let shift2workers = currentWorkingWorkers?.filter((w: Worker) => w.shift === 'shift2').length || 0;
+
+      setShift1Count(shift1workers)
+      setShift2Count(shift2workers)
+
+      setWorkers(currentWorkingWorkers)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const fetchEmployerData = async () => {
+    const response = await getEmployerProfile();
+    setEmployer(response);
+  }
+useFocusEffect(
+  useCallback(() => {
+    async function fetchData() {
+        setWorkers(null)
+        await fetchWorkingWorkers();
+        await fetchEmployerData();
+    }
+    fetchData()
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [])
+)
 
   const filteredWorkers = useMemo(() => 
-    ALL_WORKERS_DATA.filter(worker => 
+    workers && workers.filter(worker => 
       worker.username.toLowerCase().includes(searchQuery.toLowerCase())
     ), [searchQuery]);
 
   const workersByShift = useMemo(() => 
-    filteredWorkers.reduce((acc, worker) => {
+    filteredWorkers && filteredWorkers.reduce((acc, worker) => {
       const shiftKey = worker.shift || 'Unassigned';
       if (!acc[shiftKey]) acc[shiftKey] = [];
       acc[shiftKey].push(worker);
@@ -101,10 +125,11 @@ export default function EmployerHomePage() {
   const toggleShift = (shiftName: string) => {
     setExpandedShifts(prevState => ({ ...prevState, [shiftName]: !prevState[shiftName] }));
   };
-  
-  const shift1Count = ALL_WORKERS_DATA.filter(w => w.shift === 'Shift 1' && w.leaving_time).length;
-  const shift2Count = ALL_WORKERS_DATA.filter(w => w.shift === 'Shift 2' && w.leaving_time).length;
-  const overtimeCount = ALL_WORKERS_DATA.filter(w => w.shift === 'Overtime' && w.leaving_time).length;
+
+  const getShiftLabel = (shiftName: string): string => {
+    const shift = SHIFTS_DATA.find((s) => s.name === shiftName);
+    return shift ? shift.label : "Unknown Shift";
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -112,10 +137,10 @@ export default function EmployerHomePage() {
             <View style={styles.headerTopRow}>
                 <View>
                     <Text style={styles.headerGreeting}>Welcome back,</Text>
-                    <Text style={styles.headerName}>{mockEmployer.username}</Text>
+                    <Text style={styles.headerName}>{employer?.org_name || "?"}</Text>
                 </View>
                 <View style={styles.headerAvatarContainer}>
-                    <Text style={styles.headerAvatarText}>{getInitials(mockEmployer.username)}</Text>
+                    <Text style={styles.headerAvatarText}>{getInitials(employer?.username || "?")}</Text>
                 </View>
             </View>
             <View style={styles.headerBottomRow}>
@@ -126,10 +151,10 @@ export default function EmployerHomePage() {
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsContainer}>
-            <StatCard icon={<MaterialIcons name="groups" size={moderateScale(24)} color="#fff" />} value={shift1Count} label="Shift 1" colors={['#3498DB', '#2980B9']} />
-            <StatCard icon={<MaterialIcons name="groups" size={moderateScale(24)} color="#fff" />} value={shift2Count} label="Shift 2" colors={['#9B59B6', '#8E44AD']} />
-            <StatCard icon={<MaterialIcons name="add-alarm" size={moderateScale(24)} color="#fff" />} value={overtimeCount} label="Overtime" colors={['#E67E22', '#D35400']} />
-            <StatCard icon={<MaterialIcons name="engineering" size={moderateScale(24)} color="#fff" />} value={ALL_WORKERS_DATA.length} label="Total Workers" colors={['#1ABC9C', '#16A085']} />
+            <StatCard icon={<MaterialIcons name="groups" size={moderateScale(24)} color="#fff" />} value={`${shift1Count}`} label="Shift 1" colors={['#3498DB', '#2980B9']} />
+            <StatCard icon={<MaterialIcons name="groups" size={moderateScale(24)} color="#fff" />} value={`${shift2Count}`} label="Shift 2" colors={['#9B59B6', '#8E44AD']} />
+            <StatCard icon={<MaterialIcons name="add-alarm" size={moderateScale(24)} color="#fff" />} value={`${overtimeCount}`} label="Overtime" colors={['#E67E22', '#D35400']} />
+            <StatCard icon={<MaterialIcons name="engineering" size={moderateScale(24)} color="#fff" />} value={`${workers?.length}`} label="Total Workers" colors={['#1ABC9C', '#16A085']} />
         </ScrollView>
 
         <View style={styles.listHeader}>
@@ -146,16 +171,16 @@ export default function EmployerHomePage() {
             </View>
         </View>
         
-        {Object.keys(workersByShift).length === 0 ? (
+        {workersByShift && Object.keys(workersByShift)?.length === 0 ? (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>No working workers found.</Text>
           </View>
         ) : (
-          Object.keys(workersByShift).map(shiftName => (
+          workersByShift && Object.keys(workersByShift).map(shiftName => (
             <View key={shiftName} style={styles.shiftSection}>
               <TouchableOpacity style={styles.shiftHeader} onPress={() => toggleShift(shiftName)}>
                 <View style={styles.shiftHeaderTitle}>
-                  <Text style={styles.shiftName}>{shiftName}</Text>
+                  <Text style={styles.shiftName}>{getShiftLabel(shiftName)}</Text>
                   <View style={styles.workerCountBadge}>
                     <Text style={styles.workerCountText}>{workersByShift[shiftName].length}</Text>
                   </View>
@@ -165,20 +190,20 @@ export default function EmployerHomePage() {
 
               {expandedShifts[shiftName] && (
                 <View style={styles.shiftContent}>
-                  {workersByShift[shiftName].map((worker) => (
-                    <View key={worker.id} style={styles.attendanceRow}>
-                      {worker?.leaving_time ? (
+                  {workersByShift[shiftName].map((worker, i) => (
+                    <View key={i} style={styles.attendanceRow}>
+                      {!worker?.leaving_time ? (
                         <View style={styles.statusIndicatorGreen} />
                       ) : (
                         <View style={styles.statusIndicatorRed} />
                       )}
                       <View style={styles.workerInfo}>
                         <Text style={styles.workerName}>{worker.username}</Text>
-                        <Text style={styles.workerDetail}>{worker.role}</Text>
+                        {worker?.skill && <Text style={styles.workerDetail}>{worker?.skill}</Text>}
                       </View>
                       <View style={styles.timeInfo}>
                         <Text style={styles.timeLabel}>Working Since</Text>
-                        <Text style={styles.timeValue}>{formatDuration(currentTime.getTime() - worker.clockIn.getTime())}</Text>
+                        <Text style={styles.timeValue}>{worker?.entry_time}</Text>
                       </View>
                     </View>
                   ))}

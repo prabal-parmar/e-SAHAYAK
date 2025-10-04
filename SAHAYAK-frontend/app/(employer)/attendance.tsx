@@ -308,7 +308,7 @@ export default function AttendancePage() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={["#2c3e50", "#34495e"]}
+        colors={["#0a2342", "#1e3c72"]}
         style={styles.headerGradient}
       >
         <View style={styles.headerTopContent}>
@@ -330,7 +330,7 @@ export default function AttendancePage() {
           <View style={styles.statSeparator} />
           <View style={styles.statItem}>
             <MaterialIcons name="groups" size={20} color="#ecf0f1" />
-            <Text style={styles.statValue}>{totalWorkerWorking} Present</Text>
+            <Text style={styles.statValue}>{totalWorkerWorking} Working</Text>
           </View>
           <View style={styles.statSeparator} />
           <View style={styles.statItem}>
@@ -501,7 +501,8 @@ export default function AttendancePage() {
               <Text style={styles.buttonText}>Mark Attendance</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={[styles.button, { backgroundColor: "#2c3e50" }]} onPress={handleClockIn}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#2c3e50" }]} 
+            onPress={handleClockIn}>
               <Text style={styles.buttonText}>Add ClockIn</Text>
             </TouchableOpacity>
           )}
