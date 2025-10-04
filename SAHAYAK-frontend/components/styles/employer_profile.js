@@ -140,4 +140,64 @@ export const styles = StyleSheet.create({
     color: "#666",
     marginTop: 4,
   },
+  profileHeaderGradient: {
+    paddingTop: Platform.OS === 'ios' ? 60 : 50,
+    paddingBottom: 30,
+    paddingHorizontal: 25,
+    // borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35,
+    marginBottom: 30,
+    height: "25.5%",
+    ...Platform.select({
+      ios: { 
+        shadowColor: '#16A085', 
+        shadowOffset: { width: 0, height: 10 }, 
+        shadowOpacity: 0.3, 
+        shadowRadius: 20 
+      },
+      android: { 
+        elevation: 10 
+      },
+    }),
+},
+
+profileHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+},
+
+profileAvatarContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#e7e4edff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+},
+
+profileAvatarText: {
+    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: 'bold',
+},
+
+profileHeaderTextContainer: {
+    flex: 1, // Allows text to wrap if needed
+},
+
+profileName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+},
+
+profileOrganization: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginTop: 4,
+    flexShrink: 1, // Ensures organization name wraps if too long
+},
 });
