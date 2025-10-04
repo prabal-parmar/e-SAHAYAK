@@ -20,6 +20,8 @@ import {
   markClockInTime,
   markClockOutTime,
 } from "@/api/Employer/attendance_routes";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type Shift = { id: string; label: string; name: string };
 type PickerMode =
@@ -115,7 +117,7 @@ export default function AttendancePage() {
 
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<PickerMode>("clockIn");
-
+  const [totalWorkerWorking, setTotalWorkerWorking] = useState(0);
   const [isWorkerModalVisible, setWorkerModalVisible] = useState(false);
   const [isShiftModalVisible, setShiftModalVisible] = useState(false);
   const [description, setDescription] = useState("");
@@ -125,6 +127,7 @@ export default function AttendancePage() {
   const [expandedShifts, setExpandedShifts] = useState<{
     [key: string]: boolean;
   }>({});
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const toggleShift = (shiftName: string) => {
     setExpandedShifts((prevState) => ({
@@ -174,6 +177,10 @@ export default function AttendancePage() {
         (w: any) =>
           !workingWorkers.some((ww: any) => ww.username === w.username)
       );
+      const currentWorkingWorkers = workingWorkers.filter(
+        (w: any) => !w.leaving_time
+      );
+      setTotalWorkerWorking(currentWorkingWorkers.length);
       setWorkers(updatedWorkers);
       setWorkingWorkers(workingWorkers);
     } catch (error) {
@@ -183,7 +190,13 @@ export default function AttendancePage() {
 
   useEffect(() => {
     fetchAllWorkers();
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    fetchAllWorkers();
+  }, [currentTime.getDate()]);
 
   const handleClockIn = async () => {
     const data = {
@@ -265,9 +278,6 @@ export default function AttendancePage() {
   const formatDate = (date: Date) => {
     return date
       .toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -297,6 +307,43 @@ export default function AttendancePage() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <LinearGradient
+        colors={["#2c3e50", "#34495e"]}
+        style={styles.headerGradient}
+      >
+        <View style={styles.headerTopContent}>
+          <Text style={styles.headerTitle}>Mark Worker Attendance</Text>
+          <Text style={styles.headerSubtitle}>
+            Log daily hours and manage your workforce efficiently.
+          </Text>
+        </View>
+        <View style={styles.headerStatsRow}>
+          <View style={styles.statItem}>
+            <MaterialIcons name="today" size={20} color="#ecf0f1" />
+            <Text style={styles.statValue}>
+              {new Date().toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+              })}
+            </Text>
+          </View>
+          <View style={styles.statSeparator} />
+          <View style={styles.statItem}>
+            <MaterialIcons name="groups" size={20} color="#ecf0f1" />
+            <Text style={styles.statValue}>{totalWorkerWorking} Present</Text>
+          </View>
+          <View style={styles.statSeparator} />
+          <View style={styles.statItem}>
+            <MaterialIcons name="access-time" size={20} color="#ecf0f1" />
+            <Text style={styles.statValue}>
+              {currentTime.toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+          </View>
+        </View>
+      </LinearGradient>
       <DropdownModal
         isVisible={isWorkerModalVisible}
         onClose={() => setWorkerModalVisible(false)}
@@ -314,11 +361,44 @@ export default function AttendancePage() {
         renderItem={(item) => item.label}
       />
       {showPicker && (
-        <DateTimePicker
-          value={getDateTimeValue()}
-          mode={pickerMode === "deadline" ? "date" : "datetime"}
-          onChange={onDateChange}
-        />
+        <Modal
+          transparent
+          visible={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Pick Time</Text>
+              <View style={styles.pickerContainer}>
+                <DateTimePicker
+                  value={getDateTimeValue()}
+                  mode={pickerMode === "deadline" ? "date" : "time"}
+                  display="spinner"
+                  onChange={(event: DateTimePickerEvent, date?: Date) => {
+                    onDateChange(event, date);
+                  }}
+                  textColor={Platform.OS === "ios" ? "#2c3e50" : undefined}
+                />
+              </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={() => setShowPicker(false)}
+                >
+                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={() => setShowPicker(false)}
+                >
+                  <Text style={styles.buttonText}>Confirm</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       )}
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -415,14 +495,14 @@ export default function AttendancePage() {
 
           {markClockout ? (
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, { backgroundColor: "green" }]}
               onPress={handlemarkClockOutTime}
             >
               <Text style={styles.buttonText}>Mark Attendance</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.button} onPress={handleClockIn}>
-              <Text style={styles.buttonText}>Add</Text>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#2c3e50" }]} onPress={handleClockIn}>
+              <Text style={styles.buttonText}>Add ClockIn</Text>
             </TouchableOpacity>
           )}
         </View>
