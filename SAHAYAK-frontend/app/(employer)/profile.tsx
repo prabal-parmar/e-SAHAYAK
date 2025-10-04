@@ -121,9 +121,14 @@ export default function EmployerProfilePage() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Text style={styles.name}>{username}</Text>
-          <Text style={styles.organization}>{organizationName}</Text>
-        </View>
+  <View style={styles.avatarCircle}>
+    <Text style={styles.avatarText}>{username[0]?.toUpperCase()}</Text>
+  </View>
+  <View>
+    <Text style={styles.name}>{username}</Text>
+    <Text style={styles.organization}>{organizationName}</Text>
+  </View>
+</View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Contact Information</Text>
