@@ -3,12 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   TextInput,
-  Image,
   Dimensions,
 } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from '../../components/styles/employerHome'
@@ -132,6 +131,7 @@ useFocusEffect(
   };
 
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={styles.safeArea}>
         <LinearGradient colors={['#FF8C00', '#FF6347']} style={styles.header}>
             <View style={styles.headerTopRow}>
@@ -214,5 +214,6 @@ useFocusEffect(
         )}
       </ScrollView>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

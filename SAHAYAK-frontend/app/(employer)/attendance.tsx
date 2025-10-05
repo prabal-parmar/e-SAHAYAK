@@ -3,18 +3,19 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Platform,
   TextInput,
   Modal,
   FlatList,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { styles } from "@/components/styles/attendanceStyles";
 import {
+  addFullAttendanceData,
   getAllWorkers,
   getAllWorkersWorking,
   markClockInTime,
@@ -41,6 +42,11 @@ interface Working {
   leaving_time: string;
   shift: string;
   date: string;
+  done: Boolean;
+  description: string;
+  overtime: Boolean;
+  overtime_entry_time: string;
+  overtime_leaving_time: string;
 }
 
 const SHIFTS_DATA: Shift[] = [
@@ -102,9 +108,9 @@ function DropdownModal<T>({
 }
 
 export default function AttendancePage() {
-  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
+  const [selectedWorker, setSelectedWorker] = useState<Working | null>(null);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
-
+  const [submitted, setSubmitted] = useState<boolean>(false);
   const [clockInTime, setClockInTime] = useState<Date>(new Date());
   const [clockOutTime, setClockOutTime] = useState<Date>(new Date());
   const [deadline, setDeadline] = useState<Date>(new Date());
@@ -121,7 +127,6 @@ export default function AttendancePage() {
   const [isWorkerModalVisible, setWorkerModalVisible] = useState(false);
   const [isShiftModalVisible, setShiftModalVisible] = useState(false);
   const [description, setDescription] = useState("");
-  const [markClockout, setMarkClockout] = useState(false);
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [workingWorkers, setWorkingWorkers] = useState<Working[] | null>([]);
   const [expandedShifts, setExpandedShifts] = useState<{
@@ -136,6 +141,11 @@ export default function AttendancePage() {
     }));
   };
 
+  const findShiftLabel = (name: string) => {
+    const matchedShift = SHIFTS_DATA.find((s) => s.name === name);
+    if (matchedShift) return matchedShift;
+    return "Overtime";
+  };
   const workersByShift = workingWorkers?.reduce((acc, worker) => {
     const shiftKey = worker.shift || "Unassigned";
     if (!acc[shiftKey]) {
@@ -175,7 +185,7 @@ export default function AttendancePage() {
       // console.log(workingWorkers)
       const updatedWorkers = allWorkers.filter(
         (w: any) =>
-          !workingWorkers.some((ww: any) => ww.username === w.username)
+          !workingWorkers.some((ww: Working) => ww.username === w.username)
       );
       const currentWorkingWorkers = workingWorkers.filter(
         (w: any) => !w.leaving_time
@@ -219,18 +229,78 @@ export default function AttendancePage() {
     }
   };
 
-  const handelClockOut = async (worker: Working) => {
+  const handleSelectedWorker = async (worker: Working) => {
     try {
       const matchedShift = SHIFTS_DATA.find((s) => s.name === worker.shift);
-      setMarkClockout(true);
-      setSelectedWorker(worker);
-      if (matchedShift) {
-        setSelectedShift(matchedShift);
-      } else {
-        setSelectedShift(null);
+      setSelectedShift(matchedShift || null);
+      setDescription(selectedWorker ? selectedWorker?.description: "");
+      if (worker.entry_time) {
+        const [hours, minutes, seconds] = worker.entry_time.split(":");
+        const entry = new Date();
+        entry.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
+        setClockInTime(entry);
       }
-      const entryDateTime = new Date(`${worker.date}T${worker.entry_time}`);
-      setClockInTime(entryDateTime);
+      if (worker.leaving_time) {
+        const [hours, minutes, seconds] = worker.leaving_time.split(":");
+        const leaving = new Date();
+        leaving.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
+        setClockOutTime(leaving);
+      }
+      if (worker.overtime_entry_time) {
+        const [hours, minutes, seconds] = worker.overtime_entry_time.split(":");
+        const overtimeEntry = new Date();
+        overtimeEntry.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
+        setOvertimeClockInTime(overtimeEntry);
+      }
+      if (worker.overtime_leaving_time) {
+        const [hours, minutes, seconds] =
+          worker.overtime_leaving_time.split(":");
+        const overtimeOut = new Date();
+        overtimeOut.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
+        setOvertimeClockOutTime(overtimeOut);
+      }
+      setSelectedWorker(worker);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const saveFullAttendanceData = async () => {
+    try {
+      const data = {
+        worker: selectedWorker?.username,
+        entry_time: selectedWorker?.entry_time,
+        leaving_time: selectedWorker?.leaving_time,
+        shift: selectedWorker?.shift,
+        description: selectedWorker?.description,
+        date: selectedWorker?.date,
+        overtime: selectedWorker?.overtime,
+        overtime_entry_time: selectedWorker?.overtime_entry_time,
+        overtime_leaving_time: selectedWorker?.overtime_leaving_time,
+      };
+      await addFullAttendanceData(data);
+      setSelectedShift(null)
+      setSelectedWorker(null)
+      setClockInTime(new Date())
+      setClockOutTime(new Date())
+      setDescription("")
+      
     } catch (error) {
       console.log(error);
     }
@@ -241,22 +311,12 @@ export default function AttendancePage() {
       const data = {
         workerUsername: selectedWorker?.username,
         clockOutTime: `${clockOutTime.getHours()}:${clockOutTime.getMinutes()}`,
-        description: description,
-        date: clockOutTime.toISOString().split("T")[0],
+        description: selectedWorker?.description,
       };
-      // console.log(
-      //   `${clockOutTime.getFullYear()}-${clockOutTime.getMonth()}-${clockOutTime.getDate()}`
-      // );
+
       if (selectedWorker && clockOutTime) {
         // console.log(clockInTime.getHours())
         await markClockOutTime(data);
-        await fetchAllWorkers();
-        setClockInTime(new Date());
-        setSelectedShift(null);
-        setClockOutTime(new Date());
-        setSelectedWorker(null);
-        setDescription("");
-        setMarkClockout(false);
       } else {
         console.log("Select the mandatory fields first.");
       }
@@ -306,6 +366,7 @@ export default function AttendancePage() {
   };
 
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
         colors={["#0a2342", "#1e3c72"]}
@@ -350,7 +411,7 @@ export default function AttendancePage() {
         onSelect={setSelectedWorker}
         data={workers}
         title="Select Worker"
-        renderItem={(item) => `${item.username}`}
+        renderItem={(item) => `${item?.username}`}
       />
       <DropdownModal
         isVisible={isShiftModalVisible}
@@ -361,11 +422,7 @@ export default function AttendancePage() {
         renderItem={(item) => item.label}
       />
       {showPicker && (
-        <Modal
-          transparent
-          visible={true}
-          animationType="fade"
-        >
+        <Modal transparent visible={true} animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Pick Time</Text>
@@ -459,7 +516,20 @@ export default function AttendancePage() {
                 >
                   <Text>{formatDate(clockInTime)}</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.clockInButton}
+                  onPress={handleClockIn}
+                >
+                  <LinearGradient
+                    colors={["#FBC02D", "#F57C00"]}
+                    style={styles.clockInGradient}
+                  >
+                    <MaterialIcons name="login" size={22} color="#FFFFFF" />
+                    <Text style={styles.clockInText}>Clock-In</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
+
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Clock Out Time</Text>
                 <TouchableOpacity
@@ -467,6 +537,18 @@ export default function AttendancePage() {
                   onPress={() => showDateTimePicker("clockOut")}
                 >
                   <Text>{formatDate(clockOutTime)}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.clockInButton}
+                  onPress={handlemarkClockOutTime}
+                >
+                  <LinearGradient
+                    colors={["#43A047", "#2E7D32"]}
+                    style={styles.clockInGradient}
+                  >
+                    <MaterialIcons name="logout" size={22} color="#FFFFFF" />
+                    <Text style={styles.clockInText}>Clock-Out</Text>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
             </View>
@@ -486,26 +568,33 @@ export default function AttendancePage() {
 
           <Text style={styles.label}>Work Description</Text>
           <TextInput
-            value={description}
-            onChangeText={setDescription}
+            value={selectedWorker?.description || ""}
+            onChangeText={(text) =>
+            setSelectedWorker((prev) =>
+              prev ? { ...prev, description: text } : prev
+            )}
             style={[styles.dropdown, styles.textArea]}
             placeholder="Describe the work assigned..."
             multiline
           />
 
-          {markClockout ? (
+          {
+            !selectedWorker?.done
+            ?
             <TouchableOpacity
               style={[styles.button, { backgroundColor: "green" }]}
-              onPress={handlemarkClockOutTime}
+              onPress={() => saveFullAttendanceData()}
             >
-              <Text style={styles.buttonText}>Mark Attendance</Text>
+              <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={[styles.button, { backgroundColor: "#2c3e50" }]} 
-            onPress={handleClockIn}>
-              <Text style={styles.buttonText}>Add ClockIn</Text>
+            :
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: "green" }]}
+              disabled={true}
+            >
+              <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
-          )}
+          }
         </View>
 
         <View style={styles.card}>
@@ -545,7 +634,7 @@ export default function AttendancePage() {
                     {workersByShift &&
                       workersByShift[shiftName].map((worker, index) => (
                         <TouchableOpacity
-                          onPress={() => handelClockOut(worker)}
+                          onPress={() => handleSelectedWorker(worker)}
                           key={index}
                         >
                           <View style={styles.attendanceRow}>
@@ -581,5 +670,6 @@ export default function AttendancePage() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

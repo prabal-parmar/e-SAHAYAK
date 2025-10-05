@@ -73,6 +73,8 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
     marginBottom: 15,
   },
   buttonText: {

@@ -27,8 +27,7 @@ export const markClockOutTime = async (data: FrontendData) => {
             {
                 worker: data.workerUsername,
                 leaving_time: data.clockOutTime,
-                description: data.description,
-                date: data.date
+                description: data.description
             }
         )
         return true
@@ -53,5 +52,27 @@ export const getAllWorkersWorking = async () => {
         return response.data.workers
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const addFullAttendanceData = async (data: FrontendData) => {
+    try {
+        await apiClient.post('/employer/work/mark-attendance-data/', 
+            {
+                worker: data?.worker,
+                entry_time: data?.entry_time,
+                leaving_time: data?.leaving_time,
+                shift: data?.shift,
+                description: data?.description,
+                date: data?.date,
+                overtime: data?.overtime,
+                overtime_entry_time: data?.overtime_entry_time,
+                overtime_leaving_time: data?.overtime_entry_time,
+            }
+        )
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
     }
 }

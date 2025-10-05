@@ -261,6 +261,7 @@ export const styles = StyleSheet.create({
   },
   pickerContainer: {
     marginBottom: 20,
+    alignItems: "center"
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -284,4 +285,24 @@ export const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#7A869A',
   },
+  clockInButton: {
+  marginTop: 10,
+  borderRadius: 10,
+  overflow: "hidden",
+},
+
+clockInGradient: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  paddingVertical: 10,
+  borderRadius: 10,
+},
+
+clockInText: {
+  color: "#fff",
+  fontSize: 16,
+  fontWeight: "600",
+  marginLeft: 8,
+},
 });

@@ -3,10 +3,10 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   TextInput,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "@/components/styles/employer_profile";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -121,6 +121,7 @@ export default function EmployerProfilePage() {
   };
 
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
         colors={["#1B8A2C", "#145214"]}
@@ -232,12 +233,14 @@ export default function EmployerProfilePage() {
               style={styles.button}
               onPress={() => setIsEditing(true)}
             >
+              <MaterialIcons name="edit" size={20} color="#FFFFFF" style={{marginRight: 10}} />
               <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.logoutButton]}
               onPress={handleLogout}
             >
+              <MaterialIcons name="logout" size={20} color="#FFFFFF" style={{marginRight: 10}} />
               <Text style={[styles.buttonText, styles.logoutButtonText]}>
                 Logout
               </Text>
@@ -246,5 +249,6 @@ export default function EmployerProfilePage() {
         )}
       </ScrollView>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
