@@ -58,14 +58,17 @@ def mark_entry_time(request):
 
     attendance = Attendences.objects.filter(worker=worker, date=timezone.localdate()).first()
 
-    if request.method=="PATCH":
+    if attendance and attendance.entry_time:
         data = request.data.copy()
         data["worker"] = worker.id
-        data["employer"] = employer
-        serializer = AttendanceSerializer(attendance, data=data)
+        data["employer"] = employer.id
+        serializer = AttendanceSerializer(attendance, data=data, partial=True)
         if serializer.is_valid():
             attendance = serializer.save()
             return Response({"message": "Entry time marked"}, status=status.HTTP_201_CREATED)
+        else:
+            print(serializer.errors)
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
     if request.method=="POST":
         if attendance:
@@ -76,7 +79,7 @@ def mark_entry_time(request):
         serializer = AttendanceSerializer(data=data)
         if serializer.is_valid():
             attendance = serializer.save()
-            return Response({"message": "Entry time updated"}, status=status.HTTP_201_CREATED)
+            return Response({"message": "Entry time added"}, status=status.HTTP_201_CREATED)
         else:
             print(serializer.errors)
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -108,12 +111,9 @@ def mark_leaving_time(request):
     today = request.data.get("date") or timezone.localdate()
 
     attendance = Attendences.objects.filter(worker=worker, employer=employer, date=today).first()
-    leaving_time_str = request.data.get("leaving_time")
-    leaving_time = datetime.strptime(leaving_time_str, "%H:%M").time()
+
     if not attendance:
         return Response({"error": "Entry time not marked"}, status=status.HTTP_400_BAD_REQUEST)
-    # elif attendance.entry_time < leaving_time:
-    #     return Response({"error": "Leaving time can not be smaller than entry time"})
     
     data = request.data.copy()
     data["worker"] = worker.id
@@ -127,6 +127,34 @@ def mark_leaving_time(request):
         print(serializer.errors)
         return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)  
   
+# Adding full attendance data for worker
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_worker_attendance_data(request):
+    if request.user.role != "employer":
+        return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
+    employer = request.user.employer_profile
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    # print(request.data)
+    worker_id = request.data.get("worker")
+    worker = CustomUser.objects.filter(username = worker_id).first().worker_profile
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    today = request.data.get("date") or timezone.localdate()
+    attendance = Attendences.objects.filter(worker=worker, employer=employer, date=today).first()
+
+    data = request.data.copy()
+    data["worker"] = worker.id
+    data["employer"] = employer.id
+    serializer = AttendanceSerializer(attendance, data=data)
+    if serializer.is_valid():
+        serializer.save()
+        data["done"] = True
+        return Response({"message": "Worker Attendance data saved."}, status=status.HTTP_201_CREATED)
+    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
 # Today's attendance data for worker
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -300,7 +328,8 @@ def get_workers_working_now(request):
                                                                                             shift=F("attendances__shift"), 
                                                                                             entry_time=F("attendances__entry_time"), 
                                                                                             date=F("attendances__date"),
-                                                                                            leaving_time=F("attendances__leaving_time"))
+                                                                                            leaving_time=F("attendances__leaving_time"),
+                                                                                            description=F("attendances__description"))
 
     workers = []
     for row in all_workers_working:
@@ -310,6 +339,7 @@ def get_workers_working_now(request):
             "entry_time": str(row["entry_time"]) if row["entry_time"] else None,
             "date": str(row["date"]) if row["date"] else None,
             "leaving_time": str(row["leaving_time"]) if row["leaving_time"] else None,
+            "description": row["description"]
         })
 
     # print(workers)
@@ -345,4 +375,3 @@ def get_employer_data(request):
             return Response({"message": "Profile Updated Successfully."}, status=status.HTTP_201_CREATED)
         else:
             return Response({"error": "Error in updating Employer profile"}, status=status.HTTP_400_BAD_REQUEST)
-    
