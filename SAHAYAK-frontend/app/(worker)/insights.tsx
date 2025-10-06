@@ -118,13 +118,13 @@ export default function WorkerAnalysisPage() {
       const data = await getHeaderStats();
       const history = await getWorkHistory();
       const workHistory = {
-        monthlyAnalysis: [],
+        monthlyAnalysis: data.data.monthlyAnalysis,
         pastWork: history.data
       }
       setWorkerData(workHistory)
-      setTotalEarning(data.data.this_month_salary)
-      setLeaves(data.data.leave_days)
-      setPresent(data.data.working_days)
+      setTotalEarning(data ? data.data.this_month_salary: 0)
+      setLeaves(data ? data.data.leave_days: 0)
+      setPresent(data ? data.data.working_days: 0)
     }
     fetchHeaderData()
   }, [])
@@ -151,8 +151,8 @@ export default function WorkerAnalysisPage() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>This Month's Earnings</Text>
             <View style={styles.chartContainer}>
-              {workerData && workerData.monthlyAnalysis.map((data) => (
-                <AnimatedBar key={data.week} value={data.earnings} maxValue={maxEarning} label={data.week} />
+              {workerData && workerData.monthlyAnalysis.map((data, index) => (
+                <AnimatedBar key={index} value={data.earnings} maxValue={maxEarning} label={data.week} />
               ))}
             </View>
           </View>
@@ -169,7 +169,7 @@ export default function WorkerAnalysisPage() {
                   <Text style={styles.workOrg}>{work.organizationName}</Text>
                   <Text style={styles.workDate}>
                     {new Date(work.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
-}
+            }
                   </Text>
                   <SatisfactionBadge status={work.satisfaction} />
                 </View>
