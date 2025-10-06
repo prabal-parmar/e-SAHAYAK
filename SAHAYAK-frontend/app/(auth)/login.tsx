@@ -32,11 +32,11 @@ const LandingSection = () => (
   <View style={landingStyles.container}>
     <View style={landingStyles.headerContainer}>
       <Image
-        source={require("../../assets/images/AS_logo.png")}
+        source={require("../../assets/images/logo.png")}
         style={landingStyles.headerLogo}
       />
       <View>
-        <Text style={landingStyles.headerText}>GOVERNMENT OF INDIA</Text>
+        <Text style={landingStyles.headerText}>GOVERNMENT OF MADHYA PRADESH</Text>
         <Text style={landingStyles.subHeaderText}>
           Ministry of Labour & Employment
         </Text>

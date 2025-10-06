@@ -15,8 +15,8 @@ import {
   updateEmployerProfile,
 } from "@/api/Employer/profile_routes";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEmployer } from "@/context/EmployerText";
-
+import { useEmployer } from "@/context/EmployerContext";
+import { logout } from "@/api/Auth/auth_routes";
 
 interface InfoRowProps {
   icon: string;
@@ -65,16 +65,19 @@ const EditableRow: React.FC<EditableRowProps> = ({
 
 export default function EmployerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const {employer, setEmployer} = useEmployer()
+  const { employer, setEmployer } = useEmployer();
   const [username, setUsername] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
-  const handleLogout = () => {
+
+  const handleLogout = async () => {
+    await logout()
     router.replace("/login");
   };
 
+  
   const fetchEmployerData = async () => {
     try {
       const data = await getEmployerProfile();
@@ -91,9 +94,13 @@ export default function EmployerProfilePage() {
   };
 
   useEffect(() => {
-    fetchEmployerData();
+    // fetchEmployerData();
   }, []);
 
+  if(!employer){
+    console.log(employer)
+    router.replace('/login')
+  }
   const handleSaveChanges = async () => {
     try {
       setIsEditing(false);
@@ -105,7 +112,7 @@ export default function EmployerProfilePage() {
         location: location,
       };
       await updateEmployerProfile(data);
-      setEmployer(data)
+      setEmployer(data);
     } catch (error) {
       console.log(error);
     }
@@ -122,133 +129,147 @@ export default function EmployerProfilePage() {
 
   return (
     <SafeAreaProvider>
-    <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={["#1B8A2C", "#145214"]}
-        style={styles.profileHeaderGradient}
-      >
-        <View style={styles.profileHeaderContent}>
-          <View style={styles.profileAvatarContainer}>
-            <View style={styles.profileAvatarText}>
-              <MaterialIcons name="business" size={40} color="#2c1616ff" />
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient
+          colors={["#1B8A2C", "#145214"]}
+          style={styles.profileHeaderGradient}
+        >
+          <View style={styles.profileHeaderContent}>
+            <View style={styles.profileAvatarContainer}>
+              <View style={styles.profileAvatarText}>
+                <MaterialIcons name="business" size={40} color="#2c1616ff" />
+              </View>
+            </View>
+            <View style={styles.profileHeaderTextContainer}>
+              <Text style={styles.profileName}>{organizationName}</Text>
+              <Text style={styles.profileOrganization}>{username}</Text>
             </View>
           </View>
-          <View style={styles.profileHeaderTextContainer}>
-            <Text style={styles.profileName}>{organizationName}</Text>
-            <Text style={styles.profileOrganization}>{username}</Text>
+        </LinearGradient>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Contact Information</Text>
+
+            {isEditing ? (
+              <>
+                <InfoRow
+                  icon={<MaterialIcons name="person" size={20} color="#333" />}
+                  label="Username"
+                  value={username}
+                />
+                <EditableRow
+                  icon={
+                    <MaterialIcons name="business" size={20} color="#333" />
+                  }
+                  label="Organization"
+                  value={organizationName}
+                  onChangeText={setOrganizationName}
+                />
+                <InfoRow
+                  icon={<MaterialIcons name="email" size={20} color="#333" />}
+                  label="Email"
+                  value={email}
+                />
+                <EditableRow
+                  icon={<MaterialIcons name="phone" size={20} color="#333" />}
+                  label="Mobile Number"
+                  value={mobileNumber}
+                  onChangeText={setMobileNumber}
+                  keyboardType="phone-pad"
+                />
+                <EditableRow
+                  icon={
+                    <MaterialIcons name="location-on" size={20} color="#333" />
+                  }
+                  label="Location"
+                  value={location}
+                  onChangeText={setLocation}
+                />
+              </>
+            ) : (
+              <>
+                <InfoRow
+                  icon={<MaterialIcons name="person" size={20} color="#333" />}
+                  label="Username"
+                  value={username}
+                />
+                <InfoRow
+                  icon={
+                    <MaterialIcons name="business" size={20} color="#333" />
+                  }
+                  label="Organization"
+                  value={organizationName}
+                />
+                <InfoRow
+                  icon={<MaterialIcons name="email" size={20} color="#333" />}
+                  label="Email"
+                  value={email}
+                />
+                <InfoRow
+                  icon={<MaterialIcons name="phone" size={20} color="#333" />}
+                  label="Mobile Number"
+                  value={mobileNumber}
+                />
+                <InfoRow
+                  icon={
+                    <MaterialIcons name="location-on" size={20} color="#333" />
+                  }
+                  label="Location"
+                  value={location}
+                />
+              </>
+            )}
           </View>
-        </View>
-      </LinearGradient>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Contact Information</Text>
 
           {isEditing ? (
-            <>
-              <InfoRow
-                icon={<MaterialIcons name="person" size={20} color="#333" />}
-                label="Username"
-                value={username}
-              />
-              <EditableRow
-                icon={<MaterialIcons name="business" size={20} color="#333" />}
-                label="Organization"
-                value={organizationName}
-                onChangeText={setOrganizationName}
-              />
-              <InfoRow
-                icon={<MaterialIcons name="email" size={20} color="#333" />}
-                label="Email"
-                value={email}
-              />
-              <EditableRow
-                icon={<MaterialIcons name="phone" size={20} color="#333" />}
-                label="Mobile Number"
-                value={mobileNumber}
-                onChangeText={setMobileNumber}
-                keyboardType="phone-pad"
-              />
-              <EditableRow
-                icon={
-                  <MaterialIcons name="location-on" size={20} color="#333" />
-                }
-                label="Location"
-                value={location}
-                onChangeText={setLocation}
-              />
-            </>
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={handleCancelEdit}
+              >
+                <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.saveButton]}
+                onPress={handleSaveChanges}
+              >
+                <Text style={styles.buttonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <>
-              <InfoRow
-                icon={<MaterialIcons name="person" size={20} color="#333" />}
-                label="Username"
-                value={username}
-              />
-              <InfoRow
-                icon={<MaterialIcons name="business" size={20} color="#333" />}
-                label="Organization"
-                value={organizationName}
-              />
-              <InfoRow
-                icon={<MaterialIcons name="email" size={20} color="#333" />}
-                label="Email"
-                value={email}
-              />
-              <InfoRow
-                icon={<MaterialIcons name="phone" size={20} color="#333" />}
-                label="Mobile Number"
-                value={mobileNumber}
-              />
-              <InfoRow
-                icon={
-                  <MaterialIcons name="location-on" size={20} color="#333" />
-                }
-                label="Location"
-                value={location}
-              />
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setIsEditing(true)}
+              >
+                <MaterialIcons
+                  name="edit"
+                  size={20}
+                  color="#FFFFFF"
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={styles.buttonText}>Edit Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.logoutButton]}
+                onPress={handleLogout}
+              >
+                <MaterialIcons
+                  name="logout"
+                  size={20}
+                  color="#FFFFFF"
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={[styles.buttonText, styles.logoutButtonText]}>
+                  Logout
+                </Text>
+              </TouchableOpacity>
             </>
           )}
-        </View>
-
-        {isEditing ? (
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleCancelEdit}
-            >
-              <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSaveChanges}
-            >
-              <Text style={styles.buttonText}>Save Changes</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setIsEditing(true)}
-            >
-              <MaterialIcons name="edit" size={20} color="#FFFFFF" style={{marginRight: 10}} />
-              <Text style={styles.buttonText}>Edit Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.logoutButton]}
-              onPress={handleLogout}
-            >
-              <MaterialIcons name="logout" size={20} color="#FFFFFF" style={{marginRight: 10}} />
-              <Text style={[styles.buttonText, styles.logoutButtonText]}>
-                Logout
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

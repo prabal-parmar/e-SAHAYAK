@@ -10,57 +10,69 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect, useState } from "react";
 import { getTokens } from "@/api/Auth/auth_routes";
-
+import { router } from "expo-router";
+import LoadingIndicator from "@/components/loadingPage";
 export const unstable_settings = {
   anchor: "(auth)",
 };
 
+type ROLE = string | null;
 export default function RootLayout() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<ROLE>(null);
   const [loading, setLoading] = useState(true);
   const colorScheme = useColorScheme();
 
   useEffect(() => {
     const checkToken = async () => {
-      const { accessToken, refreshToken, role } = await getTokens();
-      if (accessToken && refreshToken && role) {
-        setIsLoggedIn(true);
-        setRole(role);
+      setIsLoggedIn(false);
+      setRole(null);
+
+      try {
+        const { accessToken, refreshToken, role } = await getTokens();
+        if (accessToken && refreshToken && role) {
+          setIsLoggedIn(true);
+          setRole(role);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     checkToken();
   }, []);
 
-  if (loading) {
-    // animation to be added
-    return null;
-  }
+  useEffect(() => {
+    if (!loading) {
+      if (!isLoggedIn) {
+        router.replace("/login");
+      } else if (role === "employer") {
+        router.replace("/(employer)");
+      } else if (role === "worker") {
+        router.replace("/(worker)");
+      }
+    }
+  }, [isLoggedIn, role, loading]);
 
+  if (loading) {
+    return (
+      <LoadingIndicator />
+    );
+  }
+  
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
-          <>
-            {role === "employer" ? (
-              <Stack.Screen
-                name="(employer)"
-                options={{ headerShown: false }}
-              />
-            ) : (
-              <Stack.Screen name="(worker)" options={{ headerShown: false }} />
-            )}
-          </>
-        ) : (
-          <Stack.Screen name="(auth)" />
-        )}
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
-      </Stack>
       <StatusBar style="auto" />
+      <Stack screenOptions={{ headerShown: false }}>
+        {!isLoggedIn ? (
+          <Stack.Screen name="(auth)" />
+        ) : role === "employer" ? (
+          <Stack.Screen name="(employer)" />
+        ) : (
+          <Stack.Screen name="(worker)" />
+        )}
+      </Stack>
     </ThemeProvider>
   );
 }

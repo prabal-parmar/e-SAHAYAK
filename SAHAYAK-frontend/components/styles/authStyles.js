@@ -57,13 +57,13 @@ export const landingStyles = StyleSheet.create({
   },
   headerLogo: {
     width: 30,
-    height: 50,
+    height: 30,
     marginRight: moderateScale(12),
   },
   headerText: {
     color: COLORS.landingPrimaryText,
     fontWeight: "bold",
-    fontSize: moderateScale(14), // Scaled font size
+    fontSize: moderateScale(13), // Scaled font size
     ...Platform.select({
       native: {
         textShadowColor: "rgba(0, 0, 0, 0.2)",
@@ -77,7 +77,7 @@ export const landingStyles = StyleSheet.create({
   },
   subHeaderText: {
     color: COLORS.landingSecondaryText,
-    fontSize: moderateScale(12),
+    fontSize: moderateScale(11),
   },
   mainTitle: {
     color: COLORS.landingPrimaryText,
