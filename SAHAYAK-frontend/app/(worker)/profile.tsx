@@ -16,6 +16,7 @@ import {
   fetchWorkerProfile,
   updateWorkerProfile,
 } from "@/api/Worker/profile_routes";
+import { useWorker } from "@/context/WorkerContext";
 
 type GenderKey = "M" | "F" | "O";
 
@@ -23,7 +24,6 @@ interface WORKER {
   firstName: string;
   lastName: string;
   username: string;
-  email: string;
   contactNumber: string;
   gender: GenderKey;
   skill: string;
@@ -63,7 +63,7 @@ interface EditableRowProps {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
-  keyboardType?: "default" | "email-address" | "phone-pad";
+  keyboardType?: "default" | "phone-pad";
 }
 
 const EditableRow: React.FC<EditableRowProps> = ({
@@ -88,8 +88,8 @@ const EditableRow: React.FC<EditableRowProps> = ({
 );
 
 export default function WorkerProfilePage() {
+  const {worker, setWorker} = useWorker()
   const [isEditing, setIsEditing] = useState(false);
-  const [workerData, setWorkerData] = useState<WORKER | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
@@ -109,6 +109,8 @@ export default function WorkerProfilePage() {
         address: address,
       };
       await updateWorkerProfile(data);
+      let g = gender as GenderKey;
+      setWorker({firstName, lastName, contactNumber, gender: g, skill, address, username: worker ? worker?.username : ""})
     } catch (error) {
       console.log(error);
     }
@@ -120,13 +122,11 @@ export default function WorkerProfilePage() {
       firstName: worker.first_name,
       lastName: worker.last_name,
       username: worker.username,
-      email: worker.email,
       contactNumber: worker.contact_number,
       gender: worker.gender as GenderKey,
       skill: worker.skill,
       address: worker.address,
     };
-    setWorkerData(data);
     setFirstName(data.firstName);
     setLastName(data.lastName);
     setSkill(data.skill);
@@ -141,7 +141,7 @@ export default function WorkerProfilePage() {
 
   const handleLogout = async () => {
     await logout();
-    router.push("/login");
+    router.replace("/login");
   };
 
   const handleSaveChanges = async () => {
@@ -149,32 +149,31 @@ export default function WorkerProfilePage() {
     const data: WORKER = {
       firstName: firstName,
       lastName: lastName,
-      username: workerData ? workerData?.username : "",
-      email: workerData ? workerData?.email : "",
+      username: worker ? worker?.username : "",
       contactNumber: contactNumber,
       gender: gender as GenderKey,
       skill: skill,
       address: address,
     };
-    setWorkerData(data);
+    setWorker(data)
     updateWorkerData();
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setFirstName(workerData ? workerData?.firstName : "");
-    setLastName(workerData ? workerData?.lastName : "");
-    setContactNumber(workerData ? workerData?.contactNumber : "");
-    setAddress(workerData ? workerData?.address : "");
-    setSkill(workerData ? workerData?.skill : "");
-    setGender(workerData ? workerData?.gender : "O");
+    setFirstName(worker ? worker?.firstName : "");
+    setLastName(worker ? worker?.lastName : "");
+    setContactNumber(worker ? worker?.contactNumber : "");
+    setAddress(worker ? worker?.address : "");
+    setSkill(worker ? worker?.skill : "");
+    setGender(worker ? worker?.gender : "O");
     setIsEditing(false);
   };
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
           <LinearGradient
             colors={["#1B8A2C", "#145214"]}
             style={styles.headerGradient}
@@ -186,8 +185,8 @@ export default function WorkerProfilePage() {
                 </Text>
               </View>
               <View style={styles.headerTextContainer}>
-                <Text style={styles.name}>{`${firstName} ${lastName}`}</Text>
-                <Text style={styles.skill}>{skill}</Text>
+                <Text style={styles.name}>{`${worker?.firstName} ${worker?.lastName}`}</Text>
+                <Text style={styles.skill}>{worker?.skill}</Text>
               </View>
             </View>
           </LinearGradient>
@@ -202,14 +201,7 @@ export default function WorkerProfilePage() {
                       <MaterialIcons name="person" size={24} color="#7A869A" />
                     }
                     label="Username"
-                    value={workerData?.username || ""}
-                  />
-                  <InfoRow
-                    icon={
-                      <MaterialIcons name="email" size={24} color="#7A869A" />
-                    }
-                    label="Email"
-                    value={workerData?.email || ""}
+                    value={worker?.username || ""}
                   />
                   <EditableRow
                     icon={
@@ -289,40 +281,33 @@ export default function WorkerProfilePage() {
                       <MaterialIcons name="person" size={24} color="#7A869A" />
                     }
                     label="Username"
-                    value={workerData?.username || ""}
-                  />
-                  <InfoRow
-                    icon={
-                      <MaterialIcons name="email" size={24} color="#7A869A" />
-                    }
-                    label="Email"
-                    value={workerData?.email || ""}
+                    value={worker?.username || ""}
                   />
                   <InfoRow
                     icon={
                       <MaterialIcons name="phone" size={24} color="#7A869A" />
                     }
                     label="Contact Number"
-                    value={workerData?.contactNumber || ""}
+                    value={worker?.contactNumber || ""}
                   />
                   <InfoRow
                     icon={<MaterialIcons name="wc" size={24} color="#7A869A" />}
                     label="Gender"
-                    value={GENDER_MAP[workerData?.gender || "O"]}
+                    value={GENDER_MAP[worker?.gender || "O"]}
                   />
                   <InfoRow
                     icon={
                       <MaterialIcons name="home" size={24} color="#7A869A" />
                     }
                     label="Address"
-                    value={workerData?.address || ""}
+                    value={worker?.address || ""}
                   />
                   <InfoRow
                     icon={
                       <MaterialIcons name="build" size={24} color="#7A869A" />
                     }
                     label="Primary Skill"
-                    value={workerData?.skill || ""}
+                    value={worker?.skill || ""}
                   />
                 </>
               )}

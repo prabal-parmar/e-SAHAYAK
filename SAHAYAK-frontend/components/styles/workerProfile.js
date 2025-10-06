@@ -9,9 +9,9 @@ export const styles = StyleSheet.create({
     marginTop: -50,
   },
   headerGradient: {
-    paddingTop: Platform.OS === "ios" ? 60 : 50,
-    paddingBottom: 70,
+    height: "25.5%",
     paddingHorizontal: 25,
+    justifyContent: 'center',
   },
   headerContent: {
     flexDirection: "row",
