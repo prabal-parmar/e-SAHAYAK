@@ -6,14 +6,18 @@ from rest_framework.response import Response
 from Users.models import CustomUser, WorkerModel, EmployerModel
 from Worker.models import Attendences, ReportWorkerModel
 from .models import WorkersWorkModel, ReportEmployerModel
+from decimal import Decimal
 from datetime import date, datetime
 from django.utils import timezone
 from Worker.serializers import AttendanceSerializer
 from .serializers import ReportEmployerSerializer
 from django.db.models import F
 from Users.serializers import EmployerRegisterSerializer
+from Worker.models import HourWage
 # Create your views here.
 
+hour_wage = HourWage.objects.last().hourly_wage
+overtimr_wage = HourWage.objects.last().overtime_wage
 
 # All workers working today under employer
 @api_view(['GET'])
@@ -151,7 +155,20 @@ def add_worker_attendance_data(request):
     serializer = AttendanceSerializer(attendance, data=data)
     if serializer.is_valid():
         serializer.save()
-        data["done"] = True
+        amount: float = 0
+        shift_amount = Decimal(float(attendance.total_time) * float(hour_wage))
+        overtime_amount = Decimal(float(attendance.extra_time) * float(overtimr_wage))
+        amount = shift_amount + overtime_amount
+        work = WorkersWorkModel.objects.filter(date=timezone.localdate(), employer = employer, worker=worker)
+        if work:
+            worker.amount = amount
+            print("work update required")
+            worker.save()
+        else:
+            print("updating")
+            WorkersWorkModel.objects.create(employer=employer, worker=worker, amount=amount)
+            print("updated")
+        
         return Response({"message": "Worker Attendance data saved."}, status=status.HTTP_201_CREATED)
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 

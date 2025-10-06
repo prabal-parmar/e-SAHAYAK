@@ -8,6 +8,11 @@ class Attendences(models.Model):
         ("shift1", "Shift1"),
         ("shift2", "Shift2")
     )
+    RESPONSE_CHOICES = (
+        ("satisfied", "Safisfied"),
+        ("report", "Report"),
+        ("pending", "Pending")
+    )
     worker = models.ForeignKey("Users.WorkerModel", on_delete=models.CASCADE, related_name="attendances")
     employer = models.ForeignKey("Users.EmployerModel", on_delete=models.CASCADE, related_name="attendances")
     date = models.DateField(auto_now_add=True)
@@ -20,7 +25,7 @@ class Attendences(models.Model):
     overtime_entry_time = models.TimeField(blank=True, null=True)
     overtime_leaving_time = models.TimeField(blank=True, null=True)
     description = models.TextField(blank=True, null=True, default="No work description.")
-
+    worker_response = models.CharField(max_length=10, choices=RESPONSE_CHOICES, default="pending")
     @property
     def total_time(self):
         if self.leaving_time:
@@ -39,7 +44,6 @@ class Attendences(models.Model):
     
     def __str__(self):
         return f"{self.worker} - {self.date} ({self.shift})"
-
 
 class HourWage(models.Model):
     hourly_wage = models.DecimalField(max_digits=10, decimal_places=2, default=50)
@@ -64,9 +68,12 @@ class ReportWorkerModel(models.Model):
 
     worker = models.ForeignKey('Users.WorkerModel', on_delete=models.CASCADE, related_name='reports')
     employer = models.ForeignKey('Users.EmployerModel', on_delete=models.CASCADE, related_name='reports')
+    attendance = models.ForeignKey('Attendences', on_delete=models.CASCADE, related_name='reports')
     message = models.TextField(default="No message regarding report by worker.", blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
     reason = models.CharField(max_length=10, choices=REASON_CHOICES, default="other")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
 
-
+    def __str__(self):
+        return f"{self.worker} -> {self.employer}"
+    

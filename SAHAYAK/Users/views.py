@@ -71,7 +71,7 @@ def login_worker(request):
 @api_view(['POST'])
 def signup_worker(request):
     serializer = WorkerRegisterSerializer(data = request.data)
-    
+    print(request.data)
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "Worker Register Successfully"}, status=status.HTTP_201_CREATED)
