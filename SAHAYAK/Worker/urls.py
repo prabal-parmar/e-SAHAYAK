@@ -12,5 +12,6 @@ urlpatterns = [
     path('mark-prev-5-days/', views.mark_safisfied_to_5_days_data, name="Mark Satisfied for prev 5 days attendance"),
     path('pending-response-data/', views.recent_worked_data, name="Pending Responses Data"),
     path('worker-response-to-attendance/', views.update_status, name="Update status of Attendance"),
-    path('receiptPDF/<str:id>/', views.get_pdf_data, name="Data for receipt")
+    path('receiptPDF/<str:id>/', views.get_pdf_data, name="Data for receipt"),
+    path('all-reports/', views.get_all_reports_with_status, name="All Reports reported by worker")
 ]

@@ -345,7 +345,7 @@ def update_status(request):
         attendance.worker_response = response
         attendance.save()
 
-        if attendance.worker_response == "report":
+        if response == "report":
             report = ReportWorkerModel.objects.filter(worker=worker, attendance=attendance).first()
 
             if report:
@@ -389,3 +389,32 @@ def get_pdf_data(request, id):
     }
 
     return Response({"message": "Data for receipt pdf sent.", "data": data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_reports_with_status(request):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    worker = request.user.worker_profile
+    all_reports = ReportWorkerModel.objects.filter(worker=worker).all().order_by("date")
+
+    data = []
+    for index, report in enumerate(all_reports, start=1):
+        description = "No message added." if not report.message else report.message
+        temp = {
+            "id": index,
+            "organizationName": report.employer.org_name,
+            "date": report.date,
+            "reason": report.reason,
+            "description": description,
+            "status": report.status
+        }
+        data.append(temp)
+
+    return Response({"message": "All reports reported by worker sent", "data": data}, status=status.HTTP_200_OK)
+
