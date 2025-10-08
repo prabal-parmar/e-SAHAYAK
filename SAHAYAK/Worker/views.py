@@ -11,6 +11,7 @@ from .serializers import ReportWorkerSerializer
 from Users.serializers import WorkerRegisterSerializer
 from django.utils import timezone
 from calendar import monthrange
+import math
 from Employer.models import WorkersWorkModel
 # Create your views here.
 
@@ -68,8 +69,8 @@ def fetch_this_month_salary(request, month, year):
         extra_salary += Decimal(attendance.extra_time)*extra_hour_pay
     
     return Response({"message": "Total salary calculated", 
-                     "total_salary": total_salary, 
-                     "extra_salary": extra_salary}, status=status.HTTP_200_OK)
+                     "total_salary": math.floor(total_salary), 
+                     "extra_salary": math.floor(extra_salary)}, status=status.HTTP_200_OK)
     
 
 @api_view(['GET', 'POST'])
@@ -178,7 +179,7 @@ def get_recent_work_history(request):
             "id": index,
             "organizationName": org_name,
             "date": attendance.date,
-            "wages": Decimal(attendance.total_time) * hourly_wage,
+            "wages": math.floor(Decimal(attendance.total_time) * hourly_wage),
             "satisfaction": attendance.worker_response,
         }
         data.append(temp)
@@ -199,7 +200,7 @@ def this_month_salary(worker):
     amount = 0
     for work in worker_work:
         amount += work["amount"]
-    return amount
+    return math.floor(amount)
 
 # Total present and absent
 def present_absent(worker):
@@ -239,7 +240,7 @@ def week_wise_earning(worker):
         
         temp = {
             "week": f"Week {index}",
-            "earnings": total_amount
+            "earnings": math.floor(total_amount)
         }
         data.append(temp)
     
@@ -261,10 +262,130 @@ def get_insights_this_month(request):
     earnings_week_wise = week_wise_earning(worker)
     # print(earnings_week_wise)
     data = {
-        "this_month_salary": total_salary,
+        "this_month_salary": math.floor(total_salary),
         "working_days": working_days,
         "leave_days": leave_days,
         "monthlyAnalysis": earnings_week_wise
     }
     print(data)
     return Response({"message": "Worker insight sent.", "data": data}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def mark_safisfied_to_5_days_data(request):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    worker = request.user.worker_profile
+    y = request.data.get("year")
+    m = request.data.get("month")
+    d = request.data.get("date")
+
+    prev_5_dates = date(y, m, d) - timedelta(days=5)
+    Attendences.objects.filter(date__lt=prev_5_dates, worker=worker, worker_response="pending").update(worker_response="satisfied")
+    return Response({"message": "Attendance status for worker response updated."}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recent_worked_data(request):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    worker = request.user.worker_profile
+    today = timezone.now().date()
+    start_date = today - timedelta(days=5)
+    attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
+
+    data = []
+    hourly_wage = HourWage.objects.first().hourly_wage
+    for index,attendance in enumerate(attendances, start=1):
+        employer = attendance.employer
+        employer_profile = EmployerModel.objects.filter(id=employer.id).first()
+
+        org_name = employer_profile.org_name
+        temp = {
+            "id": attendance.work_id,
+            "organizationName": org_name,
+            "date": attendance.date,
+            "wages": math.floor(Decimal(attendance.total_time) * hourly_wage),
+            "status": attendance.worker_response,
+            "startTime": attendance.entry_time,
+            "endTime": attendance.leaving_time
+        }
+        data.append(temp)
+    
+    return Response({"message": "Recent Work for 5 days sent.", "data": data}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_status(request):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    worker = request.user.worker_profile
+    attendance_id = request.data.get("id")
+    response = request.data.get("status")
+    attendance = Attendences.objects.filter(work_id=attendance_id).first()
+
+    if attendance.worker_response!="pending":
+        return Response({"error": "Already responded"}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        attendance.worker_response = response
+        attendance.save()
+
+        if attendance.worker_response == "report":
+            report = ReportWorkerModel.objects.filter(worker=worker, attendance=attendance).first()
+
+            if report:
+                return Response({"error": "Report already submitted."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                reason = request.data.get("reason")
+                message = request.data.get("message")
+                ReportWorkerModel.objects.create(employer=attendance.employer, 
+                                                 worker=worker, 
+                                                 attendance=attendance, 
+                                                 reason=reason, 
+                                                 message=message)
+                return Response({"message": "Report submitted against Employer"}, status=status.HTTP_200_OK)
+        
+        return Response({"message": "Status updated successfuly."}, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_pdf_data(request, id):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    worker = request.user.worker_profile
+    attendance = Attendences.objects.filter(work_id=id).first()
+    work = WorkersWorkModel.objects.filter(attendance=attendance, worker=worker).first()
+
+    data = {
+        "worker_id": attendance.worker.user.username,
+        "org_name": attendance.employer.org_name,
+        "work_id": attendance.work_id,
+        "date": attendance.date,
+        "shift": attendance.shift,
+        "entry_time": attendance.entry_time,
+        "leaving_time": attendance.leaving_time,
+        "wage_per_hour": hour_pay,
+        "amount": work.amount
+    }
+
+    return Response({"message": "Data for receipt pdf sent.", "data": data}, status=status.HTTP_200_OK)

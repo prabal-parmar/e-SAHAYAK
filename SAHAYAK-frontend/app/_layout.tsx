@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import { getTokens } from "@/api/Auth/auth_routes";
 import { router } from "expo-router";
 import LoadingIndicator from "@/components/loadingPage";
+import { EmployerProvider } from "@/context/EmployerContext";
+import { useWorker, WorkerProvider } from "@/context/WorkerContext";
 export const unstable_settings = {
   anchor: "(auth)",
 };
@@ -62,6 +64,8 @@ export default function RootLayout() {
   }
   
   return (
+    <EmployerProvider>
+      <WorkerProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
@@ -74,5 +78,7 @@ export default function RootLayout() {
         )}
       </Stack>
     </ThemeProvider>
+      </WorkerProvider>
+    </EmployerProvider>
   );
 }

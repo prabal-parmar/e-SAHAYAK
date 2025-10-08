@@ -33,22 +33,6 @@ interface WORKERSTATS {
   pastWork: WorkEntry[];
 }
 
-const workerData: WORKERSTATS = {
-  monthlyAnalysis: [
-    { week: 'Week 1', earnings: 6200 },
-    { week: 'Week 2', earnings: 7100 },
-    { week: 'Week 3', earnings: 5500 },
-    { week: 'Week 4', earnings: 7000 },
-  ],
-  pastWork: [
-    { id: '1', organizationName: 'ABC Constructions', date: new Date(new Date().setDate(new Date().getDate() - 1)), wages: 850, satisfaction: 'satisfied' },
-    { id: '2', organizationName: 'Creative Interiors', date: new Date(new Date().setDate(new Date().getDate() - 2)), wages: 900, satisfaction: 'pending' },
-    { id: '3', organizationName: 'ABC Constructions', date: new Date(new Date().setDate(new Date().getDate() - 8)), wages: 850, satisfaction: 'report' },
-    { id: '4', organizationName: 'City Highrises Ltd.', date: new Date(new Date().setDate(new Date().getDate() - 9)), wages: 950, satisfaction: 'satisfied' },
-    { id: '5', organizationName: 'Creative Interiors', date: new Date(new Date().setDate(new Date().getDate() - 10)), wages: 850, satisfaction: 'satisfied' },
-  ],
-};
-
 const { width: screenWidth } = Dimensions.get('window');
 const guidelineBaseWidth = 375;
 const scale = (size: number) => (screenWidth / guidelineBaseWidth) * size;
@@ -109,7 +93,7 @@ const SatisfactionBadge = ({ status }: { status: SatisfactionStatus }) => {
 export default function WorkerAnalysisPage() {
   const maxEarning = 1000;
   const {worker} = useWorker()
-  const [totalEarning, setTotalEarning] = useState<Number>(0)
+  const [totalEarning, setTotalEarning] = useState<number>(0)
   const [leaves, setLeaves] = useState<Number>(0);
   const [present, setPresent] = useState<Number>(0);
   const [workerData, setWorkerData] = useState<WORKERSTATS | null>()
@@ -117,6 +101,9 @@ export default function WorkerAnalysisPage() {
     const fetchHeaderData = async () => {
       const data = await getHeaderStats();
       const history = await getWorkHistory();
+      if(!data){
+        return null;
+      }
       const workHistory = {
         monthlyAnalysis: data.data.monthlyAnalysis,
         pastWork: history.data
@@ -124,7 +111,7 @@ export default function WorkerAnalysisPage() {
       setWorkerData(workHistory)
       setTotalEarning(data ? data.data.this_month_salary: 0)
       setLeaves(data ? data.data.leave_days: 0)
-      setPresent(data ? data.data.working_days: 0)
+      setPresent(data ? data.data && data.data.working_days: 0)
     }
     fetchHeaderData()
   }, [])
@@ -143,7 +130,7 @@ export default function WorkerAnalysisPage() {
         
         <View style={styles.contentContainer}>
           <View style={styles.statsRow}>
-            <StatCard icon={<MaterialIcons name="account-balance-wallet" size={moderateScale(24)} color="#27AE60" />} value={`₹${totalEarning}`} label="This Month" />
+            <StatCard icon={<MaterialIcons name="account-balance-wallet" size={moderateScale(24)} color="#27AE60" />} value={`₹${Math.round(totalEarning)}`} label="This Month" />
             <StatCard icon={<MaterialIcons name="check-circle" size={moderateScale(24)} color="#2980B9" />} value={`${present}`} label="Days Present" />
             <StatCard icon={<MaterialIcons name="cancel" size={moderateScale(24)} color="#C0392B" />} value={`${leaves}`} label="Leaves Taken" />
           </View>

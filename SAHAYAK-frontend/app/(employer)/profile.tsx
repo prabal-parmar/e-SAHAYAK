@@ -11,7 +11,6 @@ import { styles } from "@/components/styles/employer_profile";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
-  getEmployerProfile,
   updateEmployerProfile,
 } from "@/api/Employer/profile_routes";
 import { LinearGradient } from "expo-linear-gradient";
@@ -77,26 +76,13 @@ export default function EmployerProfilePage() {
     router.replace("/login");
   };
 
-  
-  const fetchEmployerData = async () => {
-    try {
-      const data = await getEmployerProfile();
-      // console.log(data);
-      setUsername(data.username);
-      setEmail(data.email);
-      setOrganizationName(data.org_name);
-      setLocation(data.location);
-      setMobileNumber(data.contact_number);
-      setEmployer(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    // fetchEmployerData();
-  }, []);
-
+    setUsername(employer ? employer?.username: "")
+    setOrganizationName(employer ? employer.org_name: "")
+    setEmail(employer ? employer?.email: "")
+    setMobileNumber(employer ? employer.contact_number: "")
+    setLocation(employer ? employer?.location: "")
+  }, [])
   if(!employer){
     console.log(employer)
     router.replace('/login')
@@ -141,8 +127,8 @@ export default function EmployerProfilePage() {
               </View>
             </View>
             <View style={styles.profileHeaderTextContainer}>
-              <Text style={styles.profileName}>{organizationName}</Text>
-              <Text style={styles.profileOrganization}>{username}</Text>
+              <Text style={styles.profileName}>{employer?.org_name}</Text>
+              <Text style={styles.profileOrganization}>{employer?.username}</Text>
             </View>
           </View>
         </LinearGradient>
@@ -191,31 +177,31 @@ export default function EmployerProfilePage() {
                 <InfoRow
                   icon={<MaterialIcons name="person" size={20} color="#333" />}
                   label="Username"
-                  value={username}
+                  value={employer?.username}
                 />
                 <InfoRow
                   icon={
                     <MaterialIcons name="business" size={20} color="#333" />
                   }
                   label="Organization"
-                  value={organizationName}
+                  value={employer?.org_name}
                 />
                 <InfoRow
                   icon={<MaterialIcons name="email" size={20} color="#333" />}
                   label="Email"
-                  value={email}
+                  value={employer?.email}
                 />
                 <InfoRow
                   icon={<MaterialIcons name="phone" size={20} color="#333" />}
                   label="Mobile Number"
-                  value={mobileNumber}
+                  value={employer?.contact_number}
                 />
                 <InfoRow
                   icon={
                     <MaterialIcons name="location-on" size={20} color="#333" />
                   }
                   label="Location"
-                  value={location}
+                  value={employer?.location}
                 />
               </>
             )}

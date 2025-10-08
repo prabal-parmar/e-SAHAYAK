@@ -3,17 +3,30 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { WorkerProvider } from '@/context/WorkerContext';
+import { useWorker, WorkerProvider } from '@/context/WorkerContext';
 import { useEffect, useState } from 'react';
 import { getTokens } from '@/api/Auth/auth_routes';
 import LoadingIndicator from '@/components/loadingPage';
 import { MaterialIcons } from '@expo/vector-icons';
+import { fetchWorkerProfile } from '@/api/Worker/profile_routes';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+  const {worker, setWorker} = useWorker()
+
+  const fetchWorkerData = async () => {
+    const workerData = await fetchWorkerProfile()
+    setWorker(
+      {firstName: workerData?.first_name,
+      lastName: workerData?.last_name,
+      username: workerData?.username,
+      contactNumber: workerData?.contact_number,
+      gender: workerData?.gender,
+      skill: workerData?.skill,
+      address: workerData?.address})
+  }
   useEffect(() => {
     const verifyAuth = async () => {
       const { accessToken, refreshToken, role } = await getTokens();
@@ -23,7 +36,7 @@ export default function TabLayout() {
       }
       setLoading(false);
     };
-
+    fetchWorkerData()
     verifyAuth();
   }, []);
   
@@ -34,7 +47,6 @@ export default function TabLayout() {
   }
 
   return (
-    <WorkerProvider>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -70,6 +82,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-    </WorkerProvider>
   );
 }

@@ -3,15 +3,32 @@ import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { EmployerProvider } from "@/context/EmployerContext";
+import { EmployerProvider, useEmployer } from "@/context/EmployerContext";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { getTokens } from "@/api/Auth/auth_routes";
 import LoadingIndicator from "@/components/loadingPage";
+import { getEmployerProfile } from "@/api/Employer/profile_routes";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
+  const {employer, setEmployer} = useEmployer()
+
+  const fetchEmployerData = async () => {
+    const employerData = await getEmployerProfile()
+    if(!employerData){
+      setEmployer(null)
+      return null;
+    }
+    setEmployer({
+      username: employerData.username,
+      org_name: employerData.org_name,
+      email: employerData.email,
+      location: employerData.location,
+      contact_number: employerData.contact_number
+    })
+  }
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -22,9 +39,12 @@ export default function TabLayout() {
       }
       setLoading(false);
     };
-
     verifyAuth();
   }, []);
+
+  useEffect(() => {
+    fetchEmployerData()
+  }, [])
 
   if (loading) {
     return (
@@ -33,7 +53,6 @@ export default function TabLayout() {
   }
 
   return (
-    <EmployerProvider>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
@@ -73,6 +92,5 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </EmployerProvider>
   );
 }

@@ -8,5 +8,9 @@ urlpatterns = [
     path('profile/', views.get_worker_data, name="Worker Profile"),
     path('recent-work-history/', views.get_recent_work_history, name="Recent Work History"),
     path('stats/', views.get_insights_this_month, name="Worker Insight"),
-    path('work-history/', views.get_recent_work_history, name="Recent Work History")
+    path('work-history/', views.get_recent_work_history, name="Recent Work History"),
+    path('mark-prev-5-days/', views.mark_safisfied_to_5_days_data, name="Mark Satisfied for prev 5 days attendance"),
+    path('pending-response-data/', views.recent_worked_data, name="Pending Responses Data"),
+    path('worker-response-to-attendance/', views.update_status, name="Update status of Attendance"),
+    path('receiptPDF/<str:id>/', views.get_pdf_data, name="Data for receipt")
 ]

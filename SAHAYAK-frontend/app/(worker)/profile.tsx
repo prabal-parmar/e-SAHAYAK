@@ -137,7 +137,7 @@ export default function WorkerProfilePage() {
 
   useEffect(() => {
     fetchWorkerData();
-  }, []);
+  }, [worker]);
 
   const handleLogout = async () => {
     await logout();
@@ -181,7 +181,7 @@ export default function WorkerProfilePage() {
             <View style={styles.headerContent}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.avatarText}>
-                  {getInitials(firstName, lastName)}
+                  {getInitials(worker ? worker?.firstName : "?", worker ? worker?.lastName: "")}
                 </Text>
               </View>
               <View style={styles.headerTextContainer}>

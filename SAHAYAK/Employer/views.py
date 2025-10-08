@@ -141,8 +141,11 @@ def add_worker_attendance_data(request):
     if not employer:
         return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
     # print(request.data)
+
     worker_id = request.data.get("worker")
-    worker = CustomUser.objects.filter(username = worker_id).first().worker_profile
+    worker = CustomUser.objects.filter(username = worker_id, role="worker").first()
+    worker = WorkerModel.objects.filter(user=worker).first()
+
     if not worker:
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
     
@@ -152,22 +155,19 @@ def add_worker_attendance_data(request):
     data = request.data.copy()
     data["worker"] = worker.id
     data["employer"] = employer.id
-    serializer = AttendanceSerializer(attendance, data=data)
+    serializer = AttendanceSerializer(attendance, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         amount: float = 0
-        shift_amount = Decimal(float(attendance.total_time) * float(hour_wage))
-        overtime_amount = Decimal(float(attendance.extra_time) * float(overtimr_wage))
+        shift_amount = (Decimal(float(attendance.total_time) * float(hour_wage)))
+        overtime_amount = (Decimal(float(attendance.extra_time) * float(overtimr_wage)))
         amount = shift_amount + overtime_amount
-        work = WorkersWorkModel.objects.filter(date=timezone.localdate(), employer = employer, worker=worker)
+        work = WorkersWorkModel.objects.filter(date=timezone.localdate(), employer=employer, worker=worker).first()
         if work:
-            worker.amount = amount
-            print("work update required")
-            worker.save()
+            work.amount = amount
+            work.save()
         else:
-            print("updating")
-            WorkersWorkModel.objects.create(employer=employer, worker=worker, amount=amount)
-            print("updated")
+            WorkersWorkModel.objects.create(employer=employer, worker=worker, amount=amount, attendance=attendance)
         
         return Response({"message": "Worker Attendance data saved."}, status=status.HTTP_201_CREATED)
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

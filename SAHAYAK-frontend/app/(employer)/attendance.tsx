@@ -110,7 +110,6 @@ function DropdownModal<T>({
 export default function AttendancePage() {
   const [selectedWorker, setSelectedWorker] = useState<Working | null>(null);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
-  const [submitted, setSubmitted] = useState<boolean>(false);
   const [clockInTime, setClockInTime] = useState<Date>(new Date());
   const [clockOutTime, setClockOutTime] = useState<Date>(new Date());
   const [deadline, setDeadline] = useState<Date>(new Date());
@@ -141,11 +140,6 @@ export default function AttendancePage() {
     }));
   };
 
-  const findShiftLabel = (name: string) => {
-    const matchedShift = SHIFTS_DATA.find((s) => s.name === name);
-    if (matchedShift) return matchedShift;
-    return "Overtime";
-  };
   const workersByShift = workingWorkers?.reduce((acc, worker) => {
     const shiftKey = worker.shift || "Unassigned";
     if (!acc[shiftKey]) {
@@ -233,7 +227,7 @@ export default function AttendancePage() {
     try {
       const matchedShift = SHIFTS_DATA.find((s) => s.name === worker.shift);
       setSelectedShift(matchedShift || null);
-      setDescription(selectedWorker ? selectedWorker?.description: "");
+      setDescription(worker ? worker?.description: "");
       if (worker.entry_time) {
         const [hours, minutes, seconds] = worker.entry_time.split(":");
         const entry = new Date();
@@ -317,6 +311,7 @@ export default function AttendancePage() {
       if (selectedWorker && clockOutTime) {
         // console.log(clockInTime.getHours())
         await markClockOutTime(data);
+        fetchAllWorkers()
       } else {
         console.log("Select the mandatory fields first.");
       }

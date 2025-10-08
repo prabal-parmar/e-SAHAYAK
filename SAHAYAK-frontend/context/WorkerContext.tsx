@@ -2,7 +2,7 @@ import React, { createContext, ReactNode, useContext, useState } from "react";
 
 type GenderKey = "M" | "F" | "O";
 
-interface WORKER {
+type WORKER = {
   firstName: string;
   lastName: string;
   username: string;

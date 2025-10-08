@@ -1,5 +1,5 @@
 from django.db import models
-
+import uuid
 # Create your models here.
 
 # Assuming extra time starts after 9 hours
@@ -13,6 +13,7 @@ class Attendences(models.Model):
         ("report", "Report"),
         ("pending", "Pending")
     )
+    work_id = models.UUIDField(default=uuid.uuid4, editable=False)
     worker = models.ForeignKey("Users.WorkerModel", on_delete=models.CASCADE, related_name="attendances")
     employer = models.ForeignKey("Users.EmployerModel", on_delete=models.CASCADE, related_name="attendances")
     date = models.DateField(auto_now_add=True)

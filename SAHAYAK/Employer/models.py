@@ -6,6 +6,7 @@ class WorkersWorkModel(models.Model):
     date = models.DateField(auto_now_add=True)
     worker = models.ForeignKey("Users.WorkerModel", on_delete=models.CASCADE, related_name="works")
     amount = models.FloatField(blank=True, null=True, default=0)
+    attendance = models.ForeignKey('Worker.Attendences', on_delete=models.CASCADE, related_name="works")
 
     def __str__(self):
         return f"{self.worker} - {self.date}"

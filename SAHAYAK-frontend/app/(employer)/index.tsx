@@ -109,6 +109,7 @@ export default function EmployerHomePage() {
     const response = await getEmployerProfile();
     setEmployer(response);
   };
+
   useFocusEffect(
     useCallback(() => {
       async function fetchData() {
