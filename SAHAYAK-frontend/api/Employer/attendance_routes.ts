@@ -76,3 +76,35 @@ export const addFullAttendanceData = async (data: FrontendData) => {
         return false
     }
 }
+
+export const markOvertimeClockInTime = async (data: FrontendData) => {
+    try {
+        await apiClient.post('/employer/work/mark-overtime-start-time/', 
+            {
+                worker: data?.workerUsername,
+                overtime: true,
+                overtime_entry_time: data?.clockInTime
+            }
+        )
+        return true;
+    } catch (error) {
+        console.log(error)
+        return false;
+    }
+}
+
+export const markOvertimeClockOutTime = async (data: FrontendData) => {
+    try {
+        const response = await apiClient.post('/employer/work/mark-overtime-end-time/',
+            {
+                worker: data?.workerUsername,
+                overtime_leaving_time: data?.clockOutTime
+            }
+        )
+        // console.log(response.data)
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}

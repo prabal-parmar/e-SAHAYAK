@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
-    elevation: 4, // for Android shadow
+    elevation: 4,
   },
   avatarCircle: {
     width: 60,
@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   profileHeaderGradient: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 50,
+    paddingTop: Platform.OS === "ios" ? 60 : 50,
     paddingBottom: 30,
     paddingHorizontal: 25,
     // borderBottomLeftRadius: 35,
@@ -151,55 +151,85 @@ export const styles = StyleSheet.create({
     marginBottom: 30,
     height: "25.5%",
     ...Platform.select({
-      ios: { 
-        shadowColor: '#16A085', 
-        shadowOffset: { width: 0, height: 10 }, 
-        shadowOpacity: 0.3, 
-        shadowRadius: 20 
+      ios: {
+        shadowColor: "#16A085",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
       },
-      android: { 
-        elevation: 10 
+      android: {
+        elevation: 10,
       },
     }),
-},
+  },
 
-profileHeaderContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-},
+  profileHeaderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 
-profileAvatarContainer: {
+  profileAvatarContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#e7e4edff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#e7e4edff",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 20,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-},
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
 
-profileAvatarText: {
-    color: '#FFFFFF',
+  profileAvatarText: {
+    color: "#FFFFFF",
     fontSize: 32,
-    fontWeight: 'bold',
-},
+    fontWeight: "bold",
+  },
 
-profileHeaderTextContainer: {
-    flex: 1, // Allows text to wrap if needed
-},
+  profileHeaderTextContainer: {
+    flex: 1,
+  },
 
-profileName: {
+  profileName: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
+
+  profileOrganization: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.85)",
+    marginTop: 4,
+    flexShrink: 1,
+  },
+  notificationButton: {
+    padding: 10,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    height: 50,
 },
 
-profileOrganization: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginTop: 4,
-    flexShrink: 1, // Ensures organization name wraps if too long
+notificationBadge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: '#E74C3C',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#145214',
 },
+
+notificationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+},
+
 });

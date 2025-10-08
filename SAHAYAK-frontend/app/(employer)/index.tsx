@@ -1,8 +1,6 @@
 import React, {
   useState,
-  useEffect,
   useMemo,
-  DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_FORM_ACTIONS,
   useCallback,
 } from "react";
 import {
@@ -21,6 +19,7 @@ import { getAllWorkersWorking } from "@/api/Employer/attendance_routes";
 import { getEmployerProfile } from "@/api/Employer/profile_routes";
 import { useEmployer } from "@/context/EmployerContext";
 import { useFocusEffect } from "@react-navigation/native";
+import type { ColorValue } from "react-native";
 
 type Shift = { id: string; label: string; name: string };
 const SHIFTS_DATA: Shift[] = [
@@ -42,6 +41,8 @@ interface Worker {
   leaving_time: string;
   shift: string;
   date: string;
+  overtime_entry_time: string;
+  overtime_leaving_time: string;
 }
 
 const getInitials = (name: string) => {
@@ -56,7 +57,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   value: string | number;
   label: string;
-  colors: string[];
+  colors: [ColorValue, ColorValue, ...ColorValue[]];
 }
 
 const StatCard: React.FC<StatCardProps> = ({ icon, value, label, colors }) => (
@@ -88,6 +89,9 @@ export default function EmployerHomePage() {
       const currentWorkingWorkers = allWorkers.filter(
         (w: any) => !w.leaving_time
       );
+      const currentOvertimeWorkers = allWorkers.filter(
+        (w: any) => (w.overtime_entry_time && !w.overtime_leaving_time)
+      ).length
       // console.log(currentWorkingWorkers)
       let shift1workers =
         currentWorkingWorkers?.filter((w: Worker) => w.shift === "shift1")
@@ -98,7 +102,7 @@ export default function EmployerHomePage() {
 
       setShift1Count(shift1workers);
       setShift2Count(shift2workers);
-
+      setOverTimeCount(currentOvertimeWorkers)
       setWorkers(currentWorkingWorkers);
     } catch (error) {
       console.log(error);
@@ -125,11 +129,10 @@ export default function EmployerHomePage() {
 
   const filteredWorkers = useMemo(
     () =>
-      workers &&
-      workers.filter((worker) =>
+      workers?.filter((worker) =>
         worker.username.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [searchQuery]
+      ) || [],
+    [workers, searchQuery]
   );
 
   const workersByShift = useMemo(
@@ -256,68 +259,138 @@ export default function EmployerHomePage() {
 
           {workersByShift && Object.keys(workersByShift)?.length === 0 ? (
             <View style={styles.noResultsContainer}>
-              <Text style={styles.noResultsText}>
-                No working workers found.
-              </Text>
+              <Text style={styles.noResultsText}>No working workers found.</Text>
             </View>
           ) : (
-            workersByShift &&
-            Object.keys(workersByShift).map((shiftName) => (
-              <View key={shiftName} style={styles.shiftSection}>
-                <TouchableOpacity
-                  style={styles.shiftHeader}
-                  onPress={() => toggleShift(shiftName)}
-                >
-                  <View style={styles.shiftHeaderTitle}>
-                    <Text style={styles.shiftName}>
-                      {getShiftLabel(shiftName)}
-                    </Text>
-                    <View style={styles.workerCountBadge}>
-                      <Text style={styles.workerCountText}>
-                        {workersByShift[shiftName].length}
-                      </Text>
-                    </View>
-                  </View>
-                  <MaterialIcons
-                    name={
-                      expandedShifts[shiftName] ? "expand-less" : "expand-more"
-                    }
-                    size={moderateScale(28)}
-                    color="#7A869A"
-                  />
-                </TouchableOpacity>
-
-                {expandedShifts[shiftName] && (
-                  <View style={styles.shiftContent}>
-                    {workersByShift[shiftName].map((worker, i) => (
-                      <View key={i} style={styles.attendanceRow}>
-                        {!worker?.leaving_time ? (
-                          <View style={styles.statusIndicatorGreen} />
-                        ) : (
-                          <View style={styles.statusIndicatorRed} />
-                        )}
-                        <View style={styles.workerInfo}>
-                          <Text style={styles.workerName}>
-                            {worker.username}
-                          </Text>
-                          {worker?.skill && (
-                            <Text style={styles.workerDetail}>
-                              {worker?.skill}
-                            </Text>
-                          )}
-                        </View>
-                        <View style={styles.timeInfo}>
-                          <Text style={styles.timeLabel}>Working Since</Text>
-                          <Text style={styles.timeValue}>
-                            {worker?.entry_time}
+            <>
+              {workersByShift &&
+                Object.keys(workersByShift).map((shiftName) => (
+                  <View key={shiftName} style={styles.shiftSection}>
+                    <TouchableOpacity
+                      style={styles.shiftHeader}
+                      onPress={() => toggleShift(shiftName)}
+                    >
+                      <View style={styles.shiftHeaderTitle}>
+                        <Text style={styles.shiftName}>{getShiftLabel(shiftName)}</Text>
+                        <View style={styles.workerCountBadge}>
+                          <Text style={styles.workerCountText}>
+                            {workersByShift[shiftName].length}
                           </Text>
                         </View>
                       </View>
-                    ))}
+                      <MaterialIcons
+                        name={
+                          expandedShifts[shiftName] ? "expand-less" : "expand-more"
+                        }
+                        size={moderateScale(28)}
+                        color="#7A869A"
+                      />
+                    </TouchableOpacity>
+
+                    {expandedShifts[shiftName] && (
+                      <View style={styles.shiftContent}>
+                        {workersByShift[shiftName].map((worker, i) => (
+                          <View key={i} style={styles.attendanceRow}>
+                            {!worker?.leaving_time ? (
+                              <View style={styles.statusIndicatorGreen} />
+                            ) : (
+                              <View style={styles.statusIndicatorRed} />
+                            )}
+                            <View style={styles.workerInfo}>
+                              <Text style={styles.workerName}>{worker.username}</Text>
+                              {worker?.skill && (
+                                <Text style={styles.workerDetail}>{worker.skill}</Text>
+                              )}
+                            </View>
+                            <View style={styles.timeInfo}>
+                              <Text style={styles.timeLabel}>Working Since</Text>
+                              <Text style={styles.timeValue}>{worker.entry_time}</Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
-                )}
-              </View>
-            ))
+                ))}
+
+              {overtimeCount !== 0 && filteredWorkers && filteredWorkers.length > 0 && (
+                <View style={styles.shiftSection}>
+                  <TouchableOpacity
+                    style={styles.shiftHeader}
+                    onPress={() => toggleShift("overtime")}
+                  >
+                    <View style={styles.shiftHeaderTitle}>
+                      <Text style={styles.shiftName}>Overtime</Text>
+                      <View style={styles.workerCountBadge}>
+                        <Text style={styles.workerCountText}>
+                          {
+                            filteredWorkers.filter(
+                              (w) => w.overtime_entry_time && !w.overtime_leaving_time
+                            ).length
+                          }
+                        </Text>
+                      </View>
+                    </View>
+                    <MaterialIcons
+                      name={
+                        expandedShifts["overtime"] ? "expand-less" : "expand-more"
+                      }
+                      size={moderateScale(28)}
+                      color="#7A869A"
+                    />
+                  </TouchableOpacity>
+
+                  {expandedShifts["overtime"] && (
+                    <View style={styles.shiftContent}>
+                      {filteredWorkers
+                        .filter((w) => w.overtime_entry_time)
+                        .map((worker, i) => (
+                          <View key={i} style={styles.attendanceRow}>
+                            {worker.overtime_leaving_time ? (
+                              <View style={styles.statusIndicatorRed} />
+                            ) : (
+                              <View style={styles.statusIndicatorGreen} />
+                            )}
+
+                            <View style={styles.workerInfo}>
+                              <Text style={styles.workerName}>
+                                {worker.username}
+                                {!worker.overtime_leaving_time && (
+                                  <Text
+                                    style={{
+                                      color: "#1ABC9C",
+                                      fontSize: 12,
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    {"  "}• Working Overtime
+                                  </Text>
+                                )}
+                              </Text>
+                              {worker?.skill && (
+                                <Text style={styles.workerDetail}>{worker.skill}</Text>
+                              )}
+                            </View>
+
+                            <View style={styles.timeInfo}>
+                              <Text style={styles.timeLabel}>
+                                {worker.overtime_leaving_time
+                                  ? "Completed At"
+                                  : "Started At"}
+                              </Text>
+                              <Text style={styles.timeValue}>
+                                {worker.overtime_leaving_time ||
+                                  worker.overtime_entry_time ||
+                                  "--:--"}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                    </View>
+                  )}
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </SafeAreaView>

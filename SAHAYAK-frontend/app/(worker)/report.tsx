@@ -117,7 +117,7 @@ export default function WorkerReportsPage() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <LinearGradient
-          colors={["#E74C3C", "#C0392B"]}
+          colors={["#B31217", "#240B36"]}
           style={styles.headerGradient}
         >
           <Text style={styles.headerTitle}>My Reports</Text>

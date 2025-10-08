@@ -121,7 +121,7 @@ export default function WorkerAnalysisPage() {
       <SafeAreaView style={styles.safeArea}>
       <ScrollView>
         <LinearGradient
-          colors={['#1ABC9C', '#16A085']}
+          colors={["#FDC830", "#2C1810"]}
           style={styles.headerGradient}
         >
           <Text style={styles.headerGreeting}>Hello, {`${worker?.firstName} ${worker?.lastName}`}</Text>

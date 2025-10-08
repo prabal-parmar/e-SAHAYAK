@@ -1,4 +1,8 @@
-import { Platform, StyleSheet } from "react-native";
+import { Dimensions, Platform, StyleSheet } from "react-native";
+const { width: screenWidth } = Dimensions.get('window');
+const guidelineBaseWidth = 375;
+const scale = (size) => (screenWidth / guidelineBaseWidth) * size;
+const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -305,4 +309,48 @@ clockInText: {
   fontWeight: "600",
   marginLeft: 8,
 },
+listHeader: {
+      paddingHorizontal: moderateScale(20),
+      marginTop: moderateScale(10),
+  },
+  sectionTitle: {
+      fontSize: moderateScale(22),
+      fontWeight: 'bold',
+      color: '#2C3E50',
+  },
+  searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFFFFF',
+      borderRadius: moderateScale(12),
+      paddingHorizontal: moderateScale(15),
+      marginTop: moderateScale(15),
+      borderWidth: 1,
+      borderColor: '#E0E6ED',
+  },
+  searchIcon: { marginRight: moderateScale(10) },
+  searchInput: {
+    flex: 1,
+    height: moderateScale(50),
+    fontSize: moderateScale(16),
+    color: '#2C3E50',
+  },
+  searchBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F4F7FC",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E0E6ED",
+    paddingHorizontal: 12,
+    height: 45,
+    marginBottom: 15,
+  },
+  searchBarInput: {
+    flex: 1,
+    fontSize: 15,
+    color: "#2C3E50",
+    paddingVertical: 6,
+  },
+
 });

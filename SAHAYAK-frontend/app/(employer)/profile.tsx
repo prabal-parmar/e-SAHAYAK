@@ -16,16 +16,18 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useEmployer } from "@/context/EmployerContext";
 import { logout } from "@/api/Auth/auth_routes";
+import ReportPopup from "@/components/notificationPages/employerReportNotification";
+import { useIsFocused } from "@react-navigation/native";
 
 interface InfoRowProps {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value: string;
 }
 
 const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => (
   <View style={styles.infoRow}>
-    <Text style={styles.infoIcon}>{icon}</Text>
+    <View style={styles.infoIcon}>{icon}</View>
     <View style={styles.infoTextContainer}>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.infoValue}>{value}</Text>
@@ -34,7 +36,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => (
 );
 
 interface EditableRowProps {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value: string;
   onChangeText: (text: string) => void;
@@ -70,6 +72,8 @@ export default function EmployerProfilePage() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
+  const [reportCount, setReportCount] = useState(0)
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
 
   const handleLogout = async () => {
     await logout()
@@ -83,6 +87,15 @@ export default function EmployerProfilePage() {
     setMobileNumber(employer ? employer.contact_number: "")
     setLocation(employer ? employer?.location: "")
   }, [])
+
+  const isFocused = useIsFocused()
+  useEffect(() => {
+    if(isFocused){
+      setIsEditing(false);
+      setIsPanelVisible(false);
+    }
+  }, [isFocused])
+
   if(!employer){
     console.log(employer)
     router.replace('/login')
@@ -126,10 +139,22 @@ export default function EmployerProfilePage() {
                 <MaterialIcons name="business" size={40} color="#2c1616ff" />
               </View>
             </View>
+
             <View style={styles.profileHeaderTextContainer}>
               <Text style={styles.profileName}>{employer?.org_name}</Text>
               <Text style={styles.profileOrganization}>{employer?.username}</Text>
             </View>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => setIsPanelVisible(!isPanelVisible)}
+            >
+              <MaterialIcons name="notifications" size={28} color="#fff" />
+              {reportCount > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>{reportCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
         </LinearGradient>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -177,31 +202,31 @@ export default function EmployerProfilePage() {
                 <InfoRow
                   icon={<MaterialIcons name="person" size={20} color="#333" />}
                   label="Username"
-                  value={employer?.username}
+                  value={employer ? employer?.username: ""}
                 />
                 <InfoRow
                   icon={
                     <MaterialIcons name="business" size={20} color="#333" />
                   }
                   label="Organization"
-                  value={employer?.org_name}
+                  value={employer ? employer?.org_name: ""}
                 />
                 <InfoRow
                   icon={<MaterialIcons name="email" size={20} color="#333" />}
                   label="Email"
-                  value={employer?.email}
+                  value={employer ? employer?.email: ""}
                 />
                 <InfoRow
                   icon={<MaterialIcons name="phone" size={20} color="#333" />}
                   label="Mobile Number"
-                  value={employer?.contact_number}
+                  value={employer ? employer?.contact_number: ""}
                 />
                 <InfoRow
                   icon={
                     <MaterialIcons name="location-on" size={20} color="#333" />
                   }
                   label="Location"
-                  value={employer?.location}
+                  value={employer ? employer?.location: ""}
                 />
               </>
             )}
@@ -255,6 +280,11 @@ export default function EmployerProfilePage() {
             </>
           )}
         </ScrollView>
+        <ReportPopup
+          visible={isPanelVisible}
+          onClose={() => setIsPanelVisible(!isPanelVisible)}
+          reportCount={reportCount}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );

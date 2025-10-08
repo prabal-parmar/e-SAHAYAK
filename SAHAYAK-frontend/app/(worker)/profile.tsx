@@ -175,7 +175,7 @@ export default function WorkerProfilePage() {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
           <LinearGradient
-            colors={["#1B8A2C", "#145214"]}
+            colors={["#667db6", "#2E2E2E"]}
             style={styles.headerGradient}
           >
             <View style={styles.headerContent}>

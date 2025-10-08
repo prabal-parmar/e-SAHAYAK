@@ -10,9 +10,11 @@ export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#F7F8FA" },
   headerGradient: {
     paddingTop: Platform.OS === "ios" ? 60 : 50,
-    paddingBottom: moderateScale(30),
+    paddingBottom: moderateScale(60),
     paddingHorizontal: moderateScale(25),
-    alignItems: "center",
+    borderBottomLeftRadius: moderateScale(35),
+    borderBottomRightRadius: moderateScale(35),
+    alignItems: "center"
   },
   headerTitle: {
     fontSize: moderateScale(28),
