@@ -164,8 +164,8 @@ def get_recent_work_history(request):
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
     
     worker = request.user.worker_profile
-    today = timezone.now().date()
-    start_date = today - timedelta(days=5)
+    today = timezone.now().date() + timedelta(days=1)
+    start_date = today - timedelta(days=6)
     attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
 
     data = []
@@ -300,8 +300,8 @@ def recent_worked_data(request):
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
     
     worker = request.user.worker_profile
-    today = timezone.now().date()
-    start_date = today - timedelta(days=5)
+    today = timezone.now().date() + timedelta(days=1)
+    start_date = today - timedelta(days=6)
     attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
 
     data = []

@@ -200,7 +200,7 @@ def add_overtime_start_time(request):
     if request.user.role != "employer":
         return Response({"error": "Only Employer have access to find all workers"}, status=status.HTTP_401_UNAUTHORIZED)
     
-    allowed_fields = {"employer", "worker", "overtime", "overtime_entry_time"}
+    allowed_fields = {"worker", "overtime", "overtime_entry_time"}
     extra_fields = set(request.data.keys()) - allowed_fields
 
     if extra_fields:
@@ -212,10 +212,9 @@ def add_overtime_start_time(request):
         return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
     
     worker_id = request.data.get("worker")
-    worker = WorkerModel.objects.filter(id = worker_id).first()
+    worker = CustomUser.objects.filter(username = worker_id).first().worker_profile
     if not worker:
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
-    
     
     attendance = Attendences.objects.filter(worker=worker, date=timezone.localdate()).first()
     
@@ -226,7 +225,9 @@ def add_overtime_start_time(request):
     elif request.data.get("overtime_leaving_time"):
         return Response({"error": "You can't mark leaving time here"}, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = AttendanceSerializer(attendance, data=request.data, partial=True)
+    data = request.data.copy()
+    data["worker"] = worker.id
+    serializer = AttendanceSerializer(attendance, data=data, partial=True)
     if serializer.is_valid():
         attendance = serializer.save()
         return Response({"message": "Entry time for Overtime marked"}, status=status.HTTP_201_CREATED)
@@ -241,7 +242,7 @@ def add_overtime_end_time(request):
     
     employer = request.user.employer_profile
 
-    allowed_fields = {"employer", "worker", "overtime_leaving_time"}
+    allowed_fields = {"worker", "overtime_leaving_time"}
     extra_fields = set(request.data.keys()) - allowed_fields
 
     if extra_fields:
@@ -252,7 +253,7 @@ def add_overtime_end_time(request):
         return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
     
     worker_id = request.data.get("worker")
-    worker = WorkerModel.objects.filter(id = worker_id).first()
+    worker = CustomUser.objects.filter(username = worker_id).first().worker_profile
     if not worker:
         return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -265,7 +266,9 @@ def add_overtime_end_time(request):
     elif attendance.overtime_entry_time > datetime.strptime(overtime_leaving_time, "%H:%M").time():
         return Response({"error": "Leaving time can not be smaller than entry time"}, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = AttendanceSerializer(attendance, data=request.data, partial=True)
+    data = request.data.copy()
+    data["worker"] = worker.id
+    serializer = AttendanceSerializer(attendance, data=data, partial=True)
     if serializer.is_valid():
         attendance = serializer.save()
         return Response({"message": "Leaving time for Overtime added"}, status=status.HTTP_201_CREATED)
@@ -346,7 +349,9 @@ def get_workers_working_now(request):
                                                                                             entry_time=F("attendances__entry_time"), 
                                                                                             date=F("attendances__date"),
                                                                                             leaving_time=F("attendances__leaving_time"),
-                                                                                            description=F("attendances__description"))
+                                                                                            description=F("attendances__description"),
+                                                                                            overtime_entry_time=F("attendances__overtime_entry_time"),
+                                                                                            overtime_leaving_time=F("attendances__overtime_leaving_time"))
 
     workers = []
     for row in all_workers_working:
@@ -356,6 +361,8 @@ def get_workers_working_now(request):
             "entry_time": str(row["entry_time"]) if row["entry_time"] else None,
             "date": str(row["date"]) if row["date"] else None,
             "leaving_time": str(row["leaving_time"]) if row["leaving_time"] else None,
+            "overtime_entry_time": str(row["overtime_entry_time"]) if row["overtime_entry_time"] else None,
+            "overtime_leaving_time": str(row["overtime_leaving_time"]) if row["overtime_leaving_time"] else None,
             "description": row["description"]
         })
 
