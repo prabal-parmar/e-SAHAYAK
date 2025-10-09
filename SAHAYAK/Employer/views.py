@@ -16,8 +16,6 @@ from Users.serializers import EmployerRegisterSerializer
 from Worker.models import HourWage
 # Create your views here.
 
-hour_wage = HourWage.objects.last().hourly_wage
-overtimr_wage = HourWage.objects.last().overtime_wage
 
 # All workers working today under employer
 @api_view(['GET'])
@@ -157,10 +155,17 @@ def add_worker_attendance_data(request):
     data["employer"] = employer.id
     serializer = AttendanceSerializer(attendance, data=data, partial=True)
     if serializer.is_valid():
-        serializer.save()
+        attendance.description = data["description"]
+        attendance.shift = data["shift"]
+        attendance.save()
         amount: float = 0
+
+        wage = HourWage.objects.first()
+        overtime_wage = wage.overtime_wage if wage else 0
+        hour_wage = wage.hourly_wage if wage else 0
+
         shift_amount = (Decimal(float(attendance.total_time) * float(hour_wage)))
-        overtime_amount = (Decimal(float(attendance.extra_time) * float(overtimr_wage)))
+        overtime_amount = (Decimal(float(attendance.extra_time) * float(overtime_wage)))
         amount = shift_amount + overtime_amount
         work = WorkersWorkModel.objects.filter(date=timezone.localdate(), employer=employer, worker=worker).first()
         if work:
@@ -330,8 +335,23 @@ def get_all_workers(request):
         return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
     
     all_workers = CustomUser.objects.filter(role="worker").values("username")
-
-    return Response({"message": "All workers username sent.", "workers": all_workers}, status=status.HTTP_200_OK)
+    all_workers = CustomUser.objects.filter(role="worker").all()
+    workers = []
+    for worker in all_workers:
+        worker_id = worker.worker_profile
+        today = timezone.localdate()
+        attendance = Attendences.objects.filter(date=today, worker=worker_id).first()
+        current_time = datetime.now().time()
+    
+        data = {"username": worker.username}
+        if not attendance:
+            workers.append(data)
+        elif attendance.overtime_leaving_time and attendance.overtime_leaving_time <= current_time:
+            workers.append(data)
+        elif attendance.leaving_time and not attendance.overtime_entry_time and attendance.leaving_time <= current_time:
+            workers.append(data)
+    
+    return Response({"message": "All workers username sent.", "workers": workers}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

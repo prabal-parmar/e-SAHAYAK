@@ -106,7 +106,7 @@ export default function WorkerAnalysisPage() {
       }
       const workHistory = {
         monthlyAnalysis: data.data.monthlyAnalysis,
-        pastWork: history.data
+        pastWork: history ? history.data: []
       }
       setWorkerData(workHistory)
       setTotalEarning(data ? data.data.this_month_salary: 0)

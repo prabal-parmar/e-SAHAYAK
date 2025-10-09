@@ -15,8 +15,6 @@ import math
 from Employer.models import WorkersWorkModel
 # Create your views here.
 
-hour_pay = HourWage.objects.first().hourly_wage
-extra_hour_pay = HourWage.objects.first().overtime_wage
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -36,11 +34,15 @@ def todays_wage(request):
     today_date = datetime.today().now().date()
     attendances = Attendences.objects.filter(worker=worker, date=today_date).all()
 
+    wage = HourWage.objects.first()
+    overtime_wage = wage.overtime_wage if wage else 0
+    hour_wage = wage.hourly_wage if wage else 0
+
     total_salary = 0
     extra_salary = 0
     for attendance in attendances:
-        total_salary += Decimal(attendance.total_time)*hour_pay
-        extra_salary += Decimal(attendance.extra_time)*extra_hour_pay
+        total_salary += Decimal(attendance.total_time)*hour_wage
+        extra_salary += Decimal(attendance.extra_time)*overtime_wage
 
     return Response({"message": "Todays salary calculated", 
                      "total_salary": total_salary,
@@ -62,11 +64,15 @@ def fetch_this_month_salary(request, month, year):
     
     attendances = Attendences.objects.filter(worker=worker, date__month=month, date__year=year).all()
 
+    wage = HourWage.objects.first()
+    overtime_wage = wage.overtime_wage if wage else 0
+    hour_wage = wage.hourly_wage if wage else 0
+
     total_salary = 0
     extra_salary = 0
     for attendance in attendances:
-        total_salary += Decimal(attendance.total_time)*hour_pay
-        extra_salary += Decimal(attendance.extra_time)*extra_hour_pay
+        total_salary += Decimal(attendance.total_time)*hour_wage
+        extra_salary += Decimal(attendance.extra_time)*overtime_wage
     
     return Response({"message": "Total salary calculated", 
                      "total_salary": math.floor(total_salary), 
@@ -169,7 +175,9 @@ def get_recent_work_history(request):
     attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
 
     data = []
-    hourly_wage = HourWage.objects.first().hourly_wage
+    wage = HourWage.objects.first()
+    hour_wage = wage.hourly_wage if wage else 0
+
     for index,attendance in enumerate(attendances, start=1):
         employer = attendance.employer
         employer_profile = EmployerModel.objects.filter(id=employer.id).first()
@@ -179,7 +187,7 @@ def get_recent_work_history(request):
             "id": index,
             "organizationName": org_name,
             "date": attendance.date,
-            "wages": math.floor(Decimal(attendance.total_time) * hourly_wage),
+            "wages": math.floor(Decimal(attendance.total_time) * hour_wage),
             "satisfaction": attendance.worker_response,
         }
         data.append(temp)
@@ -305,7 +313,10 @@ def recent_worked_data(request):
     attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
 
     data = []
-    hourly_wage = HourWage.objects.first().hourly_wage
+
+    wage = HourWage.objects.first()
+    hour_wage = wage.hourly_wage if wage else 0
+
     for index,attendance in enumerate(attendances, start=1):
         employer = attendance.employer
         employer_profile = EmployerModel.objects.filter(id=employer.id).first()
@@ -315,7 +326,7 @@ def recent_worked_data(request):
             "id": attendance.work_id,
             "organizationName": org_name,
             "date": attendance.date,
-            "wages": math.floor(Decimal(attendance.total_time) * hourly_wage),
+            "wages": math.floor(Decimal(attendance.total_time) * hour_wage),
             "status": attendance.worker_response,
             "startTime": attendance.entry_time,
             "endTime": attendance.leaving_time
@@ -376,6 +387,9 @@ def get_pdf_data(request, id):
     attendance = Attendences.objects.filter(work_id=id).first()
     work = WorkersWorkModel.objects.filter(attendance=attendance, worker=worker).first()
 
+    wage = HourWage.objects.first()
+    hour_wage = wage.hourly_wage if wage else 0
+
     data = {
         "worker_id": attendance.worker.user.username,
         "org_name": attendance.employer.org_name,
@@ -384,7 +398,7 @@ def get_pdf_data(request, id):
         "shift": attendance.shift,
         "entry_time": attendance.entry_time,
         "leaving_time": attendance.leaving_time,
-        "wage_per_hour": hour_pay,
+        "wage_per_hour": hour_wage,
         "amount": work.amount
     }
 

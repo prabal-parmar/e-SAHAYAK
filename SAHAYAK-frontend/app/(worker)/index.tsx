@@ -119,7 +119,7 @@ export default function WorkerHomePage() {
             <Text style={styles.headerActionText}>
               You have{" "}
               <Text style={{ fontWeight: "bold" }}>
-                {pendingActionsCount} pending items
+                {pendingActionsCount ? pendingActionsCount: 0} pending items
               </Text>{" "}
               to review.
             </Text>

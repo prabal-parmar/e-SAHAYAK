@@ -254,7 +254,7 @@ export default function RegistrationPage() {
               <Text style={register.inputLabel}>First Name</Text>
               <TextInput
                 style={register.input}
-                placeholder="Ramesh"
+                placeholder="firstname"
                 value={firstName}
                 onChangeText={setFirstName}
                 placeholderTextColor="#B0B8C4"
@@ -266,7 +266,7 @@ export default function RegistrationPage() {
                 style={register.input}
                 value={lastName}
                 onChangeText={setLastName}
-                placeholder="Singh"
+                placeholder="lastname"
                 placeholderTextColor="#B0B8C4"
               />
             </View>
