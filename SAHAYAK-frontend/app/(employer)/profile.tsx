@@ -10,9 +10,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "@/components/styles/employer_profile";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import {
-  updateEmployerProfile,
-} from "@/api/Employer/profile_routes";
+import { updateEmployerProfile } from "@/api/Employer/profile_routes";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEmployer } from "@/context/EmployerContext";
 import { logout } from "@/api/Auth/auth_routes";
@@ -72,33 +70,34 @@ export default function EmployerProfilePage() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
-  const [reportCount, setReportCount] = useState(0)
+  const [reportCount, setReportCount] = useState(0);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const handleLogout = async () => {
-    await logout()
+    await logout();
     router.replace("/login");
   };
 
   useEffect(() => {
-    setUsername(employer ? employer?.username: "")
-    setOrganizationName(employer ? employer.org_name: "")
-    setEmail(employer ? employer?.email: "")
-    setMobileNumber(employer ? employer.contact_number: "")
-    setLocation(employer ? employer?.location: "")
-  }, [])
+    setUsername(employer ? employer?.username : "");
+    setOrganizationName(employer ? employer.org_name : "");
+    setEmail(employer ? employer?.email : "");
+    setMobileNumber(employer ? employer.contact_number : "");
+    setLocation(employer ? employer?.location : "");
+  }, []);
 
-  const isFocused = useIsFocused()
+  const isFocused = useIsFocused();
   useEffect(() => {
-    if(isFocused){
+    if (isFocused) {
       setIsEditing(false);
       setIsPanelVisible(false);
     }
-  }, [isFocused])
+  }, [isFocused]);
 
-  if(!employer){
-    console.log(employer)
-    router.replace('/login')
+  if (!employer) {
+    console.log(employer);
+    router.replace("/login");
   }
   const handleSaveChanges = async () => {
     try {
@@ -144,17 +143,27 @@ export default function EmployerProfilePage() {
               <Text style={styles.profileName}>{employer?.org_name}</Text>
               <Text style={styles.profileOrganization}>{employer?.username}</Text>
             </View>
-            <TouchableOpacity
-              style={styles.notificationButton}
-              onPress={() => setIsPanelVisible(!isPanelVisible)}
-            >
-              <MaterialIcons name="notifications" size={28} color="#fff" />
-              {reportCount > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>{reportCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+
+            <View style={styles.headerRightIcons}>
+              <TouchableOpacity
+                style={styles.notificationButton}
+                onPress={() => setIsPanelVisible(!isPanelVisible)}
+              >
+                <MaterialIcons name="notifications" size={28} color="#fff" />
+                {reportCount > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <Text style={styles.notificationBadgeText}>{reportCount}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => setIsMenuVisible(!isMenuVisible)}
+              >
+                <MaterialIcons name="more-vert" size={28} color="#fff" />
+              </TouchableOpacity>
+            </View>
           </View>
         </LinearGradient>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -202,31 +211,31 @@ export default function EmployerProfilePage() {
                 <InfoRow
                   icon={<MaterialIcons name="person" size={20} color="#333" />}
                   label="Username"
-                  value={employer ? employer?.username: ""}
+                  value={employer ? employer?.username : ""}
                 />
                 <InfoRow
                   icon={
                     <MaterialIcons name="business" size={20} color="#333" />
                   }
                   label="Organization"
-                  value={employer ? employer?.org_name: ""}
+                  value={employer ? employer?.org_name : ""}
                 />
                 <InfoRow
                   icon={<MaterialIcons name="email" size={20} color="#333" />}
                   label="Email"
-                  value={employer ? employer?.email: ""}
+                  value={employer ? employer?.email : ""}
                 />
                 <InfoRow
                   icon={<MaterialIcons name="phone" size={20} color="#333" />}
                   label="Mobile Number"
-                  value={employer ? employer?.contact_number: ""}
+                  value={employer ? employer?.contact_number : ""}
                 />
                 <InfoRow
                   icon={
                     <MaterialIcons name="location-on" size={20} color="#333" />
                   }
                   label="Location"
-                  value={employer ? employer?.location: ""}
+                  value={employer ? employer?.location : ""}
                 />
               </>
             )}
@@ -280,6 +289,48 @@ export default function EmployerProfilePage() {
             </>
           )}
         </ScrollView>
+        {isMenuVisible && (
+          <>
+            <TouchableOpacity
+              style={styles.overlay}
+              activeOpacity={1}
+              onPress={() => setIsMenuVisible(false)}
+            />
+            <View style={styles.menuContainer}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setIsMenuVisible(false);
+                  router.push("/attendance-data/filterAttendance");
+                }}
+              >
+                <MaterialIcons name="insert-drive-file" size={20} color="#333" />
+                <Text style={styles.menuText}>Attendance</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setIsMenuVisible(false);
+                  router.push("/");
+                }}
+              >
+                <MaterialIcons name="settings" size={20} color="#333" />
+                <Text style={styles.menuText}>Settings</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setIsMenuVisible(false);
+                  handleLogout();
+                }}
+              >
+                <MaterialIcons name="logout" size={20} color="#E74C3C" />
+                <Text style={[styles.menuText, { color: "#E74C3C" }]}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
         <ReportPopup
           visible={isPanelVisible}
           onClose={() => setIsPanelVisible(!isPanelVisible)}

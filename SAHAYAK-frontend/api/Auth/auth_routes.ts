@@ -53,7 +53,8 @@ export const employerLogin = async (username: string, password: string) => {
             return response
         }
         else{
-            console.log("Invalid credentials")
+            alert("Invalid Credentials");
+            return null;
         }
     } catch (error) {
         console.log(error)
@@ -70,7 +71,8 @@ export const workerLogin = async (username: string, password: string) => {
             return response
         }
         else{
-            console.log("Invalid credentials")
+            alert("Invalid Credentials");
+            return null;
         }
     } catch (error) {
         console.log(error)

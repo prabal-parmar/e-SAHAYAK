@@ -46,4 +46,35 @@ export const updateResponse = async (id: any, newStatus: string, reason: string,
         return false
     }
 }
+
+export const getCalenderDataByMonth = async (month: number, year: number) => {
+    try {
+        const response = await apiClient.get('/worker/monthly-attendance/',
+            {
+                params: {
+                    month, year
+                }
+            }
+        )
+        return response.data.data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const getAttendanceDetailsByDate = async (date: string) => {
+    try {
+        const response = await apiClient.get('/worker/filter-attendance-data/',
+            {
+                params: {
+                    date: date
+                }
+            }
+        )
+        // console.log("Data sent: ",response.data)
+        return response.data;
+    } catch (error) {
+        console.log(error)
+    }
+}
     

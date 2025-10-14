@@ -84,8 +84,7 @@ export default function WorkerReportsPage() {
   const filteredReports = useMemo(
     () =>
       allReports
-        .filter((report) => report.status === activeFilter)
-        .sort((a, b) => b.date.getTime() - a.date.getTime()),
+        .filter((report) => report.status === activeFilter),
     [allReports, activeFilter]
   );
 

@@ -57,7 +57,7 @@ export const getAllWorkersWorking = async () => {
 
 export const addFullAttendanceData = async (data: FrontendData) => {
     try {
-        await apiClient.post('/employer/work/mark-attendance-data/', 
+        const response = await apiClient.post('/employer/work/mark-attendance-data/', 
             {
                 worker: data?.worker,
                 entry_time: data?.entry_time,
@@ -70,10 +70,9 @@ export const addFullAttendanceData = async (data: FrontendData) => {
                 overtime_leaving_time: data?.overtime_entry_time,
             }
         )
-        return true
+        return response.data
     } catch (error) {
         console.log(error)
-        return false
     }
 }
 
@@ -106,5 +105,22 @@ export const markOvertimeClockOutTime = async (data: FrontendData) => {
     } catch (error) {
         console.log(error)
         return false
+    }
+}
+
+export const fetchAttendanceDataByDate = async (data: FrontendData) => {
+    try {
+        const response = await apiClient.get('/employer/filter-attendance-data/', 
+            {
+                params: {
+                    day: data.day,
+                    month: data.month,
+                    year: data.year
+                }
+            }
+        )
+        return response.data.data
+    } catch (error) {
+        console.log(error)
     }
 }

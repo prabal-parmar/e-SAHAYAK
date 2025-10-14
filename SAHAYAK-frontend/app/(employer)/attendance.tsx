@@ -237,9 +237,11 @@ export default function AttendancePage() {
 
   const filteredWorkers = useMemo(() => {
     if (!workingWorkers) return [];
-    return workingWorkers.filter((w) =>
-      w.username.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return workingWorkers
+      .filter((w) => !w.done)
+      .filter((w) =>
+        w.username.toLowerCase().includes(searchQuery.toLowerCase())
+      );
   }, [workingWorkers, searchQuery]);
 
   const filteredWorkersByShift = useMemo(() => {
@@ -253,7 +255,7 @@ export default function AttendancePage() {
 
   const filteredOvertimeWorkers = useMemo(() => {
     return filteredWorkers.filter(
-      (w) => w.overtime_entry_time && w.overtime_entry_time !== null
+      (w) => w.overtime_entry_time && !w.done // 👈 hide if submitted
     );
   }, [filteredWorkers]);
 
@@ -315,6 +317,10 @@ export default function AttendancePage() {
   }, [currentTime.getDate()]);
 
   const handleClockIn = async () => {
+    if(!clockInTime && !selectedWorker && !selectedShift){
+      alert("Select mandatory field first")
+      return null;
+    }
     const data = {
       workerUsername: selectedWorker?.username,
       clockInTime: `${clockInTime.getHours()}:${clockInTime.getMinutes()}`,
@@ -390,7 +396,9 @@ export default function AttendancePage() {
         overtime_entry_time: selectedWorker?.overtime_entry_time,
         overtime_leaving_time: selectedWorker?.overtime_leaving_time,
       };
-      await addFullAttendanceData(data);
+      const amount = await addFullAttendanceData(data);
+      alert(`Worker have to collect ${amount.amount} from you!`)
+      await fetchAllWorkers()
       setSelectedShift(null)
       setSelectedWorker(null)
       setClockInTime(new Date())
@@ -404,6 +412,14 @@ export default function AttendancePage() {
 
   const handlemarkClockOutTime = async () => {
     try {
+      if(!clockInTime && !selectedWorker && !selectedShift){
+        alert("Select mandatory fields first")
+        return null;
+      }
+      if(clockOutTime <= clockInTime){
+        alert("Clock-out time should be greate than clock-in time!");
+        return null;
+      }
       const data = {
         workerUsername: selectedWorker?.username,
         clockOutTime: `${clockOutTime.getHours()}:${clockOutTime.getMinutes()}`,
@@ -424,6 +440,18 @@ export default function AttendancePage() {
 
   const handleOvertimeClockIn = async () => {
     try {
+      if(!selectedWorker?.username && 
+        !selectedWorker?.entry_time && 
+        !selectedWorker?.leaving_time && 
+        !selectedWorker?.shift &&
+        !overtimeClockInTime){
+          alert("Select mandatory field first");
+          return null;
+      }
+      if(clockOutTime >= overtimeClockInTime){
+        alert("Clock-in time for overtime should be greater than clock-out time")
+        return null;
+      }
       const data = {
         workerUsername: selectedWorker?.username,
         clockInTime: `${overtimeClockInTime.getHours()}:${overtimeClockInTime.getMinutes()}`,
@@ -447,6 +475,17 @@ export default function AttendancePage() {
 
   const handleOvertimeClockOutTime = async () => {
     try {
+      if(!selectedWorker?.entry_time && 
+        !selectedWorker?.leaving_time && 
+        !selectedWorker?.overtime_entry_time && 
+        !selectedShift && selectedWorker?.username){
+          alert("Selected mandatory fields first")
+          return null;
+        }
+      if(overtimeClockInTime >= overtimeClockOutTime){
+        alert("Clock-in time should be less than clock-out")
+        return null;
+      }
       const data = {
         workerUsername: selectedWorker?.username,
         clockOutTime: `${overtimeClockOutTime.getHours()}:${overtimeClockOutTime.getMinutes()}`,
@@ -865,27 +904,64 @@ export default function AttendancePage() {
                         onPress={() => handleSelectedWorker(worker)}
                         key={index}
                       >
-                        <View style={styles.attendanceRow}>
+                        <View
+                          style={[
+                            styles.attendanceRow,
+                           
+                          ]}
+                        >
                           <View style={styles.workerInfo}>
-                            {!worker?.leaving_time ? (
-                              <View style={styles.statusIndicatorGreen} />
-                            ) : (
-                              <View style={styles.statusIndicatorRed} />
-                            )}
+                            {worker.leaving_time ? (
+                            <View style={styles.statusIndicatorRed} />
+                          ) : (
+                            <View style={styles.statusIndicatorGreen} />
+                          )}
+
                             <View>
-                              <Text style={styles.workerName}>
+                              <Text
+                                style={[
+                                  styles.workerName,
+                                ]}
+                              >
                                 {worker?.username || "Unknown"}
                               </Text>
+
                               <Text style={styles.workerDetail}>
                                 Shift: {getShiftLabel(worker?.shift)}
                               </Text>
+
+                              <View
+                                style={[
+                                  styles.statusTag,
+                                  worker.done ? styles.statusTagSubmitted : styles.statusTagPending,
+                                ]}
+                              >
+                                <Text
+                                  style={[
+                                    styles.statusTagText
+                                  ]}
+                                >
+                                  {worker.done ? "Submitted" : "Pending"}
+                                </Text>
+                              </View>
                             </View>
                           </View>
+
                           <View style={styles.timeInfo}>
-                            <Text style={styles.timeLabel}>Clock In</Text>
-                            <Text style={styles.timeValue}>{worker?.entry_time}</Text>
+                            {worker.leaving_time ? (
+                              <>
+                                <Text style={styles.timeLabel}>Clock Out</Text>
+                                <Text style={styles.timeValue}>{worker.leaving_time}</Text>
+                              </>
+                            ) : (
+                              <>
+                                <Text style={styles.timeLabel}>Clock In</Text>
+                                <Text style={styles.timeValue}>{worker.entry_time}</Text>
+                              </>
+                            )}
                           </View>
                         </View>
+
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -934,8 +1010,22 @@ export default function AttendancePage() {
                           </View>
                         </View>
                         <View style={styles.timeInfo}>
-                          <Text style={styles.timeLabel}>Clock In</Text>
-                          <Text style={styles.timeValue}>{worker?.overtime_entry_time}</Text>
+                          {
+                            !worker.overtime_leaving_time ?
+                            (
+                              <>
+                                <Text style={styles.timeLabel}>Clock In</Text>
+                                <Text style={styles.timeValue}>{worker?.overtime_entry_time}</Text>
+                              </>
+                            ) :
+                            (
+                              <>
+                                <Text style={styles.timeLabel}>Clock Out</Text>
+                                <Text style={styles.timeValue}>{worker?.overtime_leaving_time}</Text>
+                              </>
+                            )
+                          }
+                          
                         </View>
                       </View>
                     </TouchableOpacity>

@@ -11,9 +11,11 @@ from datetime import date, datetime
 from django.utils import timezone
 from Worker.serializers import AttendanceSerializer
 from .serializers import ReportEmployerSerializer
-from django.db.models import F
+from django.db.models import F, Value
+from django.db.models.functions import Concat
 from Users.serializers import EmployerRegisterSerializer
 from Worker.models import HourWage
+import math
 # Create your views here.
 
 
@@ -166,7 +168,7 @@ def add_worker_attendance_data(request):
 
         shift_amount = (Decimal(float(attendance.total_time) * float(hour_wage)))
         overtime_amount = (Decimal(float(attendance.extra_time) * float(overtime_wage)))
-        amount = shift_amount + overtime_amount
+        amount = math.floor(shift_amount + overtime_amount)
         work = WorkersWorkModel.objects.filter(date=timezone.localdate(), employer=employer, worker=worker).first()
         if work:
             work.amount = amount
@@ -174,7 +176,7 @@ def add_worker_attendance_data(request):
         else:
             WorkersWorkModel.objects.create(employer=employer, worker=worker, amount=amount, attendance=attendance)
         
-        return Response({"message": "Worker Attendance data saved."}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Worker Attendance data saved.", "amount": amount}, status=status.HTTP_201_CREATED)
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 # Today's attendance data for worker
@@ -375,10 +377,13 @@ def get_workers_working_now(request):
 
     workers = []
     for row in all_workers_working:
+        worker = WorkerModel.objects.filter(user__username=row["username"]).first()
+        done = True if WorkersWorkModel.objects.filter(worker=worker, date=timezone.localdate(), employer=employer) else False
         workers.append({
             "username": row["username"],
             "shift": row["shift"],
             "entry_time": str(row["entry_time"]) if row["entry_time"] else None,
+            "done": done,
             "date": str(row["date"]) if row["date"] else None,
             "leaving_time": str(row["leaving_time"]) if row["leaving_time"] else None,
             "overtime_entry_time": str(row["overtime_entry_time"]) if row["overtime_entry_time"] else None,
@@ -388,7 +393,7 @@ def get_workers_working_now(request):
 
     # print(workers)
     return Response({"message": "All username of workers working sent.", 
-                     "workers": all_workers_working}, status=status.HTTP_200_OK)
+                     "workers": workers}, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
@@ -419,3 +424,71 @@ def get_employer_data(request):
             return Response({"message": "Profile Updated Successfully."}, status=status.HTTP_201_CREATED)
         else:
             return Response({"error": "Error in updating Employer profile"}, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_attendance_data_by_date(request):
+    if request.user.role!="employer":
+        return Response({"error": "Only Employer have this right."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method=="GET":
+        employer = request.user.employer_profile
+
+        day = int(request.GET.get("day"))
+        month = int(request.GET.get("month"))
+        year = int(request.GET.get("year"))
+        attendances = WorkersWorkModel.objects.filter(employer=employer, attendance__date__month=month, attendance__date__year=year, attendance__date__day=day).all().values(workerId=F("worker__user__username"), 
+                                                                                                                                    Shift=F("attendance__shift"),
+                                                                                                                                    entryTime=F("attendance__entry_time"),
+                                                                                                                                    leavingTime=F("attendance__leaving_time"),
+                                                                                                                                    name=Concat(F("worker__user__first_name"), Value(" "), F("worker__user__last_name")),
+                                                                                                                                    overtimeEntry=F("attendance__overtime_entry_time"),
+                                                                                                                                    overtimeLeaving=F("attendance__overtime_leaving_time"))
+        
+        return Response({"message": "Attendance for particular date sent", "data": attendances}, 
+                        status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_worker_salary(request):
+    if request.user.role!="employer":
+        return Response({"error": "Only Employer have this right."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method=="GET":
+        employer = request.user.employer_profile
+        workers_earning = WorkersWorkModel.objects.filter(amount_given=False, employer=employer).all().values("amount","id",
+                                                                                                      workerUsername=F("worker__user__username"),
+                                                                                                      entryTime=F("attendance__entry_time"),
+                                                                                                      leavingTime=F("attendance__leaving_time"),
+                                                                                                      overtimeEntryTime=F("attendance__overtime_entry_time"),
+                                                                                                      overtimeLeavingTime=F("attendance__overtime_leaving_time"),
+                                                                                                      attendance_date=F("attendance__date"),
+                                                                                                      Date=F("attendance__date")
+                                                                                                      )
+        
+        return Response({"message": "Workers earning sent.", "data": workers_earning}, status=status.HTTP_200_OK)
+    
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_wage_given_status(request):
+    if request.user.role!="employer":
+        return Response({"error": "Only Employer have this right."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    employer = request.user
+    if not employer:
+        return Response({"error": "Employer not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method=="PATCH":
+        work_id = request.data.get("id")
+        work = WorkersWorkModel.objects.filter(id = work_id).first()
+        work.amount_given = True
+        work.save()
+        return Response({"message": "Worker salary given by Employer"}, status=status.HTTP_200_OK)

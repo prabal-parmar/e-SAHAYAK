@@ -13,5 +13,8 @@ urlpatterns = [
     path('reports/', views.report_by_employer, name="Reports by User"),
     path('all-workers/', views.get_all_workers, name="All workers username"),
     path('worker-working/', views.get_workers_working_now, name="Workers Working"),
-    path('profile/', views.get_employer_data, name="Employer Profile")
+    path('profile/', views.get_employer_data, name="Employer Profile"),
+    path('filter-attendance-data/', views.get_attendance_data_by_date, name="Attendance Data Date wise"),
+    path('get-workers-salary/', views.get_worker_salary, name="Workers Salary"),
+    path('update-worker-salary-status/', views.update_wage_given_status, name="Worker Salary given by Employer")
 ]

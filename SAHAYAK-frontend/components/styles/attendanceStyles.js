@@ -353,4 +353,45 @@ listHeader: {
     paddingVertical: 6,
   },
 
+statusDot: {
+  width: 10,
+  height: 10,
+  borderRadius: 5,
+  marginRight: 10,
+},
+
+statusDotSubmitted: {
+  backgroundColor: "#2ECC71",
+},
+
+statusDotPending: {
+  backgroundColor: "#E74C3C",
+},
+
+statusTag: {
+  alignSelf: "flex-start",
+  paddingHorizontal: 8,
+  paddingVertical: 3,
+  borderRadius: 6,
+  marginTop: 5,
+},
+
+statusTagSubmitted: {
+  backgroundColor: "#C8E6C9",
+},
+
+statusTagPending: {
+  backgroundColor: "#FFCDD2",
+},
+
+statusTagText: {
+  fontSize: 11,
+  fontWeight: "600",
+},
+
+
+statusTagTextPending: {
+  color: "#C62828",
+},
+
 });

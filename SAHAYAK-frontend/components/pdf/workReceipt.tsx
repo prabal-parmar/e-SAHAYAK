@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert } from "react-native";
+import { Alert, Linking } from "react-native";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
@@ -130,8 +130,8 @@ export const generatePDF = async (receiptData: ReceiptData, logoUri: number) => 
         base64: false,
       });
 
-      // console.log("PDF generated at:", uri);
-
+      console.log("PDF generated at:", uri);
+      // await Linking.openURL(uri);
       const canShare = await Sharing.isAvailableAsync();
       if (canShare) {
         await Sharing.shareAsync(uri, {

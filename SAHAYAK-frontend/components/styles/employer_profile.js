@@ -231,5 +231,55 @@ notificationBadgeText: {
     fontSize: 10,
     fontWeight: 'bold',
 },
+headerRightIcons: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10,
+},
 
+menuButton: {
+  padding: 8,
+  borderRadius: 20,
+  backgroundColor: "rgba(255, 255, 255, 0.15)",
+},
+
+menuContainer: {
+  position: "absolute",
+  top: Platform.OS === "ios" ? 115 : 95,
+  right: 20,
+  backgroundColor: "#fff",
+  borderRadius: 10,
+  width: 180,
+  shadowColor: "#000",
+  shadowOpacity: 0.15,
+  shadowOffset: { width: 0, height: 4 },
+  shadowRadius: 10,
+  elevation: 10,
+  zIndex: 9999,
+  paddingVertical: 5,
+},
+
+menuItem: {
+  flexDirection: "row",
+  alignItems: "center",
+  paddingVertical: 10,
+  paddingHorizontal: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: "#F0F0F0",
+},
+
+menuText: {
+  fontSize: 16,
+  marginLeft: 10,
+  color: "#333",
+},
+overlay: {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "transparent",
+  zIndex: 9998,
+},
 });

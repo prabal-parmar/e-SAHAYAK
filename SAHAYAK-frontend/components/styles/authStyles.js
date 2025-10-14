@@ -580,5 +580,12 @@ export const register = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  fieldExample: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 4,
+    lineHeight: 16,
+    fontStyle: "italic",
+  },
 });
 

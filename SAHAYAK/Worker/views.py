@@ -12,6 +12,7 @@ from Users.serializers import WorkerRegisterSerializer
 from django.utils import timezone
 from calendar import monthrange
 import math
+from django.db.models import F
 from Employer.models import WorkersWorkModel
 # Create your views here.
 
@@ -172,23 +173,27 @@ def get_recent_work_history(request):
     worker = request.user.worker_profile
     today = timezone.now().date() + timedelta(days=1)
     start_date = today - timedelta(days=6)
-    attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
+    attendances = WorkersWorkModel.objects.filter(worker=worker, attendance__date__range=[start_date, today]).all().values(emp=F("attendance__employer"),
+                                                                                                                           d=F("attendance__date"),
+                                                                                                                           a=F("amount"),
+                                                                                                                           satisfaction=F("attendance__worker_response"))
 
     data = []
     wage = HourWage.objects.first()
     hour_wage = wage.hourly_wage if wage else 0
+    overtime_wage = wage.overtime_wage if wage else 0
 
     for index,attendance in enumerate(attendances, start=1):
-        employer = attendance.employer
-        employer_profile = EmployerModel.objects.filter(id=employer.id).first()
+        employer = attendance["emp"]
+        employer_profile = EmployerModel.objects.filter(id=employer).first()
 
         org_name = employer_profile.org_name
         temp = {
             "id": index,
             "organizationName": org_name,
-            "date": attendance.date,
-            "wages": math.floor(Decimal(attendance.total_time) * hour_wage),
-            "satisfaction": attendance.worker_response,
+            "date": attendance["d"],
+            "wages": math.floor(attendance["a"]),
+            "satisfaction": attendance["satisfaction"],
         }
         data.append(temp)
     
@@ -310,26 +315,30 @@ def recent_worked_data(request):
     worker = request.user.worker_profile
     today = timezone.now().date() + timedelta(days=1)
     start_date = today - timedelta(days=6)
-    attendances = Attendences.objects.filter(worker=worker, date__range=[start_date, today])
+    attendances = WorkersWorkModel.objects.filter(worker=worker, attendance__date__range=[start_date, today]).all().values(index=F("attendance__work_id"),
+                                                                                                                           emp=F("employer"),
+                                                                                                                           d=F("attendance__date"),
+                                                                                                                           a=F("amount"),
+                                                                                                                           status=F("attendance__worker_response"),
+                                                                                                                           startTime=F("attendance__entry_time"),
+                                                                                                                           endTime=F("attendance__leaving_time"))
 
     data = []
 
-    wage = HourWage.objects.first()
-    hour_wage = wage.hourly_wage if wage else 0
 
     for index,attendance in enumerate(attendances, start=1):
-        employer = attendance.employer
-        employer_profile = EmployerModel.objects.filter(id=employer.id).first()
+        employer = attendance["emp"]
+        employer_profile = EmployerModel.objects.filter(id=employer).first()
 
         org_name = employer_profile.org_name
         temp = {
-            "id": attendance.work_id,
+            "id": attendance["index"],
             "organizationName": org_name,
-            "date": attendance.date,
-            "wages": math.floor(Decimal(attendance.total_time) * hour_wage),
-            "status": attendance.worker_response,
-            "startTime": attendance.entry_time,
-            "endTime": attendance.leaving_time
+            "date": attendance["d"],
+            "wages": math.floor(attendance["a"]),
+            "status": attendance["status"],
+            "startTime": attendance["startTime"],
+            "endTime": attendance["endTime"]
         }
         data.append(temp)
     
@@ -399,7 +408,7 @@ def get_pdf_data(request, id):
         "entry_time": attendance.entry_time,
         "leaving_time": attendance.leaving_time,
         "wage_per_hour": hour_wage,
-        "amount": work.amount
+        "amount": math.floor(work.amount)
     }
 
     return Response({"message": "Data for receipt pdf sent.", "data": data}, status=status.HTTP_200_OK)
@@ -432,3 +441,85 @@ def get_all_reports_with_status(request):
 
     return Response({"message": "All reports reported by worker sent", "data": data}, status=status.HTTP_200_OK)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_attendance_by_month(request):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    worker = request.user.worker_profile
+    
+    if request.method=="GET":
+        month = int(request.GET.get("month"))
+        year = int(request.GET.get("year"))
+        attendances = WorkersWorkModel.objects.filter(attendance__date__month=month, attendance__date__year=year, worker=worker).all().values(d=F("attendance__date"),
+                                                                                                                               o=F("attendance__overtime"))
+        
+        data = []
+        for attendance in attendances:
+            if attendance["o"]:
+                temp = {
+                    "status": "overtime",
+                    "date": attendance["d"].strftime("%Y-%m-%d")
+                }
+            else:
+                temp = {
+                    "status": "present",
+                    "date": attendance["d"].strftime("%Y-%m-%d")
+                }
+            data.append(temp)
+        print(data)
+        return Response({"message": "Month data sent", "data": data}, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_worker_data_by_date(request):
+    if request.user.role!="worker":
+        return Response({"error": "Worker have access to their profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    worker = request.user
+    if not worker:
+        return Response({"error": "Worker not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    worker = request.user.worker_profile
+
+    if request.method=="GET":
+        d = request.GET.get("date").split("-")
+        year = int(d[0])
+        month = int(d[1])
+        day = int(d[2])
+
+        # print(day, month, year)
+        if not WorkersWorkModel.objects.filter(worker=worker, attendance__date__day=day, attendance__date__month=month, attendance__date__year=year).values().first():
+            return Response({"message": "Attendance Data for this day not found", "data": {}}, status=status.HTTP_404_NOT_FOUND)
+        
+        attendance = WorkersWorkModel.objects.filter(worker=worker, attendance__date__day=day, attendance__date__month=month, attendance__date__year=year).all().values(organizationName=F("employer__org_name"),
+                                                                                                                                                                        attend_id=F("attendance__id"),
+                                                                                                                                                                        Shift=F("attendance__shift"),
+                                                                                                                                                                        entryTime=F("attendance__entry_time"),
+                                                                                                                                                                        leavingTime=F("attendance__leaving_time"),
+                                                                                                                                                                        overtimeEntryTime=F("attendance__overtime_entry_time"),
+                                                                                                                                                                        overtimeLeavingTime=F("attendance__overtime_leaving_time"),
+                                                                                                                                                                        totalAmount=F("amount"))
+        attendance = list(attendance)
+        wage = HourWage.objects.first()
+        hour_wage = int(wage.hourly_wage) if wage else 0
+        overtime_wage = int(wage.overtime_wage) if wage else 0 
+        attend = Attendences.objects.filter(id=attendance[0]["attend_id"]).first()
+        # print(attendance)
+        data = {
+            "organizationName": attendance[0]["organizationName"],
+            "earning": math.floor(attend.total_time * hour_wage),
+            "Shift": attendance[0]["Shift"],
+            "entryTime": attendance[0]["entryTime"],
+            "leavingTime": attendance[0]["leavingTime"],
+            "overtimeEntryTime": attendance[0]["overtimeEntryTime"],
+            "overtimeLeavingTime": attendance[0]["overtimeLeavingTime"],
+            "overtimeEarning": math.floor(attend.extra_time * overtime_wage),
+            "totalAmount": attendance[0]["totalAmount"]
+        }
+        return Response({"message": "Attendance Data sent", "data": data}, status=status.HTTP_200_OK)

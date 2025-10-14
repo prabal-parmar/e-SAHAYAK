@@ -86,6 +86,7 @@ const LoginSection = () => {
   const [password, setPassword] = useState("");
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // 👁️ New state for toggle
 
   const router = useRouter();
 
@@ -105,9 +106,9 @@ const LoginSection = () => {
           console.log("Something went wrong!");
         }
       } else {
-        console.log("Invalid Credentials");
+        alert("Invalid Credentials");
+        return null;
       }
-      // console.log(response);
     } else {
       console.log("Enter Username and Password");
       return null;
@@ -124,9 +125,9 @@ const LoginSection = () => {
           console.log("Something went wrong!");
         }
       } else {
-        console.log("Invalid Credentials");
+        alert("Invalid Credentials");
+        return null;
       }
-      // console.log(response);
     } else {
       console.log("Enter Username and Password");
       return null;
@@ -208,22 +209,40 @@ const LoginSection = () => {
               onBlur={() => setIsUsernameFocused(false)}
             />
           </View>
+
           <View style={loginStyles.inputContainer}>
             <Text style={loginStyles.inputLabel}>Password</Text>
-            <TextInput
-              style={[
-                loginStyles.input,
-                isPasswordFocused && loginStyles.inputFocused,
-              ]}
-              placeholder="Enter your password"
-              placeholderTextColor="#B0B8C4"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              onFocus={() => setIsPasswordFocused(true)}
-              onBlur={() => setIsPasswordFocused(false)}
-            />
+            <View style={{ position: "relative" }}>
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  isPasswordFocused && loginStyles.inputFocused,
+                ]}
+                placeholder="Enter your password"
+                placeholderTextColor="#B0B8C4"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: 15,
+                  top: 14,
+                }}
+              >
+                <MaterialIcons
+                  name={showPassword ? "visibility" : "visibility-off"}
+                  size={22}
+                  color="#7A869A"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
+
           <TouchableOpacity
             style={loginStyles.loginButton}
             onPress={handelEmployerLogin}
@@ -255,22 +274,40 @@ const LoginSection = () => {
               onBlur={() => setIsUsernameFocused(false)}
             />
           </View>
+
           <View style={loginStyles.inputContainer}>
             <Text style={loginStyles.inputLabel}>Password</Text>
-            <TextInput
-              style={[
-                loginStyles.input,
-                isPasswordFocused && loginStyles.inputFocused,
-              ]}
-              placeholder="Enter your password"
-              placeholderTextColor="#B0B8C4"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              onFocus={() => setIsPasswordFocused(true)}
-              onBlur={() => setIsPasswordFocused(false)}
-            />
+            <View style={{ position: "relative" }}>
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  isPasswordFocused && loginStyles.inputFocused,
+                ]}
+                placeholder="Enter your password"
+                placeholderTextColor="#B0B8C4"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: 15,
+                  top: 14,
+                }}
+              >
+                <MaterialIcons
+                  name={showPassword ? "visibility" : "visibility-off"}
+                  size={22}
+                  color="#7A869A"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
+
           <TouchableOpacity
             style={loginStyles.loginButton}
             onPress={handelWorkerLogin}

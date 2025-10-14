@@ -57,6 +57,16 @@ export default function RegistrationPage() {
       username: username.toLowerCase(),
       password: password,
     };
+    const usernameRegex = /^[A-Za-z0-9_]+$/;
+    if (username.length < 5) {
+      alert("username can-not be less than 5 character");
+      return null;
+    }
+
+    if (!usernameRegex.test(data.username)) {
+      alert("Username doesn't match given requirement. It should include alphabets/numbers and _")
+      return null;
+    }
 
     if (
       firstName &&
@@ -86,6 +96,16 @@ export default function RegistrationPage() {
       password: password,
       orgName: orgName,
     };
+
+    if (data.username.length < 5) {
+      alert("username can-not be less than 5 character");
+      return null;
+    }
+
+    if (data.contactNumber.length < 10) {
+      alert("Mobile Number can only be 10 digit long");
+      return null;
+    }
     if (
       username &&
       email &&
@@ -186,7 +206,11 @@ export default function RegistrationPage() {
               placeholder="Your company's name"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "Tata Constructions Pvt. Ltd."
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Username</Text>
             <TextInput
@@ -196,7 +220,11 @@ export default function RegistrationPage() {
               placeholder="Choose a username"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "rahul123" (letters, numbers, and _ only)
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Email</Text>
             <TextInput
@@ -207,7 +235,11 @@ export default function RegistrationPage() {
               keyboardType="email-address"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "manager@tatainfra.com"
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Contact Number</Text>
             <TextInput
@@ -219,6 +251,7 @@ export default function RegistrationPage() {
               placeholderTextColor="#B0B8C4"
             />
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Password</Text>
             <TextInput
@@ -229,17 +262,25 @@ export default function RegistrationPage() {
               secureTextEntry
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "Pass@1234" (min 8 chars, include symbols & numbers)
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Location</Text>
             <TextInput
               style={register.input}
               value={address}
               onChangeText={setAddress}
-              placeholder="e.g., Mumbai, Maharashtra"
+              placeholder="e.g., Indore Vijay Nagar"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "Indore Vijay Nagar"
+            </Text>
           </View>
+
           <TouchableOpacity
             style={register.registerButton}
             onPress={handelRegisterEmployer}
@@ -271,6 +312,7 @@ export default function RegistrationPage() {
               />
             </View>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Gender</Text>
             <View style={register.genderContainer}>
@@ -295,6 +337,7 @@ export default function RegistrationPage() {
               ))}
             </View>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Contact Number</Text>
             <TextInput
@@ -306,6 +349,7 @@ export default function RegistrationPage() {
               placeholderTextColor="#B0B8C4"
             />
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Skill</Text>
             <TextInput
@@ -315,7 +359,11 @@ export default function RegistrationPage() {
               placeholder="e.g., Carpenter, Electrician"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "Electrician" or "Plumber"
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Address</Text>
             <TextInput
@@ -325,7 +373,11 @@ export default function RegistrationPage() {
               placeholder="Your current address"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "Indore Vijay Nagar"
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Username</Text>
             <TextInput
@@ -335,7 +387,11 @@ export default function RegistrationPage() {
               placeholder="Choose a username"
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "rahul123" (letters, numbers, and _ only)
+            </Text>
           </View>
+
           <View style={register.inputContainer}>
             <Text style={register.inputLabel}>Password</Text>
             <TextInput
@@ -346,7 +402,11 @@ export default function RegistrationPage() {
               secureTextEntry
               placeholderTextColor="#B0B8C4"
             />
+            <Text style={register.fieldExample}>
+              Example: "Pass@1234" (min 8 chars, include symbols & numbers)
+            </Text>
           </View>
+
           <TouchableOpacity
             style={register.registerButton}
             onPress={handelRegisterWorker}
