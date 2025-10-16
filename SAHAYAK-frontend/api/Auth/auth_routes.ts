@@ -1,5 +1,6 @@
 import axios from "axios"
 import * as SecureStore from "expo-secure-store";
+import apiClient from "./axiosInstance";
 
 const API_URL = "http://127.0.0.1:8000/api";
 
@@ -83,7 +84,8 @@ export const logout = async () => {
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
     await SecureStore.deleteItemAsync("role");
-    // to be added 
+    
+    return alert("Loged Out Successfully");
 }
 
 type RegisterData = Record<string, any>;
@@ -122,5 +124,17 @@ export const registerEmployer = async (data: RegisterData) => {
         console.log("Employer Registered successfully!")
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const changeUserPassword = async (oldPassword: string, newPassword: string) => {
+    try {
+        await apiClient.patch(`${API_URL}/user/change-password/`,
+            { oldPassword, newPassword }
+        )
+        return true;
+    } catch (error) {
+        console.log(error)
+        return false;
     }
 }

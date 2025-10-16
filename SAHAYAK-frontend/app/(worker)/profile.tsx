@@ -88,14 +88,14 @@ const EditableRow: React.FC<EditableRowProps> = ({
 );
 
 export default function WorkerProfilePage() {
-  const {worker, setWorker} = useWorker()
+  const { worker, setWorker } = useWorker();
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [address, setAddress] = useState("");
   const [skill, setSkill] = useState("");
-
+  const [showMenu, setShowMenu] = useState(false);
   const [gender, setGender] = useState("");
 
   const updateWorkerData = async () => {
@@ -110,7 +110,15 @@ export default function WorkerProfilePage() {
       };
       await updateWorkerProfile(data);
       let g = gender as GenderKey;
-      setWorker({firstName, lastName, contactNumber, gender: g, skill, address, username: worker ? worker?.username : ""})
+      setWorker({
+        firstName,
+        lastName,
+        contactNumber,
+        gender: g,
+        skill,
+        address,
+        username: worker ? worker?.username : "",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -144,6 +152,11 @@ export default function WorkerProfilePage() {
     router.replace("/login");
   };
 
+  const handleSettings = () => {
+    router.push('/setting')
+    setShowMenu(false);
+  };
+
   const handleSaveChanges = async () => {
     // console.log(gender as GenderKey)
     const data: WORKER = {
@@ -155,7 +168,7 @@ export default function WorkerProfilePage() {
       skill: skill,
       address: address,
     };
-    setWorker(data)
+    setWorker(data);
     updateWorkerData();
     setIsEditing(false);
   };
@@ -176,21 +189,80 @@ export default function WorkerProfilePage() {
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
           <LinearGradient
             colors={["#667db6", "#2E2E2E"]}
-            style={styles.headerGradient}
+            style={[styles.headerGradient, { justifyContent: "center" }]}
           >
-            <View style={styles.headerContent}>
-              <View style={styles.avatarContainer}>
-                <Text style={styles.avatarText}>
-                  {getInitials(worker ? worker?.firstName : "?", worker ? worker?.lastName: "")}
-                </Text>
+            <View
+              style={[
+                styles.headerContent,
+                { justifyContent: "space-between", paddingRight: 20 },
+              ]}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={styles.avatarContainer}>
+                  <Text style={styles.avatarText}>
+                    {getInitials(
+                      worker ? worker?.firstName : "",
+                      worker ? worker?.lastName : ""
+                    )}
+                  </Text>
+                </View>
+                <View style={styles.headerTextContainer}>
+                  <Text style={styles.name}>
+                    {worker?.firstName} {worker?.lastName}
+                  </Text>
+                  <Text style={styles.skill}>{worker?.skill}</Text>
+                </View>
               </View>
-              <View style={styles.headerTextContainer}>
-                <Text style={styles.name}>{`${worker?.firstName} ${worker?.lastName}`}</Text>
-                <Text style={styles.skill}>{worker?.skill}</Text>
-              </View>
+              <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
+                <MaterialIcons name="more-vert" size={28} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
           </LinearGradient>
-
+          
+          {showMenu && (
+            <>
+            <TouchableOpacity
+              style={styles.overlay}
+              activeOpacity={1}
+              onPress={() => setShowMenu(false)}
+            />
+            <View style={[styles.menu]}>
+              {!isEditing ? (
+                <>
+                  <TouchableOpacity
+                    onPress={handleSettings}
+                    style={styles.menuItem}
+                  >
+                    <MaterialIcons name="settings" size={20} color="#333" />
+                    <Text style={styles.menuItemText}> Settings</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleLogout}
+                    style={styles.menuItem}
+                  >
+                    <MaterialIcons name="logout" size={20} color="#E74C3C" />
+                    <Text style={[styles.menuItemText, { color: "#E74C3C" }]}> Logout</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    onPress={handleCancel}
+                    style={styles.menuItem}
+                  >
+                    <Text style={styles.menuItemText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSaveChanges}
+                    style={styles.menuItem}
+                  >
+                    <Text style={styles.menuItemText}>Save</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+            </>
+          )}
           <View style={styles.contentContainer}>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Personal Information</Text>
@@ -343,21 +415,6 @@ export default function WorkerProfilePage() {
                     style={{ marginRight: 10 }}
                   />
                   <Text style={styles.buttonText}>Edit Profile</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.button, styles.logoutButton]}
-                  onPress={handleLogout}
-                >
-                  <MaterialIcons
-                    name="logout"
-                    size={20}
-                    color="#FFFFFF"
-                    style={{ marginRight: 10 }}
-                  />
-                  <Text style={[styles.buttonText, styles.logoutButtonText]}>
-                    Logout
-                  </Text>
                 </TouchableOpacity>
               </>
             )}

@@ -5,17 +5,12 @@ export const styles = StyleSheet.create({
     backgroundColor: "#F7F8FA",
   },
   contentContainer: {
-    padding: 20,
-    marginTop: -50,
+    padding: 30,
+    marginTop: 0,
   },
   headerGradient: {
     height: "25.5%",
     paddingHorizontal: 25,
-    justifyContent: 'center',
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   avatarContainer: {
     width: 80,
@@ -166,5 +161,47 @@ export const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: "#FFFFFF",
+  },
+  menu: {
+    width: 130,
+    zIndex: 999999999,
+    position: "absolute",
+    top: Platform.OS === "ios" ? 95 : 95,
+    right: 40,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    paddingVertical: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  menuItemText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: "#34495E",
+  },
+
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
+    zIndex: 9998,
   },
 });

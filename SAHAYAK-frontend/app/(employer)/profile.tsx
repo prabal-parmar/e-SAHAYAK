@@ -272,20 +272,6 @@ export default function EmployerProfilePage() {
                 />
                 <Text style={styles.buttonText}>Edit Profile</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.logoutButton]}
-                onPress={handleLogout}
-              >
-                <MaterialIcons
-                  name="logout"
-                  size={20}
-                  color="#FFFFFF"
-                  style={{ marginRight: 10 }}
-                />
-                <Text style={[styles.buttonText, styles.logoutButtonText]}>
-                  Logout
-                </Text>
-              </TouchableOpacity>
             </>
           )}
         </ScrollView>
@@ -311,7 +297,7 @@ export default function EmployerProfilePage() {
                 style={styles.menuItem}
                 onPress={() => {
                   setIsMenuVisible(false);
-                  router.push("/");
+                  router.push("/setting");
                 }}
               >
                 <MaterialIcons name="settings" size={20} color="#333" />
