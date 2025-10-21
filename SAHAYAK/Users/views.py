@@ -92,7 +92,7 @@ def change_password(request):
 
     if not user.check_password(old_password):
         print("again occured")
-        return Response({"error": "old password is incorrect"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "old password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
     
     user.set_password(new_password)
     user.save()

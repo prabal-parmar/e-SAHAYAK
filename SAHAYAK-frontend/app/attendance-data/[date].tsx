@@ -60,7 +60,7 @@ export default function AttendanceDetails() {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Attendance Details</Text>
         </View>
-        <Text style={styles.headerDate}>{date}</Text>
+        <Text style={styles.headerDate}>{`${date.toString().split("-")[2]}-${date.toString().split("-")[1]}-${date.toString().split("-")[0]}`}</Text>
       </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>

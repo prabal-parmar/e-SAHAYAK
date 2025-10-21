@@ -1,0 +1,107 @@
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  font-family: "Poppins", sans-serif;
+  padding: 1.25rem; /* Converted to rem */
+  box-sizing: border-box;
+}
+
+.login-box {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 0.9375rem; /* Converted to rem */
+  width: 100%;
+  max-width: 25rem; /* Converted to rem */
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.15); /* Converted to rem */
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.75rem; /* Converted to rem */
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  color: #555;
+  font-size: 0.9375rem; /* Converted to rem */
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 1.2rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem; /* Converted to rem */
+  color: #333;
+  font-weight: 600;
+  font-size: 0.9375rem; /* Converted to rem */
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem 0.9375rem; /* Converted to rem */
+  border: 0.0625rem solid #ddd; /* Converted to rem */
+  border-radius: 0.625rem; /* Converted to rem */
+  font-size: 1rem; /* Converted to rem */
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2575fc;
+  box-shadow: 0 0 0 0.1875rem rgba(37, 117, 252, 0.2); /* Converted to rem */
+}
+
+.login-btn {
+  width: 100%;
+  background-color: #6a11cb;
+  color: white;
+  border: none;
+  padding: 0.75rem; /* Converted to rem */
+  border-radius: 0.625rem; /* Converted to rem */
+  font-size: 1.125rem; /* Converted to rem */
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.login-btn:hover {
+  background-color: #2575fc;
+  transform: translateY(-0.125rem); /* Converted to rem */
+}
+
+.signup-text {
+  font-size: 0.875rem; /* Converted to rem */
+  color: #666;
+  margin-top: 1.5rem;
+}
+
+.signup-text a {
+  color: #6a11cb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signup-text a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.875rem; /* Converted to rem */
+  margin-bottom: 0.9375rem; /* Converted to rem */
+  padding: 0.625rem; /* Converted to rem */
+  background-color: #fcebeb;
+  border-left: 0.3125rem solid #e74c3c; /* Converted to rem */
+  border-radius: 0.3125rem; /* Converted to rem */
+}

@@ -10,5 +10,6 @@ urlpatterns = [
     path('api/user/change-password/', views.change_password, name="Change Password"),
     path('api/employer/', include('Employer.urls'), name="Employer Routes"),
     path('api/worker/', include('Worker.urls'), name="Worker Routes"),
+    path('api/admin/', include('Admin.urls'), name="Admin Routes"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

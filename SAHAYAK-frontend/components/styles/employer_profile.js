@@ -245,8 +245,8 @@ export const styles = StyleSheet.create({
 
   menuContainer: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 115 : 95,
-    right: 20,
+    top: Platform.OS === "ios" ? 173 : 143,
+    right: 45,
     backgroundColor: "#fff",
     borderRadius: 10,
     width: 180,

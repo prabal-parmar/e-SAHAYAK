@@ -1,0 +1,186 @@
+/* === Home.css === */
+
+body {
+  margin: 0;
+  font-family: "Noto Sans Devanagari", "Segoe UI", Tahoma, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Container for the whole page */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4.375rem; /* Converted to rem */
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  background: linear-gradient(
+      to bottom right,
+      rgba(255, 153, 51, 0.1),
+      rgba(255, 255, 255, 0.8),
+      rgba(19, 136, 8, 0.1)
+    ),
+    url("https://www.transparenttextures.com/patterns/clean-textile.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1.25rem; /* Converted to rem */
+  box-sizing: border-box;
+}
+
+/* Glass overlay - removed for cleaner look, adjust hero-content instead */
+.overlay {
+  display: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 56.25rem; /* Converted to rem */
+  padding: 3.125rem; /* Converted to rem */
+  border-radius: 1.25rem; /* Converted to rem */
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0.75rem 1.875rem rgba(0, 0, 0, 0.15); /* Converted to rem */
+  animation: fadeIn 1.5s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-logo {
+  width: 8.125rem; /* Converted to rem */
+  height: 8.125rem; /* Converted to rem */
+  margin-bottom: 1.5625rem; /* Converted to rem */
+  box-shadow: 0 0 0.9375rem rgba(0, 0, 0, 0.1); /* Converted to rem */
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.hero-title {
+  font-size: 2.75rem; /* Converted to rem */
+  font-weight: 800;
+  color: #002147;
+  margin-bottom: 0.9375rem; /* Converted to rem */
+  letter-spacing: -0.03125rem; /* Converted to rem */
+}
+
+.hero-subtext {
+  font-size: 1.25rem; /* Converted to rem */
+  color: #555;
+  max-width: 37.5rem; /* Converted to rem */
+}
+
+/* Info Section */
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.875rem; /* Converted to rem */
+  padding: 5rem 2.5rem; /* Converted to rem */
+  background-color: #ffffff;
+  border-top: 0.3125rem solid #f7931d; /* Converted to rem */
+  box-shadow: 0 -0.3125rem 0.9375rem rgba(0, 0, 0, 0.05); /* Converted to rem */
+}
+
+.info-card {
+  background: #fcfcfc;
+  border: 0.0625rem solid #e9eef3; /* Converted to rem */
+  border-radius: 0.9375rem; /* Converted to rem */
+  padding: 1.875rem 2.1875rem; /* Converted to rem */
+  max-width: 21.875rem; /* Converted to rem */
+  box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.08); /* Converted to rem */
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.info-card:hover {
+  transform: translateY(-0.5rem); /* Converted to rem */
+  box-shadow: 0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15); /* Converted to rem */
+}
+
+.info-card h3 {
+  font-size: 1.5rem; /* Converted to rem */
+  font-weight: 700;
+  color: #003366;
+  margin-bottom: 0.75rem; /* Converted to rem */
+}
+
+.info-card p {
+  color: #666;
+  font-size: 1rem; /* Converted to rem */
+  line-height: 1.7;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2.5rem); /* Converted to rem */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 56.25em) { /* Converted to em */
+  .hero-title {
+    font-size: 2.25rem; /* Converted to rem */
+  }
+
+  .hero-subtext {
+    font-size: 1.125rem; /* Converted to rem */
+  }
+}
+
+@media (max-width: 37.5em) { /* Converted to em */
+  .hero-section {
+    min-height: 60vh;
+    padding: 1.875rem 0.9375rem; /* Converted to rem */
+  }
+
+  .hero-content {
+    padding: 1.875rem; /* Converted to rem */
+  }
+
+  .hero-logo {
+    width: 6.25rem; /* Converted to rem */
+    height: 6.25rem; /* Converted to rem */
+  }
+
+  .hero-title {
+    font-size: 1.875rem; /* Converted to rem */
+  }
+
+  .hero-subtext {
+    font-size: 1rem; /* Converted to rem */
+  }
+
+  .info-section {
+    padding: 3.125rem 1.25rem; /* Converted to rem */
+  }
+
+  .info-card {
+    max-width: 100%;
+    padding: 1.5625rem; /* Converted to rem */
+  }
+
+  .info-card h3 {
+    font-size: 1.375rem; /* Converted to rem */
+  }
+
+  .info-card p {
+    font-size: 0.9375rem; /* Converted to rem */
+  }
+}

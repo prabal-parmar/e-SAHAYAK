@@ -94,7 +94,6 @@ function WorkerDropdownModal<T extends { username?: string }>({
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{title}</Text>
 
-          {/* 🔍 Search Bar */}
           <View style={styles.searchBarContainer}>
             <MaterialIcons name="search" size={20} color="#7A869A" style={{ marginRight: 8 }} />
             <TextInput
@@ -111,7 +110,6 @@ function WorkerDropdownModal<T extends { username?: string }>({
             )}
           </View>
 
-          {/* 🔽 Worker List */}
           <FlatList
             data={filteredData}
             keyExtractor={(_, index) => index.toString()}

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'Users',
     'Employer',
     'Worker',
+    'Admin',
     "corsheaders",
 ]
 
