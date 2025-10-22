@@ -16,4 +16,5 @@ urlpatterns = [
     path('resolve-complaint/', views.resolve_complaint, name='resolve_complaint'),
     path('filter-worker-by-employer-date/<int:employer_id>/', views.filter_worker_by_employer_date, name='filter_worker_by_employer_date'),
     path('filter-worker-work-by-date/<int:worker_id>/', views.filter_worker_work_by_date, name='filter_worker_work_by_date'),
+    path('hour-wage/', views.wage_authority_for_admin, name="Hourly Wage")
 ]

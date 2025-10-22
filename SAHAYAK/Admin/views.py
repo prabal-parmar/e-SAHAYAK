@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from Worker.models import ReportWorkerModel, Attendences
+from Worker.models import ReportWorkerModel, HourWage
 from Users.models import CustomUser, EmployerModel, WorkerModel
 from Employer.models import WorkersWorkModel
 from .models import ResolvedReportsModel
@@ -185,6 +185,30 @@ def filter_worker_work_by_date(request, worker_id):
         overtimeEntryTime=F("attendance__overtime_entry_time"), overtimeLeavingTime=F("attendance__overtime_leaving_time")
     )
     return Response({"message": "Workers data on particular day sent", "worker": worker}, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def wage_authority_for_admin(request):
+    if request.method=="GET":
+        wage = HourWage.objects.last()
+        if not wage:
+            return Response({"error": "No wage history found"}, status=status.HTTP_404_NOT_FOUND)
+        hourly_wage = wage.hourly_wage
+        overtime_wage = wage.overtime_wage
+        return Response({"message": "Hour wages sent to Admin", "wages": {"hourWage": hourly_wage,
+                                                                          "overtimeWage": overtime_wage}}, status=status.HTTP_200_OK)
+
+    if request.method=="POST":
+        new_hour_wage = request.data.get("hourWage")
+        new_overtime_wage = request.data.get("overtimeWage")
+        
+        if not new_hour_wage or not new_overtime_wage:
+            return Response({"error": "Didn't receive data"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        new_wage = HourWage.objects.create(hourly_wage=new_hour_wage, overtime_wage=new_overtime_wage)
+        new_wage.save()
+        return Response({"message": "Wage salary updated successfully"}, status=status.HTTP_200_OK)
+
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
