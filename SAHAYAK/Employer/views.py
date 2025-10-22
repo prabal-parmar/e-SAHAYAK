@@ -162,7 +162,7 @@ def add_worker_attendance_data(request):
         attendance.save()
         amount: float = 0
 
-        wage = HourWage.objects.first()
+        wage = HourWage.objects.last()
         overtime_wage = wage.overtime_wage if wage else 0
         hour_wage = wage.hourly_wage if wage else 0
 
