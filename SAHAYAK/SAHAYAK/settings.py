@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = False # Reverted to False for Render deployment
 
 ALLOWED_HOSTS = [os.getenv('RENDER_EXTERNAL_HOSTNAME')]
 
@@ -168,4 +168,4 @@ CORS_ALLOWED_ORIGINS = [
 
 # Only for dev not for productions
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True # Temporarily enabled for debugging. REMOVE IN PRODUCTION!
