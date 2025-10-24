@@ -163,8 +163,8 @@ def add_worker_attendance_data(request):
         amount: float = 0
 
         wage = HourWage.objects.last()
-        overtime_wage = wage.overtime_wage if wage else 0
-        hour_wage = wage.hourly_wage if wage else 0
+        overtime_wage = wage.overtime_wage if wage else 70
+        hour_wage = wage.hourly_wage if wage else 60
 
         shift_amount = (Decimal(float(attendance.total_time) * float(hour_wage)))
         overtime_amount = (Decimal(float(attendance.extra_time) * float(overtime_wage)))

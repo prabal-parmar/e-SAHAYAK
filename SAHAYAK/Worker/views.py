@@ -36,8 +36,8 @@ def todays_wage(request):
     attendances = Attendences.objects.filter(worker=worker, date=today_date).all()
 
     wage = HourWage.objects.last()
-    overtime_wage = wage.overtime_wage if wage else 0
-    hour_wage = wage.hourly_wage if wage else 0
+    overtime_wage = wage.overtime_wage if wage else 70
+    hour_wage = wage.hourly_wage if wage else 60
 
     total_salary = 0
     extra_salary = 0
@@ -66,8 +66,8 @@ def fetch_this_month_salary(request, month, year):
     attendances = Attendences.objects.filter(worker=worker, date__month=month, date__year=year).all()
 
     wage = HourWage.objects.last()
-    overtime_wage = wage.overtime_wage if wage else 0
-    hour_wage = wage.hourly_wage if wage else 0
+    overtime_wage = wage.overtime_wage if wage else 70
+    hour_wage = wage.hourly_wage if wage else 60
 
     total_salary = 0
     extra_salary = 0
@@ -180,8 +180,8 @@ def get_recent_work_history(request):
 
     data = []
     wage = HourWage.objects.last()
-    hour_wage = wage.hourly_wage if wage else 0
-    overtime_wage = wage.overtime_wage if wage else 0
+    hour_wage = wage.hourly_wage if wage else 60
+    overtime_wage = wage.overtime_wage if wage else 70
 
     for index,attendance in enumerate(attendances, start=1):
         employer = attendance["emp"]
@@ -397,7 +397,7 @@ def get_pdf_data(request, id):
     work = WorkersWorkModel.objects.filter(attendance=attendance, worker=worker).first()
 
     wage = HourWage.objects.last()
-    hour_wage = wage.hourly_wage if wage else 0
+    hour_wage = wage.hourly_wage if wage else 60
 
     data = {
         "worker_id": attendance.worker.user.username,
@@ -507,8 +507,8 @@ def get_worker_data_by_date(request):
                                                                                                                                                                         totalAmount=F("amount"))
         attendance = list(attendance)
         wage = HourWage.objects.last()
-        hour_wage = int(wage.hourly_wage) if wage else 0
-        overtime_wage = int(wage.overtime_wage) if wage else 0 
+        hour_wage = int(wage.hourly_wage) if wage else 60
+        overtime_wage = int(wage.overtime_wage) if wage else 70
         attend = Attendences.objects.filter(id=attendance[0]["attend_id"]).first()
         # print(attendance)
         data = {
