@@ -86,11 +86,12 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   border-bottom: 0.125rem solid #d1d5db; /* Converted to rem */
+  line-height: 1.5; /* Added line-height for better vertical alignment */
 }
 
 .workers-table th {
   padding: 1rem 1.25rem; /* Converted to rem */
-  font-size: 1rem; /* Converted to rem */
+  font-size: 0.9375rem; /* Adjusted font size for consistency */
   letter-spacing: 0.05rem; /* Converted to rem */
   text-align: left;
   position: sticky;
@@ -114,6 +115,7 @@ body {
   border-bottom: 0.0625rem solid #f1f5f9; /* Converted to rem */
   background-color: #fff;
   color: #444;
+  line-height: 1.5; /* Added line-height for better vertical alignment */
 }
 
 .workers-table tbody tr:last-child td {
@@ -150,6 +152,7 @@ body {
   border-bottom: 0.0625rem solid #f1f5f9; /* Converted to rem */
   font-size: 0.95rem;
   color: #444;
+  line-height: 1.5; /* Added line-height for better vertical alignment */
 }
 
 .work-history-table tbody tr:last-child td {
@@ -235,6 +238,10 @@ body {
 
 .worker-info strong {
   color: #1e293b;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+  white-space: nowrap; /* Prevent label from wrapping */
 }
 
 .report-section {

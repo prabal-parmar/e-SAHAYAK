@@ -4,8 +4,8 @@ import {
   fetchAllPendingReports,
   fetchAllResolvedReports,
   resolveReportWithMessage,
-} from "../api/adminReportsRoutes"; // Updated import path
-import adminApi from "../api/adminAxios"; // Import the adminApi instance
+} from "../api/adminReportsRoutes";
+import adminApi from "../api/adminAxios";
 
 function ComplaintBox() {
   const [pendingComplaints, setPendingComplaints] = useState([]);
@@ -35,7 +35,7 @@ function ComplaintBox() {
 
   const getEmployerData = async (username) => {
     try {
-      const response = await adminApi.get(`get-employer-data/${username}/`); // Use adminApi
+      const response = await adminApi.get(`get-employer-data/${username}/`);
       return response.data.employer;
     } catch (error) {
       console.log(error);
@@ -45,7 +45,7 @@ function ComplaintBox() {
 
   const getWorkerData = async (username) => {
     try {
-      const response = await adminApi.get(`get-worker-data/${username}/`); // Use adminApi
+      const response = await adminApi.get(`get-worker-data/${username}/`);
       return response.data.worker;
     } catch (error) {
       console.log(error);

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8000/api/admin/"; // Adjust if your backend runs on a different port
+const API_URL = "https://sram-thi7.onrender.com/api/admin/";
 
 const adminApi = axios.create({
   baseURL: API_URL,
@@ -37,7 +37,7 @@ adminApi.interceptors.response.use(
         console.error("Unable to refresh token:", refreshError);
         localStorage.removeItem("admin_access_token");
         localStorage.removeItem("admin_refresh_token");
-        window.location.href = "/login"; // Redirect to login page
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }

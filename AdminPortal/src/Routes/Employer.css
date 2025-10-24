@@ -24,7 +24,7 @@
   font-weight: 700;
   color: #002147;
   text-align: center;
-  margin-bottom: 0.625rem; /* Converted to rem */
+  margin-bottom: 0.9375rem; /* Adjusted margin to rem */
 }
 
 .employer-subtitle {
@@ -118,10 +118,10 @@
   background-color: #64748b;
   color: #fff;
   border: none;
-  padding: 0.625rem 1.125rem; /* Converted to rem */
-  border-radius: 0.625rem; /* Converted to rem */
+  padding: 0.75rem 1.25rem; /* Adjusted padding to rem */
+  border-radius: 0.625rem;
   cursor: pointer;
-  margin-bottom: 1.875rem; /* Converted to rem */
+  margin-bottom: 2.1875rem; /* Adjusted margin to rem */
   font-size: 0.95rem;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -313,6 +313,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05rem; /* Converted to rem */
   padding: 1rem 1.25rem; /* Converted to rem */
+  border-top-left-radius: 0.75rem; /* Added border-radius */
+  border-top-right-radius: 0.75rem; /* Added border-radius */
 }
 
 .attendance-row {

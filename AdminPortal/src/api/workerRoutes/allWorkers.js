@@ -29,3 +29,24 @@ export const getWorkerWorkHistory = async (workerId, date) => {
     return { workers: [] };
   }
 };
+
+export const getHourWage = async () => {
+  try {
+    const response = await adminApi.get('hour-wage/');
+    return response.data;
+  } catch (error) {
+    console.log("Error fetching wage:", error);
+    return {wages: {hourWage: 0, overtimeWage: 0}}
+  }
+}
+
+export const updateHourWage = async (hourlyWage, overtimeWage) => {
+  try {
+    await adminApi.post('hour-wage/', {
+      hourWage: hourlyWage, overtimeWage: overtimeWage
+    });
+  } catch (error) {
+    console.log("Error fetching wage:", error);
+    return {wages: {hourWage: 0, overtimeWage: 0}}
+  }
+}

@@ -1,5 +1,3 @@
-/* === Home.css === */
-
 body {
   margin: 0;
   font-family: "Noto Sans Devanagari", "Segoe UI", Tahoma, sans-serif;
@@ -8,15 +6,13 @@ body {
   line-height: 1.6;
 }
 
-/* Container for the whole page */
 .home-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 4.375rem; /* Converted to rem */
+  padding-top: 4.375rem;
 }
 
-/* Hero Section */
 .hero-section {
   position: relative;
   width: 100%;
@@ -34,11 +30,10 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 2.5rem 1.25rem; /* Converted to rem */
+  padding: 2.5rem 1.25rem;
   box-sizing: border-box;
 }
 
-/* Glass overlay - removed for cleaner look, adjust hero-content instead */
 .overlay {
   display: none;
 }
@@ -46,86 +41,210 @@ body {
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 56.25rem; /* Converted to rem */
-  padding: 3.125rem; /* Converted to rem */
-  border-radius: 1.25rem; /* Converted to rem */
+  max-width: 56.25rem;
+  padding: 3.125rem;
+  border-radius: 1.25rem;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0.75rem 1.875rem rgba(0, 0, 0, 0.15); /* Converted to rem */
+  box-shadow: 0 0.75rem 1.875rem rgba(0, 0, 0, 0.15);
   animation: fadeIn 1.5s ease-out;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center; /* Center align content */
 }
 
 .hero-logo {
-  width: 8.125rem; /* Converted to rem */
-  height: 8.125rem; /* Converted to rem */
-  margin-bottom: 1.5625rem; /* Converted to rem */
-  box-shadow: 0 0 0.9375rem rgba(0, 0, 0, 0.1); /* Converted to rem */
+  width: 8.125rem;
+  height: 8.125rem;
+  margin-bottom: 1.5625rem;
+  box-shadow: 0 0 0.9375rem rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   object-fit: contain;
 }
 
 .hero-title {
-  font-size: 2.75rem; /* Converted to rem */
+  font-size: 2.75rem;
   font-weight: 800;
   color: #002147;
-  margin-bottom: 0.9375rem; /* Converted to rem */
-  letter-spacing: -0.03125rem; /* Converted to rem */
+  margin-bottom: 0.9375rem; /* Adjusted margin to rem */
+  letter-spacing: -0.03125rem;
 }
 
 .hero-subtext {
-  font-size: 1.25rem; /* Converted to rem */
+  font-size: 1.25rem;
   color: #555;
-  max-width: 37.5rem; /* Converted to rem */
+  max-width: 37.5rem;
 }
 
-/* Info Section */
 .info-section {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.875rem; /* Converted to rem */
-  padding: 5rem 2.5rem; /* Converted to rem */
+  gap: 1.875rem;
+  padding: 5rem 2.5rem;
   background-color: #ffffff;
-  border-top: 0.3125rem solid #f7931d; /* Converted to rem */
-  box-shadow: 0 -0.3125rem 0.9375rem rgba(0, 0, 0, 0.05); /* Converted to rem */
+  border-top: 0.3125rem solid #f7931d;
+  box-shadow: 0 -0.3125rem 0.9375rem rgba(0, 0, 0, 0.05);
 }
 
 .info-card {
   background: #fcfcfc;
-  border: 0.0625rem solid #e9eef3; /* Converted to rem */
-  border-radius: 0.9375rem; /* Converted to rem */
-  padding: 1.875rem 2.1875rem; /* Converted to rem */
-  max-width: 21.875rem; /* Converted to rem */
-  box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.08); /* Converted to rem */
+  border: 0.0625rem solid #e9eef3;
+  border-radius: 0.9375rem;
+  padding: 1.875rem 2.1875rem;
+  max-width: 21.875rem;
+  box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   text-align: left;
 }
 
 .info-card:hover {
-  transform: translateY(-0.5rem); /* Converted to rem */
-  box-shadow: 0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15); /* Converted to rem */
+  transform: translateY(-0.5rem);
+  box-shadow: 0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15);
 }
 
 .info-card h3 {
-  font-size: 1.5rem; /* Converted to rem */
+  font-size: 1.5rem;
   font-weight: 700;
   color: #003366;
-  margin-bottom: 0.75rem; /* Converted to rem */
+  margin-bottom: 0.75rem;
 }
 
 .info-card p {
   color: #666;
-  font-size: 1rem; /* Converted to rem */
+  font-size: 1rem;
   line-height: 1.7;
+  font-weight: 600;
 }
 
-/* Animation */
+.wage-section {
+  width: 100%;
+  background-color: #fafafa;
+  border-top: 0.3125rem solid #4caf50;
+  box-shadow: 0 -0.3125rem 0.9375rem rgba(0, 0, 0, 0.05);
+  padding: 4rem 2rem;
+  text-align: center;
+  animation: fadeIn 1.2s ease;
+}
+
+.wage-section h2 {
+  font-size: 2rem;
+  color: #003366;
+  margin-bottom: 2.5rem;
+  font-weight: 700;
+}
+
+.wage-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.wage-card {
+  background: #ffffff;
+  border: 0.0625rem solid #e0e0e0;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 20rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.wage-card:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+}
+
+.wage-card h4 {
+  font-size: 1.25rem;
+  color: #002147;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.wage-card input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 0.0625rem solid #ccc;
+  border-radius: 0.5rem;
+  margin-bottom: 0.9375rem; /* Adjusted margin to rem */
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.wage-card input:focus {
+  border-color: #4caf50;
+}
+
+.wage-card p {
+  color: #333;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.update-button {
+  margin-top: 2.5rem;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(90deg, #43a047, #2e7d32);
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  box-shadow: 0 0.5rem 1.5rem rgba(67, 160, 71, 0.3);
+  transition: all 0.3s ease;
+}
+
+.update-button:hover {
+  background: linear-gradient(90deg, #2e7d32, #1b5e20);
+  transform: translateY(-0.2rem);
+  box-shadow: 0 0.75rem 2rem rgba(46, 125, 50, 0.4);
+}
+
+.current-wage-display {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  align-items: center; /* Align items to center */
+}
+
+.wage-display-card {
+  background: #ffffff;
+  border: 0.0625rem solid #dcdcdc;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  width: 18rem;
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.wage-display-card:hover {
+  transform: translateY(-0.3rem);
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+}
+
+.wage-display-card h4 {
+  font-size: 1.25rem;
+  color: #004aad;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.wage-value {
+  font-size: 1.375rem;
+  color: #2e7d32;
+  font-weight: 700;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(2.5rem); /* Converted to rem */
+    transform: translateY(2.5rem);
   }
   to {
     opacity: 1;
@@ -133,54 +252,43 @@ body {
   }
 }
 
-/* Responsive */
-@media (max-width: 56.25em) { /* Converted to em */
+@media (max-width: 56.25em) {
   .hero-title {
-    font-size: 2.25rem; /* Converted to rem */
+    font-size: 2.25rem;
   }
-
   .hero-subtext {
-    font-size: 1.125rem; /* Converted to rem */
+    font-size: 1.125rem;
   }
 }
 
-@media (max-width: 37.5em) { /* Converted to em */
+@media (max-width: 37.5em) {
   .hero-section {
     min-height: 60vh;
-    padding: 1.875rem 0.9375rem; /* Converted to rem */
+    padding: 1.875rem 0.9375rem;
   }
-
   .hero-content {
-    padding: 1.875rem; /* Converted to rem */
+    padding: 1.875rem;
+    align-items: center; /* Center align content */
   }
-
   .hero-logo {
-    width: 6.25rem; /* Converted to rem */
-    height: 6.25rem; /* Converted to rem */
+    width: 6.25rem;
+    height: 6.25rem;
   }
-
   .hero-title {
-    font-size: 1.875rem; /* Converted to rem */
+    font-size: 1.875rem;
   }
-
   .hero-subtext {
-    font-size: 1rem; /* Converted to rem */
+    font-size: 1rem;
   }
-
   .info-section {
-    padding: 3.125rem 1.25rem; /* Converted to rem */
+    padding: 3.125rem 1.25rem;
   }
-
   .info-card {
     max-width: 100%;
-    padding: 1.5625rem; /* Converted to rem */
+    padding: 1.5625rem;
   }
-
-  .info-card h3 {
-    font-size: 1.375rem; /* Converted to rem */
-  }
-
-  .info-card p {
-    font-size: 0.9375rem; /* Converted to rem */
+  .wage-cards {
+    flex-direction: column;
+    align-items: center;
   }
 }

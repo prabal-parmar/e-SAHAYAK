@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Login.css";
-import { loginAdmin } from "../api/adminAxios"; // Updated import path
+import { loginAdmin } from "../api/adminAxios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -20,9 +20,9 @@ function Login() {
     try {
       const response = await loginAdmin(formData.username, formData.password);
       console.log("Login successful:", response);
-      login(); // Update login status in context
+      login();
       alert(`Welcome back! Login Successful ✅`);
-      navigate("/"); // Redirect to admin dashboard
+      navigate("/");
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.detail || err.message || "An error occurred during login.");

@@ -8,7 +8,6 @@ function Employer() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployer, setSelectedEmployer] = useState(null);
 
-  // 📅 Date selector state
   const [selectedDate, setSelectedDate] = useState("");
   const [attendanceData, setAttendanceData] = useState([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
@@ -19,19 +18,18 @@ function Employer() {
       const employersData = Array.isArray(response.employers[0])
         ? response.employers[0]
         : response.employers;
-      setEmployers(employersData);
+      const sortedData = employersData.sort((a, b) => a.id - b.id);
+      setEmployers(sortedData);
     };
     fetchEmployerData();
   }, []);
 
-  // 🔍 Filter employers by name or organization
   const filteredEmployers = employers.filter(
     (emp) =>
       emp.employer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.org_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🗓 Fetch attendance whenever employer + date changes
   useEffect(() => {
     if (selectedEmployer && selectedDate) {
       const fetchAttendance = async () => {
@@ -68,7 +66,6 @@ function Employer() {
               View, Search, and Manage Employer Profiles
             </p>
 
-            {/* Search Bar */}
             <div className="search-box">
               <input
                 type="text"
@@ -78,7 +75,6 @@ function Employer() {
               />
             </div>
 
-            {/* Employer List */}
             <table className="employer-table">
               <thead>
                 <tr>
@@ -117,7 +113,7 @@ function Employer() {
           </>
         ) : (
           <>
-            {/* Employer Profile View */}
+
             <button
               className="back-btn"
               onClick={() => setSelectedEmployer(null)}
@@ -142,7 +138,6 @@ function Employer() {
               </p>
             </div>
 
-            {/* 📅 Calendar Date Picker */}
             <div className="date-selector">
               <h3>Select a Date to View Attendance</h3>
               <input
@@ -153,7 +148,6 @@ function Employer() {
               />
             </div>
 
-            {/* Attendance Data */}
             <div className="attendance-section">
               {selectedDate && (
                 <h3>

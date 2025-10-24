@@ -22,9 +22,10 @@ function Workers() {
           ? response.workers
           : [];
         const flatWorkers = workersData.flat();
-        setWorkers(flatWorkers);
-        setFilteredWorkers(flatWorkers);
-        console.log(flatWorkers);
+        const sortedData = flatWorkers.sort((a, b) => a.id - b.id);
+        setWorkers(sortedData);
+        setFilteredWorkers(sortedData);
+        // console.log(flatWorkers);
       } catch (error) {
         console.error("Error fetching workers:", error);
       }

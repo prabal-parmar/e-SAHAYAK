@@ -15,7 +15,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Prevent wrapping on larger screens */
   padding: 0.8rem 2rem; /* Adjusted padding with rem */
 
   /* 🎨 Updated Government-Style Gradient */
@@ -58,10 +58,10 @@
 .nav-links {
   list-style: none;
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 1 auto; /* Allow shrinking but not growing */
   justify-content: flex-end;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Prevent wrapping on larger screens */
   gap: clamp(0.6rem, 2vw, 1.5rem); /* Adjusted clamp values with rem */
 }
 
@@ -141,12 +141,14 @@
     align-items: center;
     text-align: center;
     padding: 0.6rem 1rem; /* Adjusted padding */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
   }
 
   .nav-links {
     justify-content: center;
     gap: 0.8rem; /* Adjusted gap */
     margin-top: 0.5rem; /* Adjusted margin */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
   }
 
   .nav-logo {
