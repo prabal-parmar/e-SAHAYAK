@@ -17,7 +17,11 @@ import { getEmployerProfile } from "@/api/Employer/profile_routes";
 import { useEmployer } from "@/context/EmployerContext";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import type { ColorValue } from "react-native";
-import { getWorkersWage, updateWorkerSalaryGiven } from "@/api/Employer/index_routes";
+import {
+  getWorkersWage,
+  updateWorkerSalaryGiven,
+} from "@/api/Employer/index_routes";
+import Toast from "react-native-toast-message";
 
 type Shift = { id: string; label: string; name: string };
 const SHIFTS_DATA: Shift[] = [
@@ -111,8 +115,13 @@ export default function EmployerHomePage() {
         });
 
         setWorkerPendingSalary(sortedData);
-      } catch (error) {
+      } catch (error: any) {
         console.log(error);
+        Toast.show({
+          type: "error",
+          text1: "Wage Fetch Failed 😔",
+          text2: error.message || "Could not load pending wages.",
+        });
       } finally {
         setLoadingWages(false);
       }
@@ -120,12 +129,18 @@ export default function EmployerHomePage() {
     if (isFocused) getWorkersPendingWages();
   }, [isFocused]);
 
-  const markSalaryPaid = (id: number) => {
-    const fetchSalaryStatus = async () => {
+  const markSalaryPaid = async (id: number) => {
+    try {
       await updateWorkerSalaryGiven(id);
+      setWorkerPendingSalary((prev) => prev.filter((w) => w.id !== id));
+    } catch (error: any) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Payment Failed 😔",
+        text2: "Could not mark salary as paid.",
+      });
     }
-    setWorkerPendingSalary((prev) => prev.filter((w) => w.id !== id));
-    fetchSalaryStatus();
   };
 
   const fetchWorkingWorkers = async () => {
@@ -149,14 +164,28 @@ export default function EmployerHomePage() {
       setShift2Count(shift2workers);
       setOverTimeCount(currentOvertimeWorkers);
       setWorkers(currentWorkingWorkers);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: "Could not fetch working workers data.",
+      });
     }
   };
 
   const fetchEmployerData = async () => {
-    const response = await getEmployerProfile();
-    setEmployer(response);
+    try {
+      const response = await getEmployerProfile();
+      setEmployer(response);
+    } catch (error: any) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: error.message || "Could not fetch employer profile.",
+      });
+    }
   };
 
   useFocusEffect(

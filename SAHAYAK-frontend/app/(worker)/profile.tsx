@@ -17,6 +17,7 @@ import {
   updateWorkerProfile,
 } from "@/api/Worker/profile_routes";
 import { useWorker } from "@/context/WorkerContext";
+import Toast from "react-native-toast-message";
 
 type GenderKey = "M" | "F" | "O";
 
@@ -119,33 +120,53 @@ export default function WorkerProfilePage() {
         address,
         username: worker ? worker?.username : "",
       });
-    } catch (error) {
+      Toast.show({
+        type: "success",
+        text1: "Profile Updated ✅",
+        text2: "Your profile has been saved successfully.",
+      });
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: "Could not update profile.",
+      });
     }
   };
 
   const fetchWorkerData = async () => {
-    let worker = await fetchWorkerProfile();
-    const data: WORKER = {
-      firstName: worker.first_name,
-      lastName: worker.last_name,
-      username: worker.username,
-      contactNumber: worker.contact_number,
-      gender: worker.gender as GenderKey,
-      skill: worker.skill,
-      address: worker.address,
-    };
-    setFirstName(data.firstName);
-    setLastName(data.lastName);
-    setSkill(data.skill);
-    setContactNumber(data.contactNumber);
-    setAddress(data.address);
-    setGender(data.gender);
+    try {
+      let worker = await fetchWorkerProfile();
+      const data: WORKER = {
+        firstName: worker.first_name,
+        lastName: worker.last_name,
+        username: worker.username,
+        contactNumber: worker.contact_number,
+        gender: worker.gender as GenderKey,
+        skill: worker.skill,
+        address: worker.address,
+      };
+      setFirstName(data.firstName);
+      setLastName(data.lastName);
+      setSkill(data.skill);
+      setContactNumber(data.contactNumber);
+      setAddress(data.address);
+      setGender(data.gender);
+      setWorker(data); // Also update context when fetching
+    } catch (error: any) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: error.message || "Could not load profile data.",
+      });
+    }
   };
 
   useEffect(() => {
     fetchWorkerData();
-  }, [worker]);
+  }, [worker?.username]); 
 
   const handleLogout = async () => {
     await logout();
@@ -153,7 +174,7 @@ export default function WorkerProfilePage() {
   };
 
   const handleSettings = () => {
-    router.push('/setting')
+    router.push("/setting");
     setShowMenu(false);
   };
 
@@ -169,7 +190,7 @@ export default function WorkerProfilePage() {
       address: address,
     };
     setWorker(data);
-    updateWorkerData();
+    await updateWorkerData();
     setIsEditing(false);
   };
 
@@ -218,49 +239,52 @@ export default function WorkerProfilePage() {
               </TouchableOpacity>
             </View>
           </LinearGradient>
-          
+
           {showMenu && (
             <>
-            <TouchableOpacity
-              style={styles.overlay}
-              activeOpacity={1}
-              onPress={() => setShowMenu(false)}
-            />
-            <View style={[styles.menu]}>
-              {!isEditing ? (
-                <>
-                  <TouchableOpacity
-                    onPress={handleSettings}
-                    style={styles.menuItem}
-                  >
-                    <MaterialIcons name="settings" size={20} color="#333" />
-                    <Text style={styles.menuItemText}> Settings</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={handleLogout}
-                    style={styles.menuItem}
-                  >
-                    <MaterialIcons name="logout" size={20} color="#E74C3C" />
-                    <Text style={[styles.menuItemText, { color: "#E74C3C" }]}> Logout</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <TouchableOpacity
-                    onPress={handleCancel}
-                    style={styles.menuItem}
-                  >
-                    <Text style={styles.menuItemText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={handleSaveChanges}
-                    style={styles.menuItem}
-                  >
-                    <Text style={styles.menuItemText}>Save</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+              <TouchableOpacity
+                style={styles.overlay}
+                activeOpacity={1}
+                onPress={() => setShowMenu(false)}
+              />
+              <View style={[styles.menu]}>
+                {!isEditing ? (
+                  <>
+                    <TouchableOpacity
+                      onPress={handleSettings}
+                      style={styles.menuItem}
+                    >
+                      <MaterialIcons name="settings" size={20} color="#333" />
+                      <Text style={styles.menuItemText}> Settings</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleLogout}
+                      style={styles.menuItem}
+                    >
+                      <MaterialIcons name="logout" size={20} color="#E74C3C" />
+                      <Text style={[styles.menuItemText, { color: "#E74C3C" }]}>
+                        {" "}
+                        Logout
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      onPress={handleCancel}
+                      style={styles.menuItem}
+                    >
+                      <Text style={styles.menuItemText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleSaveChanges}
+                      style={styles.menuItem}
+                    >
+                      <Text style={styles.menuItemText}>Save</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
             </>
           )}
           <View style={styles.contentContainer}>

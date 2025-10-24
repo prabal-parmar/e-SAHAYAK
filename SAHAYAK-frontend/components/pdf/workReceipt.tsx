@@ -4,6 +4,7 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import { Asset } from "expo-asset";
+import Toast from "react-native-toast-message";
 
 type ReceiptData = {
   worker_id: string;
@@ -17,16 +18,19 @@ type ReceiptData = {
   amount: number;
 };
 
-export const generatePDF = async (receiptData: ReceiptData, logoUri: number) => {
-    try {
-      const asset = Asset.fromModule(logoUri);
-      if (!asset.localUri) await asset.downloadAsync();
+export const generatePDF = async (
+  receiptData: ReceiptData,
+  logoUri: number
+) => {
+  try {
+    const asset = Asset.fromModule(logoUri);
+    if (!asset.localUri) await asset.downloadAsync();
 
-      const base64Logo = await FileSystem.readAsStringAsync(asset.localUri!, {
-        encoding: "base64",
-      });
+    const base64Logo = await FileSystem.readAsStringAsync(asset.localUri!, {
+      encoding: "base64",
+    });
 
-      const html = `
+    const html = `
         <!DOCTYPE html>
         <html lang="en">
           <head>
@@ -125,23 +129,35 @@ export const generatePDF = async (receiptData: ReceiptData, logoUri: number) => 
         </html>
       `;
 
-      const { uri } = await Print.printToFileAsync({
-        html,
-        base64: false,
-      });
+    const { uri } = await Print.printToFileAsync({
+      html,
+      base64: false,
+    });
 
-      console.log("PDF generated at:", uri);
-      // await Linking.openURL(uri);
-      const canShare = await Sharing.isAvailableAsync();
-      if (canShare) {
-        await Sharing.shareAsync(uri, {
-          dialogTitle: "Share Worker Receipt PDF",
-        });
-      } else {
-        Alert.alert("PDF Generated", `Saved at: ${uri}`);
-      }
-    } catch (error: any) {
-      console.error("PDF Generation Error:", error);
-      Alert.alert("Error", "Failed to generate the PDF receipt.");
+    console.log("PDF generated at:", uri);
+    const canShare = await Sharing.isAvailableAsync();
+    if (canShare) {
+      await Sharing.shareAsync(uri, {
+        dialogTitle: "Share Worker Receipt PDF",
+      });
+      Toast.show({
+        type: "success",
+        text1: "PDF Generated ✅",
+        text2: "Ready to share.",
+      });
+    } else {
+      Toast.show({
+        type: "info",
+        text1: "PDF Saved 📁",
+        text2: `File saved at: ${uri.substring(uri.lastIndexOf("/") + 1)}`,
+      });
     }
-  };
+  } catch (error: any) {
+    console.error("PDF Generation Error:", error);
+    Toast.show({
+      type: "error",
+      text1: "Something Went Wrong!",
+      text2: "Could not generate PDF receipt.",
+    });
+  }
+};

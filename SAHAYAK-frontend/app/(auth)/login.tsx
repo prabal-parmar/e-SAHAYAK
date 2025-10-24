@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { landingStyles, loginStyles } from "../../components/styles/authStyles";
 import { employerLogin, workerLogin } from "@/api/Auth/auth_routes";
+import Toast from "react-native-toast-message";
 
 type FeatureCardProps = {
   icon: React.ReactElement;
@@ -36,7 +37,9 @@ const LandingSection = () => (
         style={landingStyles.headerLogo}
       />
       <View>
-        <Text style={landingStyles.headerText}>GOVERNMENT OF MADHYA PRADESH</Text>
+        <Text style={landingStyles.headerText}>
+          GOVERNMENT OF MADHYA PRADESH
+        </Text>
         <Text style={landingStyles.subHeaderText}>
           Ministry of Labour & Employment
         </Text>
@@ -99,18 +102,27 @@ const LoginSection = () => {
   const handelEmployerLogin = async () => {
     if (Username && password) {
       const response = await employerLogin(Username, password);
-      if (response && response.data.access && response.data.refresh) {
-        if (response.data.role === "employer") {
+      if (response && response.success) {
+        // Check for success property
+        if (response.role === "employer") {
           router.replace("/(employer)");
         } else {
           console.log("Something went wrong!");
         }
       } else {
-        alert("Invalid Credentials");
+        Toast.show({
+          type: "error",
+          text1: "Login Failed ❌",
+          text2: response?.error || "Invalid credentials.", // Use error message from response
+        });
         return null;
       }
     } else {
-      console.log("Enter Username and Password");
+      Toast.show({
+        type: "info",
+        text1: "Missing Input 📝",
+        text2: "Enter username and password.",
+      });
       return null;
     }
   };
@@ -118,18 +130,26 @@ const LoginSection = () => {
   const handelWorkerLogin = async () => {
     if (Username && password) {
       const response = await workerLogin(Username, password);
-      if (response && response.data.access && response.data.refresh) {
-        if (response.data.role === "worker") {
+      if (response && response.success) {
+        // Check for success property
+        if (response.role === "worker") {
           router.replace("/(worker)");
-        } else {
-          console.log("Something went wrong!");
         }
+        // else no Toast needed as it's handled by employerLogin if role doesn't match
       } else {
-        alert("Invalid Credentials");
+        Toast.show({
+          type: "error",
+          text1: "Login Failed ❌",
+          text2: response?.error || "Invalid credentials.", // Use error message from response
+        });
         return null;
       }
     } else {
-      console.log("Enter Username and Password");
+      Toast.show({
+        type: "info",
+        text1: "Missing Input 📝",
+        text2: "Enter username and password.",
+      });
       return null;
     }
   };

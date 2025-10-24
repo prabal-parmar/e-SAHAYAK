@@ -14,6 +14,7 @@ import { register } from "../../components/styles/authStyles";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import { registerEmployer, registerWorker } from "@/api/Auth/auth_routes";
+import Toast from "react-native-toast-message";
 
 type Role = "Employer" | "Worker";
 type Gender = "Male" | "Female" | "Other";
@@ -59,12 +60,20 @@ export default function RegistrationPage() {
     };
     const usernameRegex = /^[A-Za-z0-9_]+$/;
     if (username.length < 5) {
-      alert("username can-not be less than 5 character");
+      Toast.show({
+        type: "info",
+        text1: "Username Too Short 📏",
+        text2: "Username must be at least 5 characters long.",
+      });
       return null;
     }
 
     if (!usernameRegex.test(data.username)) {
-      alert("Username doesn't match given requirement. It should include alphabets/numbers and _")
+      Toast.show({
+        type: "error",
+        text1: "Invalid Username 🚫",
+        text2: "Username can only contain letters, numbers, and underscores.",
+      });
       return null;
     }
 
@@ -83,7 +92,11 @@ export default function RegistrationPage() {
       emptyForm();
       router.replace("/login");
     } else {
-      console.log("All fields are required!");
+      Toast.show({
+        type: "info",
+        text1: "Missing Fields 📝",
+        text2: "Please fill in all required fields.",
+      });
     }
   };
 
@@ -98,12 +111,20 @@ export default function RegistrationPage() {
     };
 
     if (data.username.length < 5) {
-      alert("username can-not be less than 5 character");
+      Toast.show({
+        type: "info",
+        text1: "Username Too Short 📏",
+        text2: "Username must be at least 5 characters long.",
+      });
       return null;
     }
 
     if (data.contactNumber.length < 10) {
-      alert("Mobile Number can only be 10 digit long");
+      Toast.show({
+        type: "info",
+        text1: "Invalid Contact 📞",
+        text2: "Mobile number must be 10 digits long.",
+      });
       return null;
     }
     if (
@@ -119,7 +140,11 @@ export default function RegistrationPage() {
       emptyForm();
       router.replace("/login");
     } else {
-      console.log("All fields are required!");
+      Toast.show({
+        type: "info",
+        text1: "Missing Fields 📝",
+        text2: "Please fill in all required fields.",
+      });
     }
   };
 

@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "../components/styles/changePassword";
 import { changeUserPassword } from "@/api/Auth/auth_routes";
+import Toast from "react-native-toast-message";
 
 export default function ChangePasswordPage() {
   const navigation = useNavigation();
@@ -24,7 +25,11 @@ export default function ChangePasswordPage() {
 
   const handleChangePassword = () => {
     if (!oldPassword || !newPassword) {
-      Alert.alert("Error", "Please fill in all fields.");
+      Toast.show({
+        type: "info",
+        text1: "Missing Fields 📝",
+        text2: "Please fill in all password fields.",
+      });
       return;
     }
 
@@ -44,18 +49,20 @@ export default function ChangePasswordPage() {
       const response = await changeUserPassword(oldPassword, newPassword);
 
       if (response) {
-        Alert.alert("Success", "Password changed successfully!", [
-          {
-            text: "OK",
-            onPress: () => navigation.goBack(),
-          },
-        ]);
-      } else {
-        Alert.alert("Error", "Old password is incorrect.");
+        Toast.show({
+          type: "success",
+          text1: "Password Changed ✅",
+          text2: "Your password has been updated successfully.",
+        });
+        navigation.goBack();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      Alert.alert("Error", "Something went wrong. Please try again later.");
+      Toast.show({
+        type: "error",
+        text1: "Something went wrong!",
+        text2: "Something went wrong. Please try again later.",
+      });
     } finally {
       setLoading(false);
     }

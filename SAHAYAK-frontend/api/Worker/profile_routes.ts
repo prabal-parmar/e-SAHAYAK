@@ -1,15 +1,20 @@
 import axios from "axios";
 import apiClient from "../Auth/axiosInstance";
+import Toast from "react-native-toast-message";
 
 type FrontendData = Record<string, any>
 
 export const fetchWorkerProfile = async () => {
     try {
         let response = await apiClient.get('/worker/profile/')
-        // console.log(response.data.worker)
         return response.data.worker
-    } catch (error) {
+    } catch (error: any) {
         console.log(error)
+        Toast.show({
+            type: "error",
+            text1: "Profile Fetch Failed 😔",
+            text2: error.message || "Could not load worker profile.",
+        });
     }
 }
 
@@ -18,7 +23,17 @@ export const updateWorkerProfile = async (data: FrontendData) => {
         await apiClient.patch('/worker/profile/',
             data
         )
-    } catch (error) {
+        Toast.show({
+            type: "success",
+            text1: "Profile Updated ✅",
+            text2: "Worker profile updated successfully.",
+        });
+    } catch (error: any) {
         console.log(error)
+        Toast.show({
+            type: "error",
+            text1: "Profile Update Failed 😔",
+            text2: error.message || "Could not update worker profile.",
+        });
     }
 }

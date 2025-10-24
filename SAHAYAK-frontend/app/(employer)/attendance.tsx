@@ -26,6 +26,7 @@ import {
 } from "@/api/Employer/attendance_routes";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons } from "@expo/vector-icons";
+import Toast from "react-native-toast-message";
 
 type Shift = { id: string; label: string; name: string };
 type PickerMode =
@@ -58,7 +59,7 @@ const SHIFTS_DATA: Shift[] = [
   { id: "3", label: "Overtime", name: "overtime" },
 ];
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 const guidelineBaseWidth = 375;
 const scale = (size: number) => (screenWidth / guidelineBaseWidth) * size;
 
@@ -89,13 +90,27 @@ function WorkerDropdownModal<T extends { username?: string }>({
   }, [searchText, data]);
 
   return (
-    <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+    <Modal
+      visible={isVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{title}</Text>
 
           <View style={styles.searchBarContainer}>
-            <MaterialIcons name="search" size={20} color="#7A869A" style={{ marginRight: 8 }} />
+            <MaterialIcons
+              name="search"
+              size={20}
+              color="#7A869A"
+              style={{ marginRight: 8 }}
+            />
             <TextInput
               style={styles.searchBarInput}
               placeholder="Search worker..."
@@ -126,7 +141,9 @@ function WorkerDropdownModal<T extends { username?: string }>({
             )}
             ListEmptyComponent={
               <View style={{ paddingVertical: 20, alignItems: "center" }}>
-                <Text style={{ color: "#7A869A", fontSize: 14 }}>No workers found.</Text>
+                <Text style={{ color: "#7A869A", fontSize: 14 }}>
+                  No workers found.
+                </Text>
               </View>
             }
           />
@@ -145,8 +162,17 @@ function ShiftDropdownModal<T>({
   renderItem,
 }: DropdownModalProps<T>) {
   return (
-    <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.modalOverlay} onPress={onClose} activeOpacity={1}>
+    <Modal
+      visible={isVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        onPress={onClose}
+        activeOpacity={1}
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{title}</Text>
           <FlatList
@@ -169,7 +195,6 @@ function ShiftDropdownModal<T>({
     </Modal>
   );
 }
-
 
 export default function AttendancePage() {
   const [selectedWorker, setSelectedWorker] = useState<Working | null>(null);
@@ -209,16 +234,26 @@ export default function AttendancePage() {
   useEffect(() => {
     if (selectedShift?.name === "overtime" && selectedWorker) {
       if (selectedWorker.overtime_entry_time) {
-        const [hours, minutes, seconds] = selectedWorker.overtime_entry_time.split(":");
+        const [hours, minutes, seconds] =
+          selectedWorker.overtime_entry_time.split(":");
         const entry = new Date();
-        entry.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || "0"));
+        entry.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
         setOvertimeClockInTime(entry);
       }
 
       if (selectedWorker.overtime_leaving_time) {
-        const [hours, minutes, seconds] = selectedWorker.overtime_leaving_time.split(":");
+        const [hours, minutes, seconds] =
+          selectedWorker.overtime_leaving_time.split(":");
         const leave = new Date();
-        leave.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || "0"));
+        leave.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
         setOvertimeClockOutTime(leave);
       }
     }
@@ -252,9 +287,7 @@ export default function AttendancePage() {
   }, [filteredWorkers]);
 
   const filteredOvertimeWorkers = useMemo(() => {
-    return filteredWorkers.filter(
-      (w) => w.overtime_entry_time && !w.done // 👈 hide if submitted
-    );
+    return filteredWorkers.filter((w) => w.overtime_entry_time && !w.done);
   }, [filteredWorkers]);
 
   const overtimeWorkers = workingWorkers?.filter(
@@ -288,7 +321,6 @@ export default function AttendancePage() {
     try {
       const allWorkers = await getAllWorkers();
       const workingWorkers = await getAllWorkersWorking();
-      // console.log(workingWorkers)
       const updatedWorkers = allWorkers.filter(
         (w: any) =>
           !workingWorkers.some((ww: Working) => ww.username === w.username)
@@ -299,8 +331,13 @@ export default function AttendancePage() {
       setTotalWorkerWorking(currentWorkingWorkers.length);
       setWorkers(updatedWorkers);
       setWorkingWorkers(workingWorkers);
-    } catch (error) {
+    } catch (error: any) {
       console.log("failed to fetch workers", error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: "Failed to load worker data.",
+      });
     }
   };
 
@@ -315,8 +352,12 @@ export default function AttendancePage() {
   }, [currentTime.getDate()]);
 
   const handleClockIn = async () => {
-    if(!clockInTime && !selectedWorker && !selectedShift){
-      alert("Select mandatory field first")
+    if (!clockInTime || !selectedWorker || !selectedShift) {
+      Toast.show({
+        type: "info",
+        text1: "Missing Info 📝",
+        text2: "Please select worker, shift, and clock-in time.",
+      });
       return null;
     }
     const data = {
@@ -326,17 +367,34 @@ export default function AttendancePage() {
       description: description,
       date: clockInTime.toISOString().split("T")[0],
     };
-    if (selectedWorker && clockInTime && selectedShift) {
-      // console.log(clockInTime.getHours())
-      await markClockInTime(data);
-      await fetchAllWorkers();
-      setSelectedShift(null);
-      setClockInTime(new Date());
-      setSelectedWorker(null);
-      setDescription("");
-      setOriginalShift(null);
-    } else {
-      console.log("Select the mandatory fields first.");
+    try {
+      if (selectedWorker && clockInTime && selectedShift) {
+        await markClockInTime(data);
+        await fetchAllWorkers();
+        setSelectedShift(null);
+        setClockInTime(new Date());
+        setSelectedWorker(null);
+        setDescription("");
+        setOriginalShift(null);
+        Toast.show({
+          type: "success",
+          text1: "Clock-In Recorded ✅",
+          text2: `Clock-in for ${selectedWorker.username} successful.`,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something Went Wrong!",
+          text2: "Missing mandatory fields.",
+        });
+      }
+    } catch (error: any) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: error.response?.data?.detail || "Could not record clock-in.",
+      });
     }
   };
 
@@ -350,38 +408,74 @@ export default function AttendancePage() {
       if (worker.entry_time) {
         const [hours, minutes, seconds] = worker.entry_time.split(":");
         const entry = new Date();
-        entry.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || "0"));
+        entry.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
         setClockInTime(entry);
       }
       if (worker.leaving_time) {
         const [hours, minutes, seconds] = worker.leaving_time.split(":");
         const leaving = new Date();
-        leaving.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || "0"));
+        leaving.setHours(
+          parseInt(hours),
+          parseInt(minutes),
+          parseInt(seconds || "0")
+        );
         setClockOutTime(leaving);
       }
 
       if (worker.shift === "overtime") {
         if (worker.overtime_entry_time) {
-          const [hours, minutes, seconds] = worker.overtime_entry_time.split(":");
+          const [hours, minutes, seconds] =
+            worker.overtime_entry_time.split(":");
           const overtimeEntry = new Date();
-          overtimeEntry.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || "0"));
+          overtimeEntry.setHours(
+            parseInt(hours),
+            parseInt(minutes),
+            parseInt(seconds || "0")
+          );
           setOvertimeClockInTime(overtimeEntry);
         }
 
         if (worker.overtime_leaving_time) {
-          const [hours, minutes, seconds] = worker.overtime_leaving_time.split(":");
+          const [hours, minutes, seconds] =
+            worker.overtime_leaving_time.split(":");
           const overtimeOut = new Date();
-          overtimeOut.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || "0"));
+          overtimeOut.setHours(
+            parseInt(hours),
+            parseInt(minutes),
+            parseInt(seconds || "0")
+          );
           setOvertimeClockOutTime(overtimeOut);
         }
       }
       setSelectedWorker(worker);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: error.message || "Could not load worker details.",
+      });
     }
   };
 
   const saveFullAttendanceData = async () => {
+    if (
+      !selectedWorker?.username ||
+      !selectedWorker?.entry_time ||
+      !selectedWorker?.leaving_time ||
+      !selectedWorker?.shift
+    ) {
+      Toast.show({
+        type: "info",
+        text1: "Missing Info 📝",
+        text2: "Please ensure worker has clock-in/out times and a shift.",
+      });
+      return null;
+    }
     try {
       const data = {
         worker: selectedWorker?.username,
@@ -395,116 +489,195 @@ export default function AttendancePage() {
         overtime_leaving_time: selectedWorker?.overtime_leaving_time,
       };
       const amount = await addFullAttendanceData(data);
-      alert(`Worker have to collect ${amount.amount} from you!`)
-      await fetchAllWorkers()
-      setSelectedShift(null)
-      setSelectedWorker(null)
-      setClockInTime(new Date())
-      setClockOutTime(new Date())
-      setDescription("")
+      Toast.show({
+        type: "success",
+        text1: "Attendance Submitted ✅",
+        text2: `Worker to collect ₹${amount.amount} from you!`,
+      });
+      await fetchAllWorkers();
+      setSelectedShift(null);
+      setSelectedWorker(null);
+      setClockInTime(new Date());
+      setClockOutTime(new Date());
+      setDescription("");
       setOriginalShift(null);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: error.response?.data?.detail || "Could not submit attendance.",
+      });
     }
   };
 
   const handlemarkClockOutTime = async () => {
+    if (!clockInTime || !selectedWorker || !selectedShift) {
+      Toast.show({
+        type: "info",
+        text1: "Missing Info 📝",
+        text2: "Please select worker, shift, and clock-in time.",
+      });
+      return null;
+    }
+    if (clockOutTime <= clockInTime) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Time ⏰",
+        text2: "Clock-out time must be after clock-in time.",
+      });
+      return null;
+    }
+    const data = {
+      workerUsername: selectedWorker?.username,
+      clockOutTime: `${clockOutTime.getHours()}:${clockOutTime.getMinutes()}`,
+      description: selectedWorker?.description,
+    };
     try {
-      if(!clockInTime && !selectedWorker && !selectedShift){
-        alert("Select mandatory fields first")
-        return null;
-      }
-      if(clockOutTime <= clockInTime){
-        alert("Clock-out time should be greate than clock-in time!");
-        return null;
-      }
-      const data = {
-        workerUsername: selectedWorker?.username,
-        clockOutTime: `${clockOutTime.getHours()}:${clockOutTime.getMinutes()}`,
-        description: selectedWorker?.description,
-      };
-
       if (selectedWorker && clockOutTime) {
-        // console.log(clockInTime.getHours())
         await markClockOutTime(data);
-        fetchAllWorkers()
+        fetchAllWorkers();
+        Toast.show({
+          type: "success",
+          text1: "Clock-Out Recorded ✅",
+          text2: `Clock-out for ${selectedWorker.username} successful.`,
+        });
       } else {
-        console.log("Select the mandatory fields first.");
+        Toast.show({
+          type: "error",
+          text1: "Something Went Wrong!",
+          text2: "Missing mandatory fields.",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: error.response?.data?.detail || "Could not record clock-out.",
+      });
     }
   };
 
   const handleOvertimeClockIn = async () => {
+    if (
+      !selectedWorker?.username ||
+      !selectedWorker?.entry_time ||
+      !selectedWorker?.leaving_time ||
+      !selectedWorker?.shift ||
+      !overtimeClockInTime
+    ) {
+      Toast.show({
+        type: "info",
+        text1: "Missing Info 📝",
+        text2:
+          "Please ensure main shift is complete and select overtime clock-in time.",
+      });
+      return null;
+    }
+    if (clockOutTime >= overtimeClockInTime) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Time ⏰",
+        text2: "Overtime clock-in must be after regular clock-out time.",
+      });
+      return null;
+    }
+    const data = {
+      workerUsername: selectedWorker?.username,
+      clockInTime: `${overtimeClockInTime.getHours()}:${overtimeClockInTime.getMinutes()}`,
+    };
     try {
-      if(!selectedWorker?.username && 
-        !selectedWorker?.entry_time && 
-        !selectedWorker?.leaving_time && 
-        !selectedWorker?.shift &&
-        !overtimeClockInTime){
-          alert("Select mandatory field first");
-          return null;
-      }
-      if(clockOutTime >= overtimeClockInTime){
-        alert("Clock-in time for overtime should be greater than clock-out time")
-        return null;
-      }
-      const data = {
-        workerUsername: selectedWorker?.username,
-        clockInTime: `${overtimeClockInTime.getHours()}:${overtimeClockInTime.getMinutes()}`,
-      };
       if (selectedWorker && overtimeClockInTime) {
-        // console.log(clockInTime.getHours())
         await markOvertimeClockInTime(data);
         await fetchAllWorkers();
         setSelectedShift(null);
         setClockInTime(new Date());
         setSelectedWorker(null);
         setDescription("");
-        setOriginalShift(null)
+        setOriginalShift(null);
+        Toast.show({
+          type: "success",
+          text1: "Overtime Clock-In Recorded ✅",
+          text2: `Overtime clock-in for ${selectedWorker.username} successful.`,
+        });
       } else {
-        console.log("Select the mandatory fields first.");
+        Toast.show({
+          type: "error",
+          text1: "Something Went Wrong!",
+          text2: "Missing mandatory fields.",
+        });
       }
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2:
+          error.response?.data?.detail || "Could not record overtime clock-in.",
+      });
     }
-  }
+  };
 
   const handleOvertimeClockOutTime = async () => {
+    if (
+      !selectedWorker?.entry_time ||
+      !selectedWorker?.leaving_time ||
+      !selectedWorker?.overtime_entry_time ||
+      !selectedShift ||
+      !selectedWorker?.username
+    ) {
+      Toast.show({
+        type: "info",
+        text1: "Missing Info 📝",
+        text2: "Please ensure worker has overtime clock-in time.",
+      });
+      return null;
+    }
+    if (overtimeClockInTime >= overtimeClockOutTime) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Time ⏰",
+        text2: "Overtime clock-out must be after overtime clock-in.",
+      });
+      return null;
+    }
+    const data = {
+      workerUsername: selectedWorker?.username,
+      clockOutTime: `${overtimeClockOutTime.getHours()}:${overtimeClockOutTime.getMinutes()}`,
+    };
     try {
-      if(!selectedWorker?.entry_time && 
-        !selectedWorker?.leaving_time && 
-        !selectedWorker?.overtime_entry_time && 
-        !selectedShift && selectedWorker?.username){
-          alert("Selected mandatory fields first")
-          return null;
-        }
-      if(overtimeClockInTime >= overtimeClockOutTime){
-        alert("Clock-in time should be less than clock-out")
-        return null;
-      }
-      const data = {
-        workerUsername: selectedWorker?.username,
-        clockOutTime: `${overtimeClockOutTime.getHours()}:${overtimeClockOutTime.getMinutes()}`,
-      };
-
       if (selectedWorker && overtimeClockOutTime) {
-        // console.log(clockInTime.getHours())
         await markOvertimeClockOutTime(data);
-        await fetchAllWorkers()
+        await fetchAllWorkers();
         setSelectedShift(null);
         setClockInTime(new Date());
         setSelectedWorker(null);
         setDescription("");
-        setOriginalShift(null)
+        setOriginalShift(null);
+        Toast.show({
+          type: "success",
+          text1: "Overtime Clock-Out Recorded ✅",
+          text2: `Overtime clock-out for ${selectedWorker.username} successful.`,
+        });
       } else {
-        console.log("Select the mandatory fields first.");
+        Toast.show({
+          type: "error",
+          text1: "Something Went Wrong!",
+          text2: "Missing mandatory fields.",
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2:
+          error.response?.data?.detail ||
+          "Could not record overtime clock-out.",
+      });
     }
-  }
+  };
 
   const getShiftLabel = (shiftName: string): string => {
     const shift = SHIFTS_DATA.find((s) => s.name === shiftName);
@@ -525,10 +698,6 @@ export default function AttendancePage() {
       .replace(",", "");
   };
 
-  // const formatTaskDate = (date: Date) => {
-  //   return date.toLocaleDateString("en-GB");
-  // };
-
   const getDateTimeValue = () => {
     switch (pickerMode) {
       case "clockIn":
@@ -548,493 +717,481 @@ export default function AttendancePage() {
 
   return (
     <SafeAreaProvider>
-    <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={["#0a2342", "#1e3c72"]}
-        style={styles.headerGradient}
-      >
-        <View style={styles.headerTopContent}>
-          <Text style={styles.headerTitle}>Mark Worker Attendance</Text>
-          <Text style={styles.headerSubtitle}>
-            Log daily hours and manage your workforce efficiently.
-          </Text>
-        </View>
-        <View style={styles.headerStatsRow}>
-          <View style={styles.statItem}>
-            <MaterialIcons name="today" size={20} color="#ecf0f1" />
-            <Text style={styles.statValue}>
-              {new Date().toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-              })}
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient
+          colors={["#0a2342", "#1e3c72"]}
+          style={styles.headerGradient}
+        >
+          <View style={styles.headerTopContent}>
+            <Text style={styles.headerTitle}>Mark Worker Attendance</Text>
+            <Text style={styles.headerSubtitle}>
+              Log daily hours and manage your workforce efficiently.
             </Text>
           </View>
-          <View style={styles.statSeparator} />
-          <View style={styles.statItem}>
-            <MaterialIcons name="groups" size={20} color="#ecf0f1" />
-            <Text style={styles.statValue}>{totalWorkerWorking} Working</Text>
-          </View>
-          <View style={styles.statSeparator} />
-          <View style={styles.statItem}>
-            <MaterialIcons name="access-time" size={20} color="#ecf0f1" />
-            <Text style={styles.statValue}>
-              {currentTime.toLocaleTimeString("en-IN", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
-        </View>
-      </LinearGradient>
-      <WorkerDropdownModal
-        isVisible={isWorkerModalVisible}
-        onClose={() => setWorkerModalVisible(false)}
-        onSelect={(worker) => {
-          setSelectedWorker({
-            username: worker.username,
-            entry_time: "",
-            leaving_time: "",
-            shift: "",
-            date: "",
-            done: false,
-            description: "",
-            overtime: false,
-            overtime_entry_time: "",
-            overtime_leaving_time: "",
-          });
-        }}
-        data={workers}
-        title="Select Worker"
-        renderItem={(item) => `${item?.username}`}
-      />
-      <ShiftDropdownModal
-        isVisible={isShiftModalVisible}
-        onClose={() => setShiftModalVisible(false)}
-        onSelect={setSelectedShift}
-        data={SHIFTS_DATA}
-        title="Select Shift"
-        renderItem={(item) => item.label}
-      />
-      {showPicker && (
-        <Modal transparent visible={true} animationType="fade">
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Pick Time</Text>
-              <View style={styles.pickerContainer}>
-                <DateTimePicker
-                  value={getDateTimeValue()}
-                  mode={pickerMode === "deadline" ? "date" : "time"}
-                  display="spinner"
-                  onChange={(event: DateTimePickerEvent, date?: Date) => {
-                    onDateChange(event, date);
-                  }}
-                  textColor={Platform.OS === "ios" ? "#2c3e50" : undefined}
-                />
-              </View>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={() => setShowPicker(false)}
-                >
-                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.confirmButton]}
-                  onPress={() => setShowPicker(false)}
-                >
-                  <Text style={styles.buttonText}>Confirm</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-      )}
-
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>☉ Mark Worker Attendance</Text>
-
-          <View style={styles.row}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Select Worker</Text>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => setWorkerModalVisible(true)}
-              >
-                <Text>{selectedWorker?.username || "Select a worker"}</Text>
-              </TouchableOpacity>
-              {selectedWorker?.overtime_entry_time && !selectedWorker?.overtime_leaving_time && (
-                <Text
-                  style={{
-                    marginTop: 4,
-                    marginLeft:4,
-                    fontSize: 12,
-                    color: "#27ae60",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Working Overtime
-                </Text>
-              )}
-
-            </View>
-            <View style={styles.inputGroup}>
-            <Text style={styles.label}>Select Shift</Text>
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={() => setShiftModalVisible(true)}
-            >
-              <Text>{selectedShift?.label || "Select a shift"}</Text>
-            </TouchableOpacity>
-
-            {originalShift && (
-              <Text
-                style={{
-                  marginTop: 4,
-                  fontSize: 10,
-                  color: "#7f8c8d",
-                  fontStyle: "italic",
-                }}
-              >
-                Originally assigned:{" "}
-                <Text style={{ fontWeight: "bold", color: "#2c3e50" }}>
-                  {getShiftLabel(originalShift)}
-                </Text>
+          <View style={styles.headerStatsRow}>
+            <View style={styles.statItem}>
+              <MaterialIcons name="today" size={20} color="#ecf0f1" />
+              <Text style={styles.statValue}>
+                {new Date().toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                })}
               </Text>
-            )}
+            </View>
+            <View style={styles.statSeparator} />
+            <View style={styles.statItem}>
+              <MaterialIcons name="groups" size={20} color="#ecf0f1" />
+              <Text style={styles.statValue}>{totalWorkerWorking} Working</Text>
+            </View>
+            <View style={styles.statSeparator} />
+            <View style={styles.statItem}>
+              <MaterialIcons name="access-time" size={20} color="#ecf0f1" />
+              <Text style={styles.statValue}>
+                {currentTime.toLocaleTimeString("en-IN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Text>
+            </View>
           </View>
-          </View>
+        </LinearGradient>
+        <WorkerDropdownModal
+          isVisible={isWorkerModalVisible}
+          onClose={() => setWorkerModalVisible(false)}
+          onSelect={(worker) => {
+            setSelectedWorker({
+              username: worker.username,
+              entry_time: "",
+              leaving_time: "",
+              shift: "",
+              date: "",
+              done: false,
+              description: "",
+              overtime: false,
+              overtime_entry_time: "",
+              overtime_leaving_time: "",
+            });
+          }}
+          data={workers}
+          title="Select Worker"
+          renderItem={(item) => `${item?.username}`}
+        />
+        <ShiftDropdownModal
+          isVisible={isShiftModalVisible}
+          onClose={() => setShiftModalVisible(false)}
+          onSelect={setSelectedShift}
+          data={SHIFTS_DATA}
+          title="Select Shift"
+          renderItem={(item) => item.label}
+        />
+        {showPicker && (
+          <Modal transparent visible={true} animationType="fade">
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Pick Time</Text>
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={getDateTimeValue()}
+                    mode={pickerMode === "deadline" ? "date" : "time"}
+                    display="spinner"
+                    onChange={(event: DateTimePickerEvent, date?: Date) => {
+                      onDateChange(event, date);
+                    }}
+                    textColor={Platform.OS === "ios" ? "#2c3e50" : undefined}
+                  />
+                </View>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.cancelButton]}
+                    onPress={() => setShowPicker(false)}
+                  >
+                    <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.button, styles.confirmButton]}
+                    onPress={() => setShowPicker(false)}
+                  >
+                    <Text style={styles.buttonText}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        )}
 
-          {selectedShift?.label.includes("Overtime") && (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>☉ Mark Worker Attendance</Text>
+
             <View style={styles.row}>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Overtime Clock-In</Text>
+                <Text style={styles.label}>Select Worker</Text>
                 <TouchableOpacity
                   style={styles.dropdown}
-                  onPress={() => showDateTimePicker("overtimeClockIn")}
+                  onPress={() => setWorkerModalVisible(true)}
                 >
-                  <Text>{formatDate(overtimeClockInTime)}</Text>
+                  <Text>{selectedWorker?.username || "Select a worker"}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.clockInButton}
-                  onPress={handleOvertimeClockIn}
-                >
-                  <LinearGradient
-                    colors={["#FBC02D", "#F57C00"]}
-                    style={styles.clockInGradient}
-                  >
-                    <MaterialIcons name="login" size={22} color="#FFFFFF" />
-                    <Text style={styles.clockInText}>Clock-In</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                {selectedWorker?.overtime_entry_time &&
+                  !selectedWorker?.overtime_leaving_time && (
+                    <Text
+                      style={{
+                        marginTop: 4,
+                        marginLeft: 4,
+                        fontSize: 12,
+                        color: "#27ae60",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Working Overtime
+                    </Text>
+                  )}
               </View>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Overtime Clock-Out</Text>
+                <Text style={styles.label}>Select Shift</Text>
                 <TouchableOpacity
                   style={styles.dropdown}
-                  onPress={() => showDateTimePicker("overtimeClockOut")}
+                  onPress={() => setShiftModalVisible(true)}
                 >
-                  <Text>{formatDate(overtimeClockOutTime)}</Text>
+                  <Text>{selectedShift?.label || "Select a shift"}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.clockInButton}
-                  onPress={handleOvertimeClockOutTime}
-                >
-                  <LinearGradient
-                    colors={["#43A047", "#2E7D32"]}
-                    style={styles.clockInGradient}
+
+                {originalShift && (
+                  <Text
+                    style={{
+                      marginTop: 4,
+                      fontSize: 10,
+                      color: "#7f8c8d",
+                      fontStyle: "italic",
+                    }}
                   >
-                    <MaterialIcons name="logout" size={22} color="#FFFFFF" />
-                    <Text style={styles.clockInText}>Clock-Out</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                    Originally assigned:{" "}
+                    <Text style={{ fontWeight: "bold", color: "#2c3e50" }}>
+                      {getShiftLabel(originalShift)}
+                    </Text>
+                  </Text>
+                )}
               </View>
             </View>
-          )}
 
-          {!selectedShift?.label.includes("Overtime") && (
-            <View style={styles.row}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Clock In Time</Text>
-                <TouchableOpacity
-                  style={styles.dropdown}
-                  onPress={() => showDateTimePicker("clockIn")}
-                >
-                  <Text>{formatDate(clockInTime)}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.clockInButton}
-                  onPress={handleClockIn}
-                >
-                  <LinearGradient
-                    colors={["#FBC02D", "#F57C00"]}
-                    style={styles.clockInGradient}
+            {selectedShift?.label.includes("Overtime") && (
+              <View style={styles.row}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Overtime Clock-In</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() => showDateTimePicker("overtimeClockIn")}
                   >
-                    <MaterialIcons name="login" size={22} color="#FFFFFF" />
-                    <Text style={styles.clockInText}>Clock-In</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Clock Out Time</Text>
-                <TouchableOpacity
-                  style={styles.dropdown}
-                  onPress={() => showDateTimePicker("clockOut")}
-                >
-                  <Text>{formatDate(clockOutTime)}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.clockInButton}
-                  onPress={handlemarkClockOutTime}
-                >
-                  <LinearGradient
-                    colors={["#43A047", "#2E7D32"]}
-                    style={styles.clockInGradient}
+                    <Text>{formatDate(overtimeClockInTime)}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.clockInButton}
+                    onPress={handleOvertimeClockIn}
                   >
-                    <MaterialIcons name="logout" size={22} color="#FFFFFF" />
-                    <Text style={styles.clockInText}>Clock-Out</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                    <LinearGradient
+                      colors={["#FBC02D", "#F57C00"]}
+                      style={styles.clockInGradient}
+                    >
+                      <MaterialIcons name="login" size={22} color="#FFFFFF" />
+                      <Text style={styles.clockInText}>Clock-In</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Overtime Clock-Out</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() => showDateTimePicker("overtimeClockOut")}
+                  >
+                    <Text>{formatDate(overtimeClockOutTime)}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.clockInButton}
+                    onPress={handleOvertimeClockOutTime}
+                  >
+                    <LinearGradient
+                      colors={["#43A047", "#2E7D32"]}
+                      style={styles.clockInGradient}
+                    >
+                      <MaterialIcons name="logout" size={22} color="#FFFFFF" />
+                      <Text style={styles.clockInText}>Clock-Out</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
-
-          {/* <View style={styles.row}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Task Deadline (Optional)</Text>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => showDateTimePicker("deadline")}
-              >
-                <Text>{formatTaskDate(deadline)}</Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
-
-          <Text style={styles.label}>Work Description</Text>
-          <TextInput
-            value={selectedWorker?.description || ""}
-            onChangeText={(text) =>
-            setSelectedWorker((prev) =>
-              prev ? { ...prev, description: text } : prev
             )}
-            style={[styles.dropdown, styles.textArea]}
-            placeholder="Describe the work assigned..."
-            multiline
-          />
 
-          {
-            !selectedWorker?.done
-            ?
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: "green" }]}
-              onPress={() => saveFullAttendanceData()}
-            >
-              <Text style={styles.buttonText}>Submit</Text>
-            </TouchableOpacity>
-            :
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: "green" }]}
-              disabled={true}
-            >
-              <Text style={styles.buttonText}>Submit</Text>
-            </TouchableOpacity>
-          }
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Today's Attendance</Text>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              backgroundColor: "#F2F3F5",
-              borderRadius: 10,
-              paddingHorizontal: 10,
-              marginVertical: 10,
-            }}
-          >
-            <MaterialIcons name="search" size={20} color="#7A869A" />
+            {!selectedShift?.label.includes("Overtime") && (
+              <View style={styles.row}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Clock In Time</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() => showDateTimePicker("clockIn")}
+                  >
+                    <Text>{formatDate(clockInTime)}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.clockInButton}
+                    onPress={handleClockIn}
+                  >
+                    <LinearGradient
+                      colors={["#FBC02D", "#F57C00"]}
+                      style={styles.clockInGradient}
+                    >
+                      <MaterialIcons name="login" size={22} color="#FFFFFF" />
+                      <Text style={styles.clockInText}>Clock-In</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Clock Out Time</Text>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    onPress={() => showDateTimePicker("clockOut")}
+                  >
+                    <Text>{formatDate(clockOutTime)}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.clockInButton}
+                    onPress={handlemarkClockOutTime}
+                  >
+                    <LinearGradient
+                      colors={["#43A047", "#2E7D32"]}
+                      style={styles.clockInGradient}
+                    >
+                      <MaterialIcons name="logout" size={22} color="#FFFFFF" />
+                      <Text style={styles.clockInText}>Clock-Out</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            <Text style={styles.label}>Work Description</Text>
             <TextInput
-              style={{
-                flex: 1,
-                padding: 8,
-                fontSize: 14,
-                color: "#2C3E50",
-              }}
-              placeholder="Search worker by username..."
-              placeholderTextColor="#7A869A"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
+              value={selectedWorker?.description || ""}
+              onChangeText={(text) =>
+                setSelectedWorker((prev) =>
+                  prev ? { ...prev, description: text } : prev
+                )
+              }
+              style={[styles.dropdown, styles.textArea]}
+              placeholder="Describe the work assigned..."
+              multiline
             />
+
+            {!selectedWorker?.done ? (
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "green" }]}
+                onPress={() => saveFullAttendanceData()}
+              >
+                <Text style={styles.buttonText}>Submit</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "green" }]}
+                disabled={true}
+              >
+                <Text style={styles.buttonText}>Submit</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          {!filteredWorkers || filteredWorkers.length === 0 ? (
-            <View style={styles.noAttendanceContainer}>
-              <Text style={styles.noAttendanceText}>No matching workers found</Text>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Today's Attendance</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                backgroundColor: "#F2F3F5",
+                borderRadius: 10,
+                paddingHorizontal: 10,
+                marginVertical: 10,
+              }}
+            >
+              <MaterialIcons name="search" size={20} color="#7A869A" />
+              <TextInput
+                style={{
+                  flex: 1,
+                  padding: 8,
+                  fontSize: 14,
+                  color: "#2C3E50",
+                }}
+                placeholder="Search worker by username..."
+                placeholderTextColor="#7A869A"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
             </View>
-          ) : (
-            Object.keys(filteredWorkersByShift || {}).map((shiftName) => (
-              <View key={shiftName} style={styles.shiftSection}>
+            {!filteredWorkers || filteredWorkers.length === 0 ? (
+              <View style={styles.noAttendanceContainer}>
+                <Text style={styles.noAttendanceText}>
+                  No matching workers found
+                </Text>
+              </View>
+            ) : (
+              Object.keys(filteredWorkersByShift || {}).map((shiftName) => (
+                <View key={shiftName} style={styles.shiftSection}>
+                  <TouchableOpacity
+                    style={styles.shiftHeader}
+                    onPress={() => toggleShift(shiftName)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.shiftHeaderTitle}>
+                      <Text style={styles.shiftName}>
+                        {getShiftLabel(shiftName)}
+                      </Text>
+                      <View style={styles.workerCountBadge}>
+                        <Text style={styles.workerCountText}>
+                          {filteredWorkersByShift?.[shiftName]?.length || 0}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.expandIcon}>
+                      {expandedShifts[shiftName] ? "−" : "+"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {expandedShifts[shiftName] && (
+                    <View style={styles.shiftContent}>
+                      {filteredWorkersByShift[shiftName].map(
+                        (worker, index) => (
+                          <TouchableOpacity
+                            onPress={() => handleSelectedWorker(worker)}
+                            key={index}
+                          >
+                            <View style={[styles.attendanceRow]}>
+                              <View style={styles.workerInfo}>
+                                {worker.leaving_time ? (
+                                  <View style={styles.statusIndicatorRed} />
+                                ) : (
+                                  <View style={styles.statusIndicatorGreen} />
+                                )}
+
+                                <View>
+                                  <Text style={[styles.workerName]}>
+                                    {worker?.username || "Unknown"}
+                                  </Text>
+
+                                  <Text style={styles.workerDetail}>
+                                    Shift: {getShiftLabel(worker?.shift)}
+                                  </Text>
+
+                                  <View
+                                    style={[
+                                      styles.statusTag,
+                                      worker.done
+                                        ? styles.statusTagSubmitted
+                                        : styles.statusTagPending,
+                                    ]}
+                                  >
+                                    <Text style={[styles.statusTagText]}>
+                                      {worker.done ? "Submitted" : "Pending"}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+
+                              <View style={styles.timeInfo}>
+                                {worker.leaving_time ? (
+                                  <>
+                                    <Text style={styles.timeLabel}>
+                                      Clock Out
+                                    </Text>
+                                    <Text style={styles.timeValue}>
+                                      {worker.leaving_time}
+                                    </Text>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Text style={styles.timeLabel}>
+                                      Clock In
+                                    </Text>
+                                    <Text style={styles.timeValue}>
+                                      {worker.entry_time}
+                                    </Text>
+                                  </>
+                                )}
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        )
+                      )}
+                    </View>
+                  )}
+                </View>
+              ))
+            )}
+            {filteredOvertimeWorkers && filteredOvertimeWorkers.length > 0 && (
+              <View style={styles.shiftSection}>
                 <TouchableOpacity
                   style={styles.shiftHeader}
-                  onPress={() => toggleShift(shiftName)}
+                  onPress={() => toggleShift("overtime")}
                   activeOpacity={0.7}
                 >
                   <View style={styles.shiftHeaderTitle}>
-                    <Text style={styles.shiftName}>{getShiftLabel(shiftName)}</Text>
+                    <Text style={styles.shiftName}>Overtime</Text>
                     <View style={styles.workerCountBadge}>
                       <Text style={styles.workerCountText}>
-                        {filteredWorkersByShift?.[shiftName]?.length || 0}
+                        {filteredOvertimeWorkers.length}
                       </Text>
                     </View>
                   </View>
                   <Text style={styles.expandIcon}>
-                    {expandedShifts[shiftName] ? "−" : "+"}
+                    {expandedShifts["overtime"] ? "−" : "+"}
                   </Text>
                 </TouchableOpacity>
 
-                {expandedShifts[shiftName] && (
+                {expandedShifts["overtime"] && (
                   <View style={styles.shiftContent}>
-                    {filteredWorkersByShift[shiftName].map((worker, index) => (
+                    {filteredOvertimeWorkers.map((worker, index) => (
                       <TouchableOpacity
                         onPress={() => handleSelectedWorker(worker)}
                         key={index}
                       >
-                        <View
-                          style={[
-                            styles.attendanceRow,
-                           
-                          ]}
-                        >
+                        <View style={styles.attendanceRow}>
                           <View style={styles.workerInfo}>
-                            {worker.leaving_time ? (
-                            <View style={styles.statusIndicatorRed} />
-                          ) : (
-                            <View style={styles.statusIndicatorGreen} />
-                          )}
-
+                            {worker.overtime_leaving_time ? (
+                              <View style={styles.statusIndicatorRed} />
+                            ) : (
+                              <View style={styles.statusIndicatorGreen} />
+                            )}
                             <View>
-                              <Text
-                                style={[
-                                  styles.workerName,
-                                ]}
-                              >
-                                {worker?.username || "Unknown"}
+                              <Text style={styles.workerName}>
+                                {worker.username}
                               </Text>
-
-                              <Text style={styles.workerDetail}>
-                                Shift: {getShiftLabel(worker?.shift)}
-                              </Text>
-
-                              <View
-                                style={[
-                                  styles.statusTag,
-                                  worker.done ? styles.statusTagSubmitted : styles.statusTagPending,
-                                ]}
-                              >
-                                <Text
-                                  style={[
-                                    styles.statusTagText
-                                  ]}
-                                >
-                                  {worker.done ? "Submitted" : "Pending"}
-                                </Text>
-                              </View>
                             </View>
                           </View>
-
                           <View style={styles.timeInfo}>
-                            {worker.leaving_time ? (
+                            {!worker.overtime_leaving_time ? (
                               <>
-                                <Text style={styles.timeLabel}>Clock Out</Text>
-                                <Text style={styles.timeValue}>{worker.leaving_time}</Text>
+                                <Text style={styles.timeLabel}>Clock In</Text>
+                                <Text style={styles.timeValue}>
+                                  {worker?.overtime_entry_time}
+                                </Text>
                               </>
                             ) : (
                               <>
-                                <Text style={styles.timeLabel}>Clock In</Text>
-                                <Text style={styles.timeValue}>{worker.entry_time}</Text>
+                                <Text style={styles.timeLabel}>Clock Out</Text>
+                                <Text style={styles.timeValue}>
+                                  {worker?.overtime_leaving_time}
+                                </Text>
                               </>
                             )}
                           </View>
                         </View>
-
                       </TouchableOpacity>
                     ))}
                   </View>
                 )}
               </View>
-            ))
-          )}
-          {filteredOvertimeWorkers && filteredOvertimeWorkers.length > 0 && (
-            <View style={styles.shiftSection}>
-              <TouchableOpacity
-                style={styles.shiftHeader}
-                onPress={() => toggleShift("overtime")}
-                activeOpacity={0.7}
-              >
-                <View style={styles.shiftHeaderTitle}>
-                  <Text style={styles.shiftName}>Overtime</Text>
-                  <View style={styles.workerCountBadge}>
-                    <Text style={styles.workerCountText}>
-                      {filteredOvertimeWorkers.length}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.expandIcon}>
-                  {expandedShifts["overtime"] ? "−" : "+"}
-                </Text>
-              </TouchableOpacity>
-
-              {expandedShifts["overtime"] && (
-                <View style={styles.shiftContent}>
-                  {filteredOvertimeWorkers.map((worker, index) => (
-                    <TouchableOpacity
-                      onPress={() => handleSelectedWorker(worker)}
-                      key={index}
-                    >
-                      <View style={styles.attendanceRow}>
-                        <View style={styles.workerInfo}>
-                          {worker.overtime_leaving_time ? (
-                            <View style={styles.statusIndicatorRed} />
-                          ) : (
-                            <View style={styles.statusIndicatorGreen} />
-                          )}
-                          <View>
-                            <Text style={styles.workerName}>
-                              {worker.username}
-                            </Text>
-                          </View>
-                        </View>
-                        <View style={styles.timeInfo}>
-                          {
-                            !worker.overtime_leaving_time ?
-                            (
-                              <>
-                                <Text style={styles.timeLabel}>Clock In</Text>
-                                <Text style={styles.timeValue}>{worker?.overtime_entry_time}</Text>
-                              </>
-                            ) :
-                            (
-                              <>
-                                <Text style={styles.timeLabel}>Clock Out</Text>
-                                <Text style={styles.timeValue}>{worker?.overtime_leaving_time}</Text>
-                              </>
-                            )
-                          }
-                          
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

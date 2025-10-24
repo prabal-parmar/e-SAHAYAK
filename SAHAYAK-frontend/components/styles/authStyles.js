@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions, Platform } from "react-native";
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 
 const COLORS = {
   saffron: "#ff9327ff",
@@ -9,20 +9,20 @@ const COLORS = {
   navy: "#000080",
 
   primaryText: "#2C3E50",
-  secondaryText: '#7A869A',
+  secondaryText: "#7A869A",
   lightBackground: "#FFFFFF",
   lightGrey: "#F0F2F5",
 
   landingPrimaryText: "#FFFFFF",
-  landingSecondaryText: 'rgba(255, 255, 255, 0.9)',
+  landingSecondaryText: "rgba(255, 255, 255, 0.9)",
   landingCardBackground: "rgba(0, 0, 0, 0.3)",
-  cardBackground: 'rgba(255, 255, 255, 0.2)',
-  cardBorder: 'rgba(255, 255, 255, 0.3)',
-  formBackground: '#FFFFFF',
-  formPrimaryText: '#2C3E50',
-  formSecondaryText: '#7A869A',
-  formLightGrey: '#F0F2F5',
-  iconBackground: 'rgba(255, 255, 255, 0.15)',
+  cardBackground: "rgba(255, 255, 255, 0.2)",
+  cardBorder: "rgba(255, 255, 255, 0.3)",
+  formBackground: "#FFFFFF",
+  formPrimaryText: "#2C3E50",
+  formSecondaryText: "#7A869A",
+  formLightGrey: "#F0F2F5",
+  iconBackground: "rgba(255, 255, 255, 0.15)",
 };
 
 const FONTS = {
@@ -42,7 +42,8 @@ const SIZES = {
 
 const guidelineBaseWidth = 375;
 const scale = (size) => (screenWidth / guidelineBaseWidth) * size;
-const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
+const moderateScale = (size, factor = 0.5) =>
+  size + (scale(size) - size) * factor;
 
 export const landingStyles = StyleSheet.create({
   container: {
@@ -82,7 +83,7 @@ export const landingStyles = StyleSheet.create({
   mainTitle: {
     color: COLORS.landingPrimaryText,
     // Scale large fonts less aggressively to avoid them being oversized on tablets
-    fontSize: moderateScale(48, 0.3), 
+    fontSize: moderateScale(48, 0.3),
     fontWeight: "bold",
     marginBottom: moderateScale(8),
     ...Platform.select({
@@ -122,7 +123,7 @@ export const landingStyles = StyleSheet.create({
     backgroundColor: COLORS.landingCardBackground,
     borderRadius: moderateScale(16),
     padding: moderateScale(16),
-    width: '48.5%', 
+    width: "48.5%",
     marginBottom: moderateScale(16),
     alignItems: "center",
     justifyContent: "center",
@@ -396,45 +397,45 @@ export const loginStyles = StyleSheet.create({
 export const register = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: moderateScale(20),
   },
   formContainer: {
     backgroundColor: COLORS.formBackground,
     borderRadius: 20,
     padding: moderateScale(24),
-    width: '100%',
+    width: "100%",
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginBottom: moderateScale(20),
   },
   backButtonText: {
     color: COLORS.navy,
     fontSize: moderateScale(16),
-    fontWeight: '600',
+    fontWeight: "600",
   },
   formTitle: {
     fontSize: moderateScale(26),
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.formPrimaryText,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: moderateScale(25),
   },
   inputContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: moderateScale(18),
   },
   splitInputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: moderateScale(18),
   },
   inputLabel: {
     fontSize: moderateScale(14),
     color: COLORS.formPrimaryText,
     marginBottom: 8,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   input: {
     backgroundColor: COLORS.formLightGrey,
@@ -444,11 +445,11 @@ export const register = StyleSheet.create({
     fontSize: moderateScale(16),
     color: COLORS.formPrimaryText,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   genderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   genderButton: {
     flex: 1,
@@ -456,7 +457,7 @@ export const register = StyleSheet.create({
     borderColor: COLORS.formLightGrey,
     borderRadius: 12,
     paddingVertical: 15,
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 4,
     backgroundColor: COLORS.formLightGrey,
   },
@@ -470,25 +471,25 @@ export const register = StyleSheet.create({
   },
   genderButtonTextActive: {
     color: COLORS.white,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   registerButton: {
-    width: '100%',
+    width: "100%",
     backgroundColor: COLORS.green,
     borderRadius: 12,
     paddingVertical: 18,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: moderateScale(25),
   },
   registerButtonText: {
     fontSize: moderateScale(18),
     color: COLORS.white,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   loginContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: moderateScale(25),
   },
   loginText: {
@@ -498,14 +499,14 @@ export const register = StyleSheet.create({
   loginLink: {
     fontSize: moderateScale(14),
     color: COLORS.navy,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 5,
   },
   landingContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: moderateScale(10),
-    justifyContent: 'center',
-    minHeight: '100%',
+    justifyContent: "center",
+    minHeight: "100%",
   },
   landingLogo: {
     width: moderateScale(70),
@@ -515,10 +516,10 @@ export const register = StyleSheet.create({
   mainTitle: {
     color: COLORS.primaryText,
     fontSize: moderateScale(36, 0.3),
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: moderateScale(12),
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
     textShadowOffset: { width: 1, height: 2 },
     textShadowRadius: 3,
   },
@@ -526,28 +527,28 @@ export const register = StyleSheet.create({
     color: "#ffff",
     fontSize: moderateScale(16),
     lineHeight: moderateScale(24),
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: moderateScale(35),
-    maxWidth: '90%',
+    maxWidth: "90%",
   },
   roleCard: {
     backgroundColor: COLORS.cardBackground,
     borderRadius: moderateScale(20),
     padding: moderateScale(20),
-    width: '100%',
+    width: "100%",
     marginBottom: moderateScale(20),
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   cardIconContainer: {
     width: moderateScale(60),
     height: moderateScale(60),
     borderRadius: moderateScale(30),
     backgroundColor: COLORS.iconBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: moderateScale(20),
   },
   cardIcon: {
@@ -559,7 +560,7 @@ export const register = StyleSheet.create({
   cardTitle: {
     color: COLORS.primaryText,
     fontSize: moderateScale(18),
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: moderateScale(6),
   },
   cardDescription: {
@@ -567,9 +568,9 @@ export const register = StyleSheet.create({
     fontSize: moderateScale(10),
     lineHeight: moderateScale(20),
   },
-    loginButton: {
+  loginButton: {
     marginTop: 20,
-    backgroundColor: "#3d322580", 
+    backgroundColor: "#3d322580",
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderRadius: 8,
@@ -588,4 +589,3 @@ export const register = StyleSheet.create({
     fontStyle: "italic",
   },
 });
-

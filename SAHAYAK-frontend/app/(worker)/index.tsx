@@ -25,6 +25,7 @@ import { generatePDF } from "@/components/pdf/workReceipt";
 import { getPDFdata } from "@/api/Worker/get_pdf_data";
 import { Calendar } from "react-native-calendars";
 import { router } from "expo-router";
+import Toast from "react-native-toast-message";
 
 type WorkStatus = "pending" | "satisfied" | "report";
 type WorkEntry = {
@@ -106,8 +107,13 @@ export default function WorkerHomePage() {
       }
 
       setMarkedDates(tempMarked);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading attendance data:", error);
+      Toast.show({
+        type: "error",
+        text1: "Something went wrong!",
+        text2: "Could not load attendance data.",
+      });
     } finally {
       setLoadingCalendar(false);
     }
@@ -118,7 +124,10 @@ export default function WorkerHomePage() {
   }, [showCalendar, selectedMonth, selectedYear]);
 
   const handleMonthChange = (monthObj: { month: number; year: number }) => {
-    const newDate = `${monthObj.year}-${String(monthObj.month).padStart(2, "0")}-01`;
+    const newDate = `${monthObj.year}-${String(monthObj.month).padStart(
+      2,
+      "0"
+    )}-01`;
     setSelectedMonth(monthObj.month);
     setSelectedYear(monthObj.year);
     setCurrentDate(newDate);
@@ -147,17 +156,26 @@ export default function WorkerHomePage() {
   }, []);
 
   const handleUpdateStatus = async (id: string, newStatus: WorkStatus) => {
-    setWorkHistory((currentHistory) =>
-      currentHistory.map((work) =>
-        work.id === id ? { ...work, status: newStatus } : work
-      )
-    );
-    await updateResponse(
-      id,
-      newStatus,
-      selectedReason ? selectedReason?.toLowerCase() : "",
-      reportDescription
-    );
+    try {
+      setWorkHistory((currentHistory) =>
+        currentHistory.map((work) =>
+          work.id === id ? { ...work, status: newStatus } : work
+        )
+      );
+      await updateResponse(
+        id,
+        newStatus,
+        selectedReason ? selectedReason?.toLowerCase() : "",
+        reportDescription
+      );
+    } catch (error: any) {
+      console.error("Error updating status:", error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: "Could not update work status.",
+      });
+    }
   };
 
   const openReportModal = (id: string) => {
@@ -166,23 +184,46 @@ export default function WorkerHomePage() {
   };
 
   const handleDownloadReceipt = async (id: string) => {
-    const data = await getPDFdata(id);
-    setReceiptData(data.data);
+    try {
+      const data = await getPDFdata(id);
+      setReceiptData(data.data);
+      Toast.show({
+        type: "success",
+        text1: "Receipt Data Loaded ✅",
+        text2: "You can now download the receipt.",
+      });
+    } catch (error: any) {
+      console.error("Error fetching receipt data:", error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: "Could not load receipt data.",
+      });
+    }
   };
 
   const handleSubmitReport = () => {
     if (reportingWorkId && selectedReason) {
       handleUpdateStatus(reportingWorkId, "report");
       closeReportModal();
+      Toast.show({
+        type: "success",
+        text1: "Report Submitted ✅",
+        text2: "Your report has been submitted.",
+      });
     } else {
-      alert("Please select a reason for the report.");
+      Toast.show({
+        type: "info",
+        text1: "Missing Info 📝",
+        text2: "Please select a reason for the report.",
+      });
     }
   };
 
   const handleDayPress = (day: any) => {
-    router.push(`/attendance-data/${day.dateString}`)
-    setShowCalendar(false)
-  }
+    router.push(`/attendance-data/${day.dateString}`);
+    setShowCalendar(false);
+  };
   const pendingActionsCount =
     workHistory && workHistory.filter((w) => w.status === "pending").length;
 

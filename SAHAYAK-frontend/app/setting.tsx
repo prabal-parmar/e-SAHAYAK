@@ -1,15 +1,9 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { styles } from '../components/styles/employerSettings';
+import { styles } from "../components/styles/employerSettings";
 import { logout } from "@/api/Auth/auth_routes";
 import { router } from "expo-router";
 
@@ -33,12 +27,10 @@ export default function EmployerSettingsPage() {
           },
         ]
       );
-    } 
-    else if(route=="WorkerRights"){
-      router.push("/workerRights")
-    }
-    else if(route=="ChangePassword"){
-      router.push("/changePassword")
+    } else if (route == "WorkerRights") {
+      router.push("/workerRights");
+    } else if (route == "ChangePassword") {
+      router.push("/changePassword");
     }
   };
 
@@ -92,9 +84,7 @@ export default function EmployerSettingsPage() {
           <View style={styles.iconContainer}>
             <MaterialIcons name="logout" size={24} color="#E74C3C" />
           </View>
-          <Text style={[styles.optionText, { color: "#E74C3C" }]}>
-            Logout
-          </Text>
+          <Text style={[styles.optionText, { color: "#E74C3C" }]}>Logout</Text>
           <MaterialIcons
             name="keyboard-arrow-right"
             size={26}

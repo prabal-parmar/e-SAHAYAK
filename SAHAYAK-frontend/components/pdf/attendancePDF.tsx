@@ -1,5 +1,6 @@
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
+import Toast from "react-native-toast-message";
 
 export const generateAttendancePDF = async (
   data: {
@@ -107,11 +108,20 @@ export const generateAttendancePDF = async (
       base64: false,
     });
 
-    console.log("Attendance data at: ",uri)
+    console.log("Attendance data at: ", uri);
 
     await Sharing.shareAsync(uri);
-    console.log("Attendance PDF created:", uri);
-  } catch (error) {
+    Toast.show({
+      type: "success",
+      text1: "Attendance PDF Generated ✅",
+      text2: "Report ready to share.",
+    });
+  } catch (error: any) {
     console.error("PDF generation failed:", error);
+    Toast.show({
+      type: "error",
+      text1: "PDF Generation Failed 😔",
+      text2: "Could not generate attendance PDF.",
+    });
   }
 };

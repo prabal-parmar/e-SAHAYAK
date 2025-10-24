@@ -1,6 +1,5 @@
 import apiClient from "../Auth/axiosInstance";
 
-const API_URL = "http://127.0.0.1:8000/api";
 
 type FrontendData = Record<string, any>
 export const markClockInTime = async (data: FrontendData) => {

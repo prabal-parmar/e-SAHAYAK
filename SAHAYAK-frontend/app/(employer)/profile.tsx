@@ -16,6 +16,7 @@ import { useEmployer } from "@/context/EmployerContext";
 import { logout } from "@/api/Auth/auth_routes";
 import ReportPopup from "@/components/notificationPages/employerReportNotification";
 import { useIsFocused } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 interface InfoRowProps {
   icon: React.ReactNode;
@@ -96,8 +97,14 @@ export default function EmployerProfilePage() {
   }, [isFocused]);
 
   if (!employer) {
-    console.log(employer);
-    router.replace("/login");
+    useEffect(() => {
+      Toast.show({
+        type: "error",
+        text1: "Session Expired 😔",
+        text2: "Please log in to continue.",
+      });
+      router.replace("/login");
+    }, []);
   }
   const handleSaveChanges = async () => {
     try {
@@ -111,8 +118,18 @@ export default function EmployerProfilePage() {
       };
       await updateEmployerProfile(data);
       setEmployer(data);
-    } catch (error) {
+      Toast.show({
+        type: "success",
+        text1: "Profile Updated ✅",
+        text2: "Your profile has been saved successfully.",
+      });
+    } catch (error: any) {
       console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Something Went Wrong!",
+        text2: "Could not update profile.",
+      });
     }
   };
 
@@ -141,7 +158,9 @@ export default function EmployerProfilePage() {
 
             <View style={styles.profileHeaderTextContainer}>
               <Text style={styles.profileName}>{employer?.org_name}</Text>
-              <Text style={styles.profileOrganization}>{employer?.username}</Text>
+              <Text style={styles.profileOrganization}>
+                {employer?.username}
+              </Text>
             </View>
 
             <View style={styles.headerRightIcons}>
@@ -152,7 +171,9 @@ export default function EmployerProfilePage() {
                 <MaterialIcons name="notifications" size={28} color="#fff" />
                 {reportCount > 0 && (
                   <View style={styles.notificationBadge}>
-                    <Text style={styles.notificationBadgeText}>{reportCount}</Text>
+                    <Text style={styles.notificationBadgeText}>
+                      {reportCount}
+                    </Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -290,7 +311,11 @@ export default function EmployerProfilePage() {
                   router.push("/attendance-data/filterAttendance");
                 }}
               >
-                <MaterialIcons name="insert-drive-file" size={20} color="#333" />
+                <MaterialIcons
+                  name="insert-drive-file"
+                  size={20}
+                  color="#333"
+                />
                 <Text style={styles.menuText}>Attendance</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -312,7 +337,9 @@ export default function EmployerProfilePage() {
                 }}
               >
                 <MaterialIcons name="logout" size={20} color="#E74C3C" />
-                <Text style={[styles.menuText, { color: "#E74C3C" }]}>Logout</Text>
+                <Text style={[styles.menuText, { color: "#E74C3C" }]}>
+                  Logout
+                </Text>
               </TouchableOpacity>
             </View>
           </>

@@ -1,8 +1,9 @@
 import { Dimensions, Platform, StyleSheet } from "react-native";
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 const guidelineBaseWidth = 375;
 const scale = (size) => (screenWidth / guidelineBaseWidth) * size;
-const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
+const moderateScale = (size, factor = 0.5) =>
+  size + (scale(size) - size) * factor;
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -190,12 +191,12 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
   headerGradient: {
-    paddingTop: Platform.OS === "ios" ? 50 : 40,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
     paddingBottom: 20,
     paddingHorizontal: 25,
-    // borderBottomLeftRadius: 35,
-    // borderBottomRightRadius: 35,
-    height: "25.5%",
+    backgroundColor: "#1e3c72",
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     ...Platform.select({
       ios: {
         shadowColor: "#2c3e50",
@@ -206,6 +207,7 @@ export const styles = StyleSheet.create({
       android: { elevation: 10 },
     }),
   },
+
   headerTopContent: {
     alignItems: "center",
     marginBottom: 20,
@@ -246,94 +248,99 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 25,
-    width: '90%',
+    width: "90%",
     maxWidth: 350,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.2, shadowRadius: 15 },
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+      },
       android: { elevation: 10 },
     }),
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2C3E50',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#2C3E50",
+    textAlign: "center",
     marginBottom: 20,
   },
   pickerContainer: {
     marginBottom: 20,
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   button: {
     flex: 1,
     paddingVertical: 14,
     marginVertical: 10,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: '#F1F3F4',
+    backgroundColor: "#F1F3F4",
     marginRight: 10,
   },
   confirmButton: {
-    backgroundColor: '#3498DB',
+    backgroundColor: "#3498DB",
     marginLeft: 10,
   },
   cancelButtonText: {
-    color: '#7A869A',
+    color: "#7A869A",
   },
   clockInButton: {
-  marginTop: 10,
-  borderRadius: 10,
-  overflow: "hidden",
-},
+    marginTop: 10,
+    borderRadius: 10,
+    overflow: "hidden",
+  },
 
-clockInGradient: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  paddingVertical: 10,
-  borderRadius: 10,
-},
+  clockInGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
 
-clockInText: {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: "600",
-  marginLeft: 8,
-},
-listHeader: {
-      paddingHorizontal: moderateScale(20),
-      marginTop: moderateScale(10),
+  clockInText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  listHeader: {
+    paddingHorizontal: moderateScale(20),
+    marginTop: moderateScale(10),
   },
   sectionTitle: {
-      fontSize: moderateScale(22),
-      fontWeight: 'bold',
-      color: '#2C3E50',
+    fontSize: moderateScale(22),
+    fontWeight: "bold",
+    color: "#2C3E50",
   },
   searchContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#FFFFFF',
-      borderRadius: moderateScale(12),
-      paddingHorizontal: moderateScale(15),
-      marginTop: moderateScale(15),
-      borderWidth: 1,
-      borderColor: '#E0E6ED',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: moderateScale(12),
+    paddingHorizontal: moderateScale(15),
+    marginTop: moderateScale(15),
+    borderWidth: 1,
+    borderColor: "#E0E6ED",
   },
   searchIcon: { marginRight: moderateScale(10) },
   searchInput: {
     flex: 1,
     height: moderateScale(50),
     fontSize: moderateScale(16),
-    color: '#2C3E50',
+    color: "#2C3E50",
   },
   searchBarContainer: {
     flexDirection: "row",
@@ -353,45 +360,43 @@ listHeader: {
     paddingVertical: 6,
   },
 
-statusDot: {
-  width: 10,
-  height: 10,
-  borderRadius: 5,
-  marginRight: 10,
-},
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
 
-statusDotSubmitted: {
-  backgroundColor: "#2ECC71",
-},
+  statusDotSubmitted: {
+    backgroundColor: "#2ECC71",
+  },
 
-statusDotPending: {
-  backgroundColor: "#E74C3C",
-},
+  statusDotPending: {
+    backgroundColor: "#E74C3C",
+  },
 
-statusTag: {
-  alignSelf: "flex-start",
-  paddingHorizontal: 8,
-  paddingVertical: 3,
-  borderRadius: 6,
-  marginTop: 5,
-},
+  statusTag: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginTop: 5,
+  },
 
-statusTagSubmitted: {
-  backgroundColor: "#C8E6C9",
-},
+  statusTagSubmitted: {
+    backgroundColor: "#C8E6C9",
+  },
 
-statusTagPending: {
-  backgroundColor: "#FFCDD2",
-},
+  statusTagPending: {
+    backgroundColor: "#FFCDD2",
+  },
 
-statusTagText: {
-  fontSize: 11,
-  fontWeight: "600",
-},
+  statusTagText: {
+    fontSize: 11,
+    fontWeight: "600",
+  },
 
-
-statusTagTextPending: {
-  color: "#C62828",
-},
-
+  statusTagTextPending: {
+    color: "#C62828",
+  },
 });

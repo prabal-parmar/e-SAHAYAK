@@ -1,33 +1,39 @@
 import apiClient from "../Auth/axiosInstance";
+import Toast from "react-native-toast-message";
 
 export const markSatisfiedTo5DaysData = async () => {
     try {
-        const today = new Date()
-        const year = today.getFullYear()
-        const month = today.getMonth() + 1
-        const date = today.getDate()
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const date = today.getDate();
 
-        // console.log(year, month, date)
         await apiClient.post('/worker/mark-prev-5-days/', {
             year,
             month,
             date
-        })
+        });
+
         return true;
     }
-    catch (error) {
-        console.log(error)
-        return false
+    catch (error: any) {
+        console.log(error);
+        return false;
     }
 }
 
 export const recentWorkResonseStatus = async () => {
     try {
-        const response = await apiClient.get('/worker/pending-response-data/')
-        return response.data
+        const response = await apiClient.get('/worker/pending-response-data/');
+        return response.data;
 
-    } catch (error) {
-        console.log(error)
+    } catch (error: any) {
+        console.log(error);
+        Toast.show({
+            type: "error",
+            text1: "Something Went Wrong!",
+            text2: "Could not load recent work status.",
+        });
     }
 }
 
@@ -38,12 +44,16 @@ export const updateResponse = async (id: any, newStatus: string, reason: string,
             status: newStatus,
             reason: reason,
             message: message
-        })
-        // console.log(response.data.error, response.data.message)
+        });
         return true;
-    } catch (error) {
-        console.log(error)
-        return false
+    } catch (error: any) {
+        console.log(error);
+        Toast.show({
+            type: "error",
+            text1: "Something Went Wrong!",
+            text2: "Could not update response.",
+        });
+        return false;
     }
 }
 
@@ -55,10 +65,10 @@ export const getCalenderDataByMonth = async (month: number, year: number) => {
                     month, year
                 }
             }
-        )
-        return response.data.data
-    } catch (error) {
-        console.log(error)
+        );
+        return response.data.data;
+    } catch (error: any) {
+        console.log(error);
     }
 }
 
@@ -70,11 +80,15 @@ export const getAttendanceDetailsByDate = async (date: string) => {
                     date: date
                 }
             }
-        )
-        // console.log("Data sent: ",response.data)
+        );
         return response.data;
-    } catch (error) {
-        console.log(error)
+    } catch (error: any) {
+        console.log(error);
+        Toast.show({
+            type: "error",
+            text1: "Something Went Wrong!",
+            text2: "Could not load attendance details.",
+        });
     }
 }
     

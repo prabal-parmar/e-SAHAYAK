@@ -6,14 +6,15 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-
+import Toast from "react-native-toast-message";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect, useState } from "react";
 import { getTokens } from "@/api/Auth/auth_routes";
 import { router } from "expo-router";
 import LoadingIndicator from "@/components/loadingPage";
 import { EmployerProvider } from "@/context/EmployerContext";
-import { useWorker, WorkerProvider } from "@/context/WorkerContext";
+import { WorkerProvider } from "@/context/WorkerContext";
+import { toastConfig } from "../toastConfig";
 export const unstable_settings = {
   anchor: "(auth)",
 };
@@ -58,27 +59,30 @@ export default function RootLayout() {
   }, [isLoggedIn, role, loading]);
 
   if (loading) {
-    return (
-      <LoadingIndicator />
-    );
+    return <LoadingIndicator />;
   }
-  
+
   return (
-    <EmployerProvider>
-      <WorkerProvider>
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }}>
-        {!isLoggedIn ? (
-          <Stack.Screen name="(auth)" />
-        ) : role === "employer" ? (
-          <Stack.Screen name="(employer)" />
-        ) : (
-          <Stack.Screen name="(worker)" />
-        )}
-      </Stack>
-    </ThemeProvider>
-      </WorkerProvider>
-    </EmployerProvider>
+    <>
+      <EmployerProvider>
+        <WorkerProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <StatusBar style="auto" />
+            <Stack screenOptions={{ headerShown: false }}>
+              {!isLoggedIn ? (
+                <Stack.Screen name="(auth)" />
+              ) : role === "employer" ? (
+                <Stack.Screen name="(employer)" />
+              ) : (
+                <Stack.Screen name="(worker)" />
+              )}
+            </Stack>
+          </ThemeProvider>
+        </WorkerProvider>
+      </EmployerProvider>
+      <Toast config={toastConfig} topOffset={50} />
+    </>
   );
 }
