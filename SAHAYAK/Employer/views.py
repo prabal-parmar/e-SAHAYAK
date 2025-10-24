@@ -293,9 +293,9 @@ def get_reports_by_worker(request):
     if request.user.role != "employer":
         return Response({"error": "You are not a Employer"}, status=status.HTTP_400_BAD_REQUEST)
     
-    all_reports = ReportWorkerModel.objects.filter(employer=employer).all().values()
+    all_reports = ReportWorkerModel.objects.filter(employer=employer).all().count()
 
-    return Response({"message": "All Reports by Worker fetched.", "reports": all_reports}, status=status.HTTP_200_OK)
+    return Response({"message": "All Reports by Worker fetched.", "reports": int(all_reports)}, status=status.HTTP_200_OK)
 
 # Report by Employer
 @api_view(['GET', 'POST'])
