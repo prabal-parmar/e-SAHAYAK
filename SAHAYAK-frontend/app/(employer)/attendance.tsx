@@ -793,7 +793,7 @@ export default function AttendancePage() {
                   <DateTimePicker
                     value={getDateTimeValue()}
                     mode={pickerMode === "deadline" ? "date" : "time"}
-                    display="spinner"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={(event: DateTimePickerEvent, date?: Date) => {
                       onDateChange(event, date);
                     }}
