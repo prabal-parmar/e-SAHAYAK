@@ -38,7 +38,6 @@ def login_employer(request):
 
 @api_view(['POST'])
 def signup_employer(request):
-    serializer = EmployerRegisterSerializer(data=request.data)
 
     username = request.data.get("username")
     email = request.data.get("email")
@@ -56,6 +55,7 @@ def signup_employer(request):
     if check_number:
         return Response({"error": "Mobile number already registered. Try another!"}, status=status.HTTP_400_BAD_REQUEST)
     
+    serializer = EmployerRegisterSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "Employer Register Successfully"}, status=status.HTTP_201_CREATED)
@@ -88,7 +88,6 @@ def login_worker(request):
 
 @api_view(['POST'])
 def signup_worker(request):
-    serializer = WorkerRegisterSerializer(data = request.data)
 
     username = request.data.get("username")
     contact_number = request.data.get("contact_number")
@@ -101,6 +100,7 @@ def signup_worker(request):
     if check_number:
         return Response({"error": "Mobile number already registered. Try another!"}, status=status.HTTP_400_BAD_REQUEST)
     
+    serializer = WorkerRegisterSerializer(data = request.data)
     # print(request.data)
     if serializer.is_valid():
         serializer.save()
