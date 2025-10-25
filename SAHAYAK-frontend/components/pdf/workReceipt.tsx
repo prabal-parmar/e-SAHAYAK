@@ -1,10 +1,10 @@
 import React from "react";
-import { Alert, Linking } from "react-native";
 import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
+import * as MediaLibrary from "expo-media-library";
 import { Asset } from "expo-asset";
 import Toast from "react-native-toast-message";
+import { Platform } from "react-native";
 
 type ReceiptData = {
   worker_id: string;
@@ -24,8 +24,7 @@ export const generatePDF = async (
 ) => {
   try {
     const asset = Asset.fromModule(logoUri);
-    if (!asset.localUri) await asset.downloadAsync();
-
+    await asset.downloadAsync();
     const base64Logo = await FileSystem.readAsStringAsync(asset.localUri!, {
       encoding: "base64",
     });
@@ -129,35 +128,43 @@ export const generatePDF = async (
         </html>
       `;
 
-    const { uri } = await Print.printToFileAsync({
-      html,
-      base64: false,
-    });
+    const { uri } = await Print.printToFileAsync({ html });
+    const fileName = `WorkerReceipt_${receiptData.worker_id}.pdf`;
 
-    console.log("PDF generated at:", uri);
-    const canShare = await Sharing.isAvailableAsync();
-    if (canShare) {
-      await Sharing.shareAsync(uri, {
-        dialogTitle: "Share Worker Receipt PDF",
-      });
+    if (Platform.OS === "ios") {
+      const newPath = FileSystem.documentDirectory + fileName;
+      await FileSystem.moveAsync({ from: uri, to: newPath });
       Toast.show({
         type: "success",
-        text1: "PDF Generated ✅",
-        text2: "Ready to share.",
+        text1: "PDF Saved",
+        text2: `Saved to Documents: ${newPath}`,
       });
-    } else {
+      console.log("PDF saved at:", newPath);
+    } else if (Platform.OS === "android") {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Toast.show({ type: "error", text1: "Permission denied!" });
+        return;
+      }
+
+      const folderName = "SRAM";
+      let album = await MediaLibrary.getAlbumAsync(folderName);
+      if (!album) {
+        album = await MediaLibrary.createAlbumAsync(folderName, null, false);
+      }
+
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+
       Toast.show({
-        type: "info",
-        text1: "PDF Saved 📁",
-        text2: `File saved at: ${uri.substring(uri.lastIndexOf("/") + 1)}`,
+        type: "success",
+        text1: "PDF Saved",
+        text2: `Check your ${folderName} folder`,
       });
+      console.log("PDF saved to folder:", folderName);
     }
   } catch (error: any) {
     console.error("PDF Generation Error:", error);
-    Toast.show({
-      type: "error",
-      text1: "Something Went Wrong!",
-      text2: "Could not generate PDF receipt.",
-    });
+    Toast.show({ type: "error", text1: "Something went wrong!" });
   }
 };

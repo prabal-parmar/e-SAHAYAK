@@ -61,7 +61,6 @@ export default function ChangePasswordPage() {
       Toast.show({
         type: "error",
         text1: "Something went wrong!",
-        text2: "Something went wrong. Please try again later.",
       });
     } finally {
       setLoading(false);

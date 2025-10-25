@@ -259,15 +259,6 @@ export default function AttendancePage() {
     }
   }, [selectedShift, selectedWorker]);
 
-  const workersByShift = workingWorkers?.reduce((acc, worker) => {
-    const shiftKey = worker.shift || "Unassigned";
-    if (!acc[shiftKey]) {
-      acc[shiftKey] = [];
-    }
-    acc[shiftKey].push(worker);
-    return acc;
-  }, {} as { [key: string]: typeof workingWorkers });
-
   const filteredWorkers = useMemo(() => {
     if (!workingWorkers) return [];
     return workingWorkers
@@ -290,12 +281,10 @@ export default function AttendancePage() {
     return filteredWorkers.filter((w) => w.overtime_entry_time && !w.done);
   }, [filteredWorkers]);
 
-  const overtimeWorkers = workingWorkers?.filter(
-    (w) => w.overtime_entry_time && w.overtime_entry_time !== null
-  );
-
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowPicker(Platform.OS === "ios");
+    if (Platform.OS === "android") {
+      setShowPicker(false);
+    }
     if (selectedDate) {
       switch (pickerMode) {
         case "clockIn":
@@ -336,7 +325,6 @@ export default function AttendancePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Failed to load worker data.",
       });
     }
   };
@@ -385,7 +373,6 @@ export default function AttendancePage() {
         Toast.show({
           type: "error",
           text1: "Something Went Wrong!",
-          text2: "Missing mandatory fields.",
         });
       }
     } catch (error: any) {
@@ -546,7 +533,6 @@ export default function AttendancePage() {
         Toast.show({
           type: "error",
           text1: "Something Went Wrong!",
-          text2: "Missing mandatory fields.",
         });
       }
     } catch (error: any) {
@@ -605,7 +591,6 @@ export default function AttendancePage() {
         Toast.show({
           type: "error",
           text1: "Something Went Wrong!",
-          text2: "Missing mandatory fields.",
         });
       }
     } catch (error: any) {
@@ -664,7 +649,6 @@ export default function AttendancePage() {
         Toast.show({
           type: "error",
           text1: "Something Went Wrong!",
-          text2: "Missing mandatory fields.",
         });
       }
     } catch (error: any) {
@@ -714,6 +698,22 @@ export default function AttendancePage() {
         return new Date();
     }
   };
+
+  const memoizedDateTimePicker = React.useMemo(() => {
+    if (!showPicker) return null;
+
+    return (
+      <DateTimePicker
+        value={getDateTimeValue()}
+        mode={pickerMode === "deadline" ? "date" : "time"}
+        display={Platform.OS === "ios" ? "spinner" : "default"}
+        onChange={(event: DateTimePickerEvent, date?: Date) => {
+          onDateChange(event, date);
+        }}
+        textColor={Platform.OS === "ios" ? "#2c3e50" : undefined}
+      />
+    );
+  }, [showPicker]);
 
   return (
     <SafeAreaProvider>
@@ -790,32 +790,28 @@ export default function AttendancePage() {
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Pick Time</Text>
                 <View style={styles.pickerContainer}>
-                  <DateTimePicker
-                    value={getDateTimeValue()}
-                    mode={pickerMode === "deadline" ? "date" : "time"}
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={(event: DateTimePickerEvent, date?: Date) => {
-                      onDateChange(event, date);
-                    }}
-                    textColor={Platform.OS === "ios" ? "#2c3e50" : undefined}
-                  />
+                  {memoizedDateTimePicker}
                 </View>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={[styles.button, styles.cancelButton]}
-                    onPress={() => setShowPicker(false)}
-                  >
-                    <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                      Cancel
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.button, styles.confirmButton]}
-                    onPress={() => setShowPicker(false)}
-                  >
-                    <Text style={styles.buttonText}>Confirm</Text>
-                  </TouchableOpacity>
-                </View>
+                {Platform.OS === "ios" && (
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={[styles.button, styles.cancelButton]}
+                      onPress={() => setShowPicker(false)}
+                    >
+                      <Text
+                        style={[styles.buttonText, styles.cancelButtonText]}
+                      >
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.button, styles.confirmButton]}
+                      onPress={() => setShowPicker(false)}
+                    >
+                      <Text style={styles.buttonText}>Confirm</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             </View>
           </Modal>
@@ -982,6 +978,7 @@ export default function AttendancePage() {
               style={[styles.dropdown, styles.textArea]}
               placeholder="Describe the work assigned..."
               multiline
+              editable={!!selectedWorker}
             />
 
             {!selectedWorker?.done ? (

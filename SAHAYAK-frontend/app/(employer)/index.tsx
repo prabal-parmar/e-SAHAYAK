@@ -169,7 +169,6 @@ export default function EmployerHomePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Could not fetch working workers data.",
       });
     }
   };
@@ -183,7 +182,6 @@ export default function EmployerHomePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: error.message || "Could not fetch employer profile.",
       });
     }
   };

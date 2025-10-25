@@ -57,7 +57,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <IconSymbol size={size} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -71,14 +71,14 @@ export default function TabLayout() {
         name="report"
         options={{
           title: 'Report',
-          tabBarIcon: ({ color, size }) => <IconSymbol size={size} name="exclamationmark.triangle.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="warning" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => <IconSymbol size={size} name="person.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="person" size={size} color={color} />,
         }}
       />
     </Tabs>

@@ -5,12 +5,16 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "@/components/styles/employer_profile";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { updateEmployerProfile } from "@/api/Employer/profile_routes";
+import {
+  fetchReportsCount,
+  updateEmployerProfile,
+} from "@/api/Employer/profile_routes";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEmployer } from "@/context/EmployerContext";
 import { logout } from "@/api/Auth/auth_routes";
@@ -76,8 +80,25 @@ export default function EmployerProfilePage() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    router.replace("/login");
+    Alert.alert(
+      "Logout",
+      "Do you really want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            await logout();
+            router.replace("/login");
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   useEffect(() => {
@@ -88,11 +109,17 @@ export default function EmployerProfilePage() {
     setLocation(employer ? employer?.location : "");
   }, []);
 
+  const getReportsCounts = async () => {
+    const reports = await fetchReportsCount();
+    setReportCount(reports);
+  };
+
   const isFocused = useIsFocused();
   useEffect(() => {
     if (isFocused) {
       setIsEditing(false);
       setIsPanelVisible(false);
+      getReportsCounts();
     }
   }, [isFocused]);
 
@@ -128,7 +155,6 @@ export default function EmployerProfilePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Could not update profile.",
       });
     }
   };

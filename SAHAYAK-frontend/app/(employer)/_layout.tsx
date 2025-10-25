@@ -9,6 +9,7 @@ import { ActivityIndicator, View } from "react-native";
 import { getTokens } from "@/api/Auth/auth_routes";
 import LoadingIndicator from "@/components/loadingPage";
 import { getEmployerProfile } from "@/api/Employer/profile_routes";
+import { MaterialIcons } from "@expo/vector-icons";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -65,7 +66,7 @@ export default function TabLayout() {
           options={{
             title: "Home",
             tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="house.fill" color={color} />
+              <MaterialIcons name="home" size={28} color={color} />
             ),
           }}
         />
@@ -74,11 +75,7 @@ export default function TabLayout() {
           options={{
             title: "Attendance",
             tabBarIcon: ({ color }) => (
-              <IconSymbol
-                size={28}
-                name="list.bullet.clipboard"
-                color={color}
-              />
+              <MaterialIcons name="assignment" size={28} color={color} />
             ),
           }}
         />
@@ -87,7 +84,7 @@ export default function TabLayout() {
           options={{
             title: "Profile",
             tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="person.fill" color={color} />
+              <MaterialIcons name="person" size={28} color={color} />
             ),
           }}
         />

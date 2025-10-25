@@ -24,3 +24,13 @@ export const updateEmployerProfile = async (data: FrontendData) => {
         return false;
     }
 }
+
+export const fetchReportsCount = async () => {
+    try {
+        const response = await apiClient.get('/employer/worker-reports/');
+
+        return response.data.reports;
+    } catch (error) {
+        
+    }
+}

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -130,7 +131,6 @@ export default function WorkerProfilePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Could not update profile.",
       });
     }
   };
@@ -159,18 +159,34 @@ export default function WorkerProfilePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: error.message || "Could not load profile data.",
       });
     }
   };
 
   useEffect(() => {
     fetchWorkerData();
-  }, [worker?.username]); 
+  }, [worker?.username]);
 
   const handleLogout = async () => {
-    await logout();
-    router.replace("/login");
+    Alert.alert(
+      "Logout",
+      "Do you really want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            await logout();
+            router.replace("/login");
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleSettings = () => {

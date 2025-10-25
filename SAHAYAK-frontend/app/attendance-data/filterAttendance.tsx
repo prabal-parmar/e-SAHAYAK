@@ -167,7 +167,6 @@ export default function App() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Could not load attendance data for selected date.",
       });
     }
   };

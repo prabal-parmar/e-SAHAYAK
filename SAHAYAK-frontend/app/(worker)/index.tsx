@@ -112,7 +112,6 @@ export default function WorkerHomePage() {
       Toast.show({
         type: "error",
         text1: "Something went wrong!",
-        text2: "Could not load attendance data.",
       });
     } finally {
       setLoadingCalendar(false);
@@ -173,7 +172,6 @@ export default function WorkerHomePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Could not update work status.",
       });
     }
   };
@@ -197,7 +195,6 @@ export default function WorkerHomePage() {
       Toast.show({
         type: "error",
         text1: "Something Went Wrong!",
-        text2: "Could not load receipt data.",
       });
     }
   };

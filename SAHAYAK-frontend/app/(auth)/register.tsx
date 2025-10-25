@@ -55,7 +55,7 @@ export default function RegistrationPage() {
       contactNumber: contactNumber,
       skill: skill,
       address: address,
-      username: username.toLowerCase(),
+      username: username.trim().toLowerCase(),
       password: password,
     };
     const usernameRegex = /^[A-Za-z0-9_]+$/;
@@ -102,7 +102,7 @@ export default function RegistrationPage() {
 
   const handelRegisterEmployer = async () => {
     const data = {
-      username: username.toLowerCase(),
+      username: username.trim().toLowerCase(),
       email: email.toLowerCase(),
       contactNumber: contactNumber,
       location: address,

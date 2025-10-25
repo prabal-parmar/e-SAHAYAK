@@ -1,6 +1,9 @@
 import * as Print from "expo-print";
+import * as FileSystem from "expo-file-system/legacy";
+import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 import Toast from "react-native-toast-message";
+import { Platform } from "react-native";
 
 export const generateAttendancePDF = async (
   data: {
@@ -15,9 +18,8 @@ export const generateAttendancePDF = async (
   date: string
 ) => {
   try {
-    if (!data || data.length === 0) {
+    if (!data || data.length === 0)
       throw new Error("No data provided for PDF generation.");
-    }
 
     const html = `
       <html>
@@ -103,25 +105,49 @@ export const generateAttendancePDF = async (
       </html>
     `;
 
-    const { uri } = await Print.printToFileAsync({
-      html,
-      base64: false,
-    });
+    const { uri: pdfUri } = await Print.printToFileAsync({ html });
+    const fileName = `Attendance_${date.replace(/[/\\: ]/g, "_")}.pdf`;
 
-    console.log("Attendance data at: ", uri);
+    if (Platform.OS === "android") {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Toast.show({ type: "error", text1: "Permission denied" });
+        return;
+      }
 
-    await Sharing.shareAsync(uri);
-    Toast.show({
-      type: "success",
-      text1: "Attendance PDF Generated ✅",
-      text2: "Report ready to share.",
-    });
+      const newUri = FileSystem.cacheDirectory + fileName;
+      await FileSystem.copyAsync({ from: pdfUri, to: newUri });
+
+      const asset = await MediaLibrary.createAssetAsync(newUri);
+      const folderName = "SRAM_Attendance";
+      let album = await MediaLibrary.getAlbumAsync(folderName);
+      if (!album) await MediaLibrary.createAlbumAsync(folderName, asset, false);
+      else await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+
+      Toast.show({
+        type: "success",
+        text1: "Attendance PDF Saved ✅",
+        text2: `Check folder: ${folderName}`,
+      });
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(newUri, {
+          dialogTitle: "Share Attendance PDF",
+        });
+      }
+    } else {
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(pdfUri, {
+          dialogTitle: "Share Attendance PDF",
+        });
+      }
+    }
   } catch (error: any) {
     console.error("PDF generation failed:", error);
     Toast.show({
       type: "error",
       text1: "PDF Generation Failed 😔",
-      text2: "Could not generate attendance PDF.",
+      text2: error.message,
     });
   }
 };

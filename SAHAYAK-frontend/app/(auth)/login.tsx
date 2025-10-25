@@ -89,7 +89,7 @@ const LoginSection = () => {
   const [password, setPassword] = useState("");
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // 👁️ New state for toggle
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -101,9 +101,9 @@ const LoginSection = () => {
 
   const handelEmployerLogin = async () => {
     if (Username && password) {
-      const response = await employerLogin(Username, password);
+      const response = await employerLogin(Username.trim().toLowerCase(), password);
       if (response && response.success) {
-        // Check for success property
+
         if (response.role === "employer") {
           router.replace("/(employer)");
         } else {
@@ -113,7 +113,7 @@ const LoginSection = () => {
         Toast.show({
           type: "error",
           text1: "Login Failed ❌",
-          text2: response?.error || "Invalid credentials.", // Use error message from response
+          text2: response?.error || "Invalid credentials.",
         });
         return null;
       }
@@ -129,18 +129,17 @@ const LoginSection = () => {
 
   const handelWorkerLogin = async () => {
     if (Username && password) {
-      const response = await workerLogin(Username, password);
+      const response = await workerLogin(Username.trim().toLowerCase(), password);
       if (response && response.success) {
-        // Check for success property
+
         if (response.role === "worker") {
           router.replace("/(worker)");
         }
-        // else no Toast needed as it's handled by employerLogin if role doesn't match
       } else {
         Toast.show({
           type: "error",
           text1: "Login Failed ❌",
-          text2: response?.error || "Invalid credentials.", // Use error message from response
+          text2: response?.error || "Invalid credentials.",
         });
         return null;
       }

@@ -32,7 +32,6 @@ export const recentWorkResonseStatus = async () => {
         Toast.show({
             type: "error",
             text1: "Something Went Wrong!",
-            text2: "Could not load recent work status.",
         });
     }
 }
@@ -51,7 +50,6 @@ export const updateResponse = async (id: any, newStatus: string, reason: string,
         Toast.show({
             type: "error",
             text1: "Something Went Wrong!",
-            text2: "Could not update response.",
         });
         return false;
     }
@@ -87,7 +85,6 @@ export const getAttendanceDetailsByDate = async (date: string) => {
         Toast.show({
             type: "error",
             text1: "Something Went Wrong!",
-            text2: "Could not load attendance details.",
         });
     }
 }
