@@ -8,6 +8,7 @@ from rest_framework import status
 from .serializers import EmployerRegisterSerializer, WorkerRegisterSerializer
 from uuid import uuid4
 from rest_framework.permissions import IsAuthenticated
+from .models import CustomUser, EmployerModel
 # Create your views here.
 
 User = get_user_model()
@@ -39,12 +40,28 @@ def login_employer(request):
 def signup_employer(request):
     serializer = EmployerRegisterSerializer(data=request.data)
 
+    username = request.data.get("username")
+    email = request.data.get("email")
+    contact_number = request.data.get("contact_number")
+
+    check_username = CustomUser.objects.filter(username=username).first()
+    if check_username:
+        return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    check_email = CustomUser.objects.filter(email=email).first()
+    if check_email:
+        return Response({"error": "Email already registered. Please Login!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    check_number = EmployerModel.objects.filter(contact_number=contact_number).first()
+    if check_number:
+        return Response({"error": "Mobile number already registered. Try another!"}, status=status.HTTP_400_BAD_REQUEST)
+    
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "Employer Register Successfully"}, status=status.HTTP_201_CREATED)
     else:
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # print(serializer.errors)
+        return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def login_worker(request):
@@ -72,13 +89,25 @@ def login_worker(request):
 @api_view(['POST'])
 def signup_worker(request):
     serializer = WorkerRegisterSerializer(data = request.data)
-    print(request.data)
+
+    username = request.data.get("username")
+    contact_number = request.data.get("contact_number")
+
+    check_username = CustomUser.objects.filter(username=username).first()
+    if check_username:
+        return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    check_number = EmployerModel.objects.filter(contact_number=contact_number).first()
+    if check_number:
+        return Response({"error": "Mobile number already registered. Try another!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # print(request.data)
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "Worker Register Successfully"}, status=status.HTTP_201_CREATED)
     else:
-        print(serializer.errors) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # print(serializer.errors)
+        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
