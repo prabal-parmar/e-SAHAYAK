@@ -4,6 +4,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library";
 import { Asset } from "expo-asset";
 import Toast from "react-native-toast-message";
+import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 type ReceiptData = {
@@ -141,27 +142,52 @@ export const generatePDF = async (
       });
       console.log("PDF saved at:", newPath);
     } else if (Platform.OS === "android") {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        Toast.show({ type: "error", text1: "Permission denied!" });
+      let directoryUri = await SecureStore.getItemAsync(
+        "pdfDownloadDirectoryUri"
+      );
+
+      if (!directoryUri) {
+        const permissions = await (
+          FileSystem as any
+        ).StorageAccessFramework.requestDirectoryPermissionsAsync();
+        if (!permissions.granted) {
+          Toast.show({ type: "error", text1: "Permission denied!" });
+          return;
+        }
+        directoryUri = permissions.directoryUri;
+        await SecureStore.setItemAsync("pdfDownloadDirectoryUri", directoryUri? directoryUri: "downloads");
+      }
+
+      if (!directoryUri) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Could not determine download directory.",
+        });
         return;
       }
 
-      const folderName = "SRAM";
-      let album = await MediaLibrary.getAlbumAsync(folderName);
-      if (!album) {
-        album = await MediaLibrary.createAlbumAsync(folderName, null, false);
-      }
+      const pdfData = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
 
-      const asset = await MediaLibrary.createAssetAsync(uri);
-      await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+      const newFileUri = await (
+        FileSystem as any
+      ).StorageAccessFramework.createFileAsync(
+        directoryUri,
+        fileName,
+        "application/pdf"
+      );
+
+      await FileSystem.writeAsStringAsync(newFileUri, pdfData, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
 
       Toast.show({
         type: "success",
         text1: "PDF Saved",
-        text2: `Check your ${folderName} folder`,
+        text2: `Saved to Downloads folder`,
       });
-      console.log("PDF saved to folder:", folderName);
     }
   } catch (error: any) {
     console.error("PDF Generation Error:", error);

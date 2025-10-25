@@ -3,6 +3,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 import Toast from "react-native-toast-message";
+import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 export const generateAttendancePDF = async (
@@ -109,29 +110,58 @@ export const generateAttendancePDF = async (
     const fileName = `Attendance_${date.replace(/[/\\: ]/g, "_")}.pdf`;
 
     if (Platform.OS === "android") {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        Toast.show({ type: "error", text1: "Permission denied" });
+      let directoryUri = await SecureStore.getItemAsync(
+        "pdfDownloadDirectoryUri"
+      );
+
+      if (!directoryUri) {
+        const permissions = await (
+          FileSystem as any
+        ).StorageAccessFramework.requestDirectoryPermissionsAsync();
+        if (!permissions.granted) {
+          Toast.show({
+            type: "error",
+            text1: "Permission denied",
+            text2: "Please allow access to save file.",
+          });
+          return;
+        }
+        directoryUri = permissions.directoryUri;
+        await SecureStore.setItemAsync("pdfDownloadDirectoryUri", directoryUri ? directoryUri: "downloads");
+      }
+
+      if (!directoryUri) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Could not determine download directory.",
+        });
         return;
       }
 
-      const newUri = FileSystem.cacheDirectory + fileName;
-      await FileSystem.copyAsync({ from: pdfUri, to: newUri });
+      const pdfData = await FileSystem.readAsStringAsync(pdfUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
 
-      const asset = await MediaLibrary.createAssetAsync(newUri);
-      const folderName = "SRAM_Attendance";
-      let album = await MediaLibrary.getAlbumAsync(folderName);
-      if (!album) await MediaLibrary.createAlbumAsync(folderName, asset, false);
-      else await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+      const newFileUri = await (
+        FileSystem as any
+      ).StorageAccessFramework.createFileAsync(
+        directoryUri,
+        fileName,
+        "application/pdf"
+      );
+
+      await FileSystem.writeAsStringAsync(newFileUri, pdfData, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
 
       Toast.show({
         type: "success",
-        text1: "Attendance PDF Saved ✅",
-        text2: `Check folder: ${folderName}`,
+        text1: "Attendance PDF Saved ✅"
       });
 
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(newUri, {
+        await Sharing.shareAsync(pdfUri, {
           dialogTitle: "Share Attendance PDF",
         });
       }
