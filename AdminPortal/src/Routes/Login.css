@@ -5,61 +5,61 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   font-family: "Poppins", sans-serif;
-  padding: 1.25rem; /* Converted to rem */
+  padding: 1.25rem;
   box-sizing: border-box;
 }
 
 .login-box {
   background: #fff;
   padding: 2.5rem;
-  border-radius: 0.9375rem; /* Converted to rem */
+  border-radius: 0.9375rem;
   width: 100%;
-  max-width: 25rem; /* Converted to rem */
-  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.15); /* Converted to rem */
+  max-width: 25rem;
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.15);
   text-align: center;
 }
 
 .login-title {
-  font-size: 1.75rem; /* Converted to rem */
+  font-size: 1.75rem;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 0.9375rem; /* Adjusted margin to rem */
+  margin-bottom: 0.9375rem;
 }
 
 .login-subtitle {
   color: #555;
-  font-size: 0.9375rem; /* Converted to rem */
+  font-size: 0.9375rem;
   margin-bottom: 2rem;
 }
 
 .form-group {
   text-align: left;
-  margin-bottom: 1.5rem; /* Adjusted margin to rem */
+  margin-bottom: 1.5rem;
 }
 
 label {
   display: block;
-  margin-bottom: 0.5rem; /* Converted to rem */
+  margin-bottom: 0.5rem;
   color: #333;
   font-weight: 600;
-  font-size: 0.9375rem; /* Converted to rem */
+  font-size: 0.9375rem;
 }
 
 input {
   width: 100%;
-  padding: 0.75rem 0.9375rem; /* Converted to rem */
-  border: 0.0625rem solid #ddd; /* Converted to rem */
-  border-radius: 0.625rem; /* Converted to rem */
-  font-size: 1rem; /* Converted to rem */
+  padding: 0.75rem 0.9375rem;
+  border: 0.0625rem solid #ddd;
+  border-radius: 0.625rem;
+  font-size: 1rem;
   color: #333;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: inset 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.08); /* Added subtle inner shadow */
+  box-shadow: inset 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.08);
 }
 
 input:focus {
   outline: none;
   border-color: #2575fc;
-  box-shadow: 0 0 0 0.1875rem rgba(37, 117, 252, 0.2); /* Converted to rem */
+  box-shadow: 0 0 0 0.1875rem rgba(37, 117, 252, 0.2);
 }
 
 .login-btn {
@@ -67,24 +67,24 @@ input:focus {
   background-color: #6a11cb;
   color: white;
   border: none;
-  padding: 0.875rem; /* Adjusted padding to rem */
-  border-radius: 0.625rem; /* Converted to rem */
-  font-size: 1.125rem; /* Converted to rem */
+  padding: 0.875rem;
+  border-radius: 0.625rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 1.875rem; /* Adjusted margin to rem */
+  margin-top: 1.875rem;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .login-btn:hover {
   background-color: #2575fc;
-  transform: translateY(-0.125rem); /* Converted to rem */
+  transform: translateY(-0.125rem);
 }
 
 .signup-text {
-  font-size: 0.875rem; /* Converted to rem */
+  font-size: 0.875rem;
   color: #666;
-  margin-top: 1.875rem; /* Adjusted margin to rem */
+  margin-top: 1.875rem;
 }
 
 .signup-text a {
@@ -99,10 +99,24 @@ input:focus {
 
 .error-message {
   color: #e74c3c;
-  font-size: 0.875rem; /* Converted to rem */
-  margin-bottom: 0.9375rem; /* Converted to rem */
-  padding: 0.625rem; /* Converted to rem */
+  font-size: 0.875rem;
+  margin-bottom: 0.9375rem;
+  padding: 0.625rem;
   background-color: #fcebeb;
-  border-left: 0.3125rem solid #e74c3c; /* Converted to rem */
-  border-radius: 0.3125rem; /* Converted to rem */
+  border-left: 0.3125rem solid #e74c3c;
+  border-radius: 0.3125rem;
+}
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -17,6 +18,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     try {
       const response = await loginAdmin(formData.username, formData.password);
       console.log("Login successful:", response);
@@ -26,6 +28,8 @@ function Login() {
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.detail || err.message || "An error occurred during login.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,9 +38,7 @@ function Login() {
       <div className="login-box">
         <h2 className="login-title">Welcome Back 👋</h2>
         <p className="login-subtitle">Super Admin Login</p>
-
         {error && <p className="error-message">{error}</p>}
-
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Username</label>
@@ -46,9 +48,9 @@ function Login() {
               placeholder="Enter your username"
               value={formData.username}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
-
           <div className="form-group">
             <label>Password</label>
             <input
@@ -57,17 +59,17 @@ function Login() {
               placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
-
-          <button type="submit" className="login-btn">
-            Login
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? (
+              <div className="spinner"></div>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
-
-        <p className="signup-text">
-          No account yet? <a href="/register">Register</a>
-        </p>
       </div>
     </div>
   );

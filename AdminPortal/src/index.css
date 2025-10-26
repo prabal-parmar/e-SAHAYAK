@@ -1,13 +1,12 @@
-/* index.css */
 :root {
-  font-size: 16px; /* Base font size for rem units */
+  font-size: 16px;
 }
 
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  box-sizing: border-box;
 }
 
 *, *::before, *::after {
@@ -16,8 +15,8 @@ html, body, #root {
 
 body {
   font-family: 'Poppins', sans-serif;
-  line-height: 1.5; /* Improved readability */
-  color: #333; /* Default text color */
+  line-height: 1.5;
+  color: #333;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

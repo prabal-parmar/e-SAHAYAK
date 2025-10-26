@@ -1,170 +1,160 @@
-/* Global fix: Prevents layout overflow */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* 🧭 Navbar Base */
 .navbar-3d {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  min-height: 4.5rem; /* Using rem for base height */
+  min-height: 4.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap; /* Prevent wrapping on larger screens */
-  padding: 0.8rem 2rem; /* Adjusted padding with rem */
+  flex-wrap: nowrap;
+  padding: 0.8rem 2rem;
 
-  /* 🎨 Updated Government-Style Gradient */
   background: linear-gradient(90deg, #002147 0%, #003366 40%, #00509e 100%);
-  backdrop-filter: blur(8px); /* Slightly less blur */
+  backdrop-filter: blur(8px);
 
-  /* Elegant depth */
-  box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.25); /* Using rem for shadow */
-  border-bottom: 0.2rem solid #f7931d; /* saffron accent line, rem */
+  box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.25);
+  border-bottom: 0.2rem solid #f7931d;
   z-index: 9999;
   overflow: hidden;
 }
 
-/* 🔰 Logo Section */
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 0.8rem; /* Using rem for gap */
+  gap: 0.8rem;
   flex: 1 1 auto;
-  min-width: 12.5rem; /* Using rem for min-width */
+  min-width: 12.5rem;
 }
-
 .nav-logo img {
-  width: clamp(2.5rem, 5vw, 3.5rem); /* Adjusted clamp values with rem */
-  height: clamp(2.5rem, 5vw, 3.5rem); /* Adjusted clamp values with rem */
+  width: clamp(2.5rem, 5vw, 3.5rem);
+  height: clamp(2.5rem, 5vw, 3.5rem);
   border-radius: 50%;
   object-fit: contain;
-  filter: drop-shadow(0 0 0.5rem rgba(255, 255, 255, 0.8)); /* Using rem for shadow */
+  filter: drop-shadow(0 0 0.5rem rgba(255, 255, 255, 0.8));
 }
 
 .nav-logo span {
   font-size: clamp(1rem, 1.6vw, 1.4rem);
   font-weight: 700;
   color: #ffffff;
-  text-shadow: 0 0 0.4rem rgba(255, 255, 255, 0.7); /* Using rem for shadow */
+  text-shadow: 0 0 0.4rem rgba(255, 255, 255, 0.7);
   white-space: nowrap;
 }
 
-/* 🌈 Navigation Links */
 .nav-links {
   list-style: none;
   display: flex;
-  flex: 0 1 auto; /* Allow shrinking but not growing */
+  flex: 0 1 auto;
   justify-content: flex-end;
   align-items: center;
-  flex-wrap: nowrap; /* Prevent wrapping on larger screens */
-  gap: clamp(0.6rem, 2vw, 1.5rem); /* Adjusted clamp values with rem */
+  flex-wrap: nowrap;
+  gap: clamp(0.6rem, 2vw, 1.5rem);
 }
 
 .nav-links li {
-  perspective: 37.5rem; /* Using rem */
+  perspective: 37.5rem;
 }
 
 .nav-links a,
 .nav-logout-btn {
   text-decoration: none;
-  font-size: clamp(0.9rem, 1vw, 1rem); /* Adjusted clamp values, slightly smaller max font */
+  font-size: clamp(0.9rem, 1vw, 1rem);
   color: #ffffff;
   font-weight: 600;
-  padding: 0.6rem 1rem; /* Using rem for padding */
-  border-radius: 0.6rem; /* Using rem for border-radius */
+  padding: 0.6rem 1rem;
+  border-radius: 0.6rem;
   background: rgba(255, 255, 255, 0.1);
-  border: 0.1rem solid rgba(255, 255, 255, 0.2); /* Using rem for border */
-  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.25); /* Using rem for shadow */
+  border: 0.1rem solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   display: inline-block;
 }
 
-/* 🌀 Hover Effect */
 .nav-links a:hover,
 .nav-logout-btn:hover {
-  transform: translateY(-0.2rem) rotateX(6deg); /* Using rem for translateY */
+  transform: translateY(-0.2rem) rotateX(6deg);
   background: rgba(255, 255, 255, 0.3);
   box-shadow:
     0 0.5rem 1rem rgba(255, 255, 255, 0.25),
-    0 0.2rem 0.6rem rgba(0, 0, 0, 0.35); /* Using rem for shadow */
+    0 0.2rem 0.6rem rgba(0, 0, 0, 0.35);
 }
 
-/* 🟠 Login Button (Saffron Accent) */
 .login-btn {
   background: linear-gradient(90deg, #f6b343, #f7931d);
   color: #1a1a1a;
   font-weight: 700;
-  border: 0.1rem solid rgba(255, 255, 255, 0.4); /* Using rem */
+  border: 0.1rem solid rgba(255, 255, 255, 0.4);
   box-shadow:
     0 0.3rem 0.6rem rgba(255, 180, 60, 0.5),
-    0 0.1rem 0.4rem rgba(0, 0, 0, 0.3); /* Using rem */
+    0 0.1rem 0.4rem rgba(0, 0, 0, 0.3);
 }
 
 .login-btn:hover {
-  transform: translateY(-0.4rem) rotateX(8deg); /* Using rem */
+  transform: translateY(-0.4rem) rotateX(8deg);
   background: linear-gradient(90deg, #ffcc66, #f7931d);
   box-shadow:
     0 0.8rem 1.6rem rgba(255, 180, 50, 0.5),
-    0 0.4rem 0.6rem rgba(0, 0, 0, 0.4); /* Using rem */
+    0 0.4rem 0.6rem rgba(0, 0, 0, 0.4);
 }
 
 .nav-logout-btn {
   background: linear-gradient(90deg, #dc3545, #c82333);
   color: #ffffff;
   font-weight: 700;
-  border: 0.1rem solid rgba(255, 255, 255, 0.4); /* Using rem */
+  border: 0.1rem solid rgba(255, 255, 255, 0.4);
   box-shadow:
     0 0.3rem 0.6rem rgba(220, 53, 69, 0.5),
-    0 0.1rem 0.4rem rgba(0, 0, 0, 0.3); /* Using rem */
-  padding: 0.6rem 1rem; /* Consistent padding */
-  border-radius: 0.6rem; /* Consistent border-radius */
+    0 0.1rem 0.4rem rgba(0, 0, 0, 0.3);
+  padding: 0.6rem 1rem;
+  border-radius: 0.6rem;
   cursor: pointer;
 }
 
 .nav-logout-btn:hover {
-  transform: translateY(-0.2rem) rotateX(6deg); /* Consistent hover effect */
+  transform: translateY(-0.2rem) rotateX(6deg);
   background: linear-gradient(90deg, #c82333, #dc3545);
   box-shadow:
     0 0.5rem 1rem rgba(220, 53, 69, 0.6),
-    0 0.2rem 0.6rem rgba(0, 0, 0, 0.4); /* Consistent hover effect */
+    0 0.2rem 0.6rem rgba(0, 0, 0, 0.4);
 }
 
-/* 📱 Responsive Navbar */
 @media (max-width: 850px) {
   .navbar-3d {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 0.6rem 1rem; /* Adjusted padding */
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    padding: 0.6rem 1rem;
+    flex-wrap: wrap;
   }
 
   .nav-links {
     justify-content: center;
-    gap: 0.8rem; /* Adjusted gap */
-    margin-top: 0.5rem; /* Adjusted margin */
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .nav-logo {
     justify-content: center;
-    margin-bottom: 0.4rem; /* Adjusted margin */
+    margin-bottom: 0.4rem;
   }
 }
 
 @media (max-width: 500px) {
   .nav-links a,
   .nav-logout-btn {
-    font-size: 0.8rem; /* Smaller font size */
-    padding: 0.4rem 0.6rem; /* Smaller padding */
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
   }
 
   .nav-logo span {
-    font-size: 0.9rem; /* Smaller font size */
+    font-size: 0.9rem;
   }
 }
