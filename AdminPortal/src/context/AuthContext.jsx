@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    apiLogoutAdmin(); // Call the actual logout function from adminAxios
+    apiLogoutAdmin();
     setIsLoggedIn(false);
   };
 
