@@ -31,7 +31,7 @@ def all_employers(request):
                                                                              "org_name",
                                                                              address=F("location"),
                                                                              emailId=F("user__email"),
-                                                                             employer=F("user__username"))
+                                                                             employer=F("user__username")).first()
         all_employers.append(employerProfile)
     return Response({"message": "All employers data sent.", "employers": all_employers}, status=status.HTTP_202_ACCEPTED)
 
@@ -116,7 +116,15 @@ def get_employer_data(request, username):
                                                               employerUsername=F("user__username"),
                                                               employerEmail=F("user__email"))
     
-    return Response({"message": "All Employer Data sent", "employer": employer}, status=status.HTTP_200_OK)
+    emp = EmployerModel.objects.filter(user=user).first()
+    pending_reports = ReportWorkerModel.objects.filter(employer=emp, status="pending").all().count()
+    resolved_reports = ReportWorkerModel.objects.filter(employer=emp, status="resolved").all().count()
+    reports = {
+        "pending": pending_reports,
+        "resolved": resolved_reports,
+        "total": int(pending_reports) + int(resolved_reports)
+    }
+    return Response({"message": "All Employer Data sent", "employer": employer, "reports": reports}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
