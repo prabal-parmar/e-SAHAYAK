@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Workers.css";
 import {
+  getWorkerData,
   getAllWorkers,
   getWorkerWorkHistory,
 } from "../api/workerRoutes/allWorkers";
@@ -13,6 +14,7 @@ function Workers() {
   const [selectedDate, setSelectedDate] = useState("");
   const [workHistory, setWorkHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [reportStats, setReportStats] = useState(null);
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -25,7 +27,6 @@ function Workers() {
         const sortedData = flatWorkers.sort((a, b) => a.id - b.id);
         setWorkers(sortedData);
         setFilteredWorkers(sortedData);
-        // console.log(flatWorkers);
       } catch (error) {
         console.error("Error fetching workers:", error);
       }
@@ -65,6 +66,22 @@ function Workers() {
       fetchHistory();
     }
   }, [selectedWorker, selectedDate]);
+
+  useEffect(() => {
+    const fetchWorkerData = async () => {
+      if (selectedWorker) {
+        try {
+          const response = await getWorkerData(selectedWorker.workerUsername);
+          if (response.reports) {
+            setReportStats(response.reports);
+          }
+        } catch (error) {
+          console.error("Error fetching worker data:", error);
+        }
+      }
+    };
+    fetchWorkerData();
+  }, [selectedWorker]);
 
   return (
     <div className="workers-page">
@@ -128,11 +145,7 @@ function Workers() {
           </>
         ) : (
           <>
-
-            <button
-              className="back-btn"
-              onClick={() => setSelectedWorker(null)}
-            >
+            <button className="back-btn" onClick={() => setSelectedWorker(null)}>
               ← Back
             </button>
 
@@ -157,12 +170,25 @@ function Workers() {
               </div>
 
               <div className="report-section">
-                <h4>Reported:</h4>
-                <p>
-                  {selectedWorker.report_count > 0
-                    ? `${selectedWorker.report_count} times`
-                    : "No reports"}
-                </p>
+                <h4>Reports Summary</h4>
+                {reportStats ? (
+                  <div className="report-stats">
+                    <div className="report-box total">
+                      <span className="count">{reportStats.total}</span>
+                      <span className="label">Total</span>
+                    </div>
+                    <div className="report-box pending">
+                      <span className="count">{reportStats.pending}</span>
+                      <span className="label">Pending</span>
+                    </div>
+                    <div className="report-box resolved">
+                      <span className="count">{reportStats.resolved}</span>
+                      <span className="label">Resolved</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p>Loading report details...</p>
+                )}
               </div>
 
               <div className="date-selector">

@@ -449,3 +449,38 @@ body {
     font-size: 1.4rem;
   }
 }
+.report-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.report-box {
+  flex: 1;
+  min-width: 6.25rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.report-box .count {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.report-box.total {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.report-box.pending {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.report-box.resolved {
+  background: linear-gradient(135deg, #10b981, #059669);
+}

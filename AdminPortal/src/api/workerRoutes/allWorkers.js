@@ -3,7 +3,7 @@ import adminApi from "../adminAxios";
 export const getWorkerData = async (username) => {
   try {
     const response = await adminApi.get(`get-worker-data/${username}/`);
-    return response.data.worker;
+    return response.data;
   } catch (error) {
     console.log(error);
   }

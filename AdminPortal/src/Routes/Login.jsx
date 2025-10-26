@@ -23,7 +23,6 @@ function Login() {
       const response = await loginAdmin(formData.username, formData.password);
       console.log("Login successful:", response);
       login();
-      // alert(`Welcome back! Login Successful ✅`);
       navigate("/");
     } catch (err) {
       console.error("Login failed:", err);
