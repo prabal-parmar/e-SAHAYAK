@@ -20,13 +20,18 @@ function Login() {
     setError("");
     setLoading(true);
     try {
-      const response = await loginAdmin(formData.username, formData.password);
-      console.log("Login successful:", response);
-      login();
+      const response = await loginAdmin(formData.username.trim().toLowerCase(), formData.password);
+      // console.log("Login successful:", response);
+      await login();
       navigate("/");
     } catch (err) {
-      console.error("Login failed:", err);
-      setError(err.detail || err.message || "An error occurred during login.");
+      // console.error("Login failed:", err.status);
+      if(err.status === 404){
+        setError("Invalid Credentials!")
+      }
+      else{
+        setError("An error occurred during login. Please try again!");
+      }
     } finally {
       setLoading(false);
     }
