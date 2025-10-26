@@ -337,6 +337,53 @@
   font-weight: 600;
 }
 
+.employer-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 2.5rem; /* Converted to rem */
+}
+
+.employer-details-grid p {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #475569;
+}
+
+.employer-details-grid strong {
+  color: #1e293b;
+}
+
+.reports-summary {
+  grid-column: 2 / 3;
+  grid-row: 1 / span 3;
+  background-color: #e0f2f7; /* Light blue background */
+  padding: 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.08); /* Converted to rem */
+}
+
+.reports-summary p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.reports-summary strong {
+  color: #1a5276;
+}
+
+.pending-reports {
+  color: #d35400 !important;
+}
+
+.resolved-reports {
+  color: #27ae60 !important;
+}
+
 @media (max-width: 62em) { /* Converted to em (992px / 16) */
   .employer-container {
     padding: 1.875rem; /* Converted to rem */
@@ -382,6 +429,18 @@
   .attendance-row {
     padding: 0.75rem 0.9375rem; /* Converted to rem */
     font-size: 0.95rem;
+  }
+
+  .employer-details-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .reports-summary {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin-top: 1.25rem;
+    align-items: center;
   }
 }
 

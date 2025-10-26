@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "./Employer.css";
-import { getAllEmployers } from "../api/employerRoutes/allEmployers";
+import {
+  getAllEmployers,
+  getEmployerData,
+} from "../api/employerRoutes/allEmployers";
 import { getAttendanceByEmployerAndDate } from "../api/employerRoutes/attendanceData";
 
 function Employer() {
   const [employers, setEmployers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployer, setSelectedEmployer] = useState(null);
+  const [reportStatistics, setReportStatistics] = useState({
+    total: 0,
+    pending: 0,
+    resolved: 0,
+  });
 
   const [selectedDate, setSelectedDate] = useState("");
   const [attendanceData, setAttendanceData] = useState([]);
@@ -14,21 +22,40 @@ function Employer() {
 
   useEffect(() => {
     const fetchEmployerData = async () => {
-      const response = await getAllEmployers();
-      const employersData = Array.isArray(response.employers[0])
-        ? response.employers[0]
-        : response.employers;
-      const sortedData = employersData.sort((a, b) => a.id - b.id);
-      setEmployers(sortedData);
+      try {
+        const response = await getAllEmployers();
+        console.log(response.employers)
+        const employersData =
+          response && response.employers ? response.employers.flat() : [];
+        const sortedData = employersData.sort((a, b) => a.id - b.id);
+        setEmployers(sortedData);
+      } catch (error) {
+        console.error("Error fetching employers:", error);
+      }
     };
     fetchEmployerData();
   }, []);
 
   const filteredEmployers = employers.filter(
     (emp) =>
-      emp.employer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.org_name.toLowerCase().includes(searchTerm.toLowerCase())
+      (emp.employer?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (emp.org_name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
+
+  useEffect(() => {
+    if (selectedEmployer) {
+      const fetchDetails = async () => {
+        try {
+          const employerData = await getEmployerData(selectedEmployer.employer);
+          console.log(employerData)
+          setReportStatistics(employerData.reports)
+        } catch (err) {
+          console.error("Error fetching employer details:", err);
+        }
+      };
+      fetchDetails();
+    }
+  }, [selectedEmployer]);
 
   useEffect(() => {
     if (selectedEmployer && selectedDate) {
@@ -39,7 +66,6 @@ function Employer() {
           const day = dateObj.getDate();
           const month = dateObj.getMonth() + 1;
           const year = dateObj.getFullYear();
-
           const formattedDate = `${year}-${month}-${day}`;
           const response = await getAttendanceByEmployerAndDate(
             selectedEmployer.id,
@@ -49,8 +75,9 @@ function Employer() {
         } catch (err) {
           console.error("Error fetching attendance:", err);
           setAttendanceData([]);
+        } finally {
+          setLoadingAttendance(false);
         }
-        setLoadingAttendance(false);
       };
       fetchAttendance();
     }
@@ -88,7 +115,11 @@ function Employer() {
               <tbody>
                 {filteredEmployers.length > 0 ? (
                   filteredEmployers.map((emp) => (
-                    <tr key={emp.id}>
+                    <tr
+                      key={
+                        emp.id || emp.emailId || emp.org_name || Math.random()
+                      }
+                    >
                       <td>{emp.id}</td>
                       <td
                         className="clickable"
@@ -102,7 +133,7 @@ function Employer() {
                     </tr>
                   ))
                 ) : (
-                  <tr>
+                  <tr key="no-employer">
                     <td colSpan="5" className="no-data">
                       No employers found 😕
                     </td>
@@ -113,7 +144,6 @@ function Employer() {
           </>
         ) : (
           <>
-
             <button
               className="back-btn"
               onClick={() => setSelectedEmployer(null)}
@@ -123,19 +153,34 @@ function Employer() {
 
             <div className="profile-section">
               <h2>{selectedEmployer.employer}</h2>
-              <p>
-                <strong>Email:</strong> {selectedEmployer.emailId}
-              </p>
-              <p>
-                <strong>Contact Number:</strong>{" "}
-                {selectedEmployer.contact_number}
-              </p>
-              <p>
-                <strong>Organization:</strong> {selectedEmployer.org_name}
-              </p>
-              <p>
-                <strong>Address:</strong> {selectedEmployer.address}
-              </p>
+              <div className="employer-details-grid">
+                <p>
+                  <strong>Email:</strong> {selectedEmployer?.emailId || "N/A"}
+                </p>
+                <p>
+                  <strong>Contact Number:</strong>{" "}
+                  {selectedEmployer?.contact_number || "N/A"}
+                </p>
+                <p>
+                  <strong>Organization:</strong>{" "}
+                  {selectedEmployer?.org_name || "N/A"}
+                </p>
+                <p>
+                  <strong>Address:</strong> {selectedEmployer?.address || "N/A"}
+                </p>
+
+                <div className="reports-summary">
+                  <p>
+                    <strong>Total Reports:</strong> {reportStatistics.total}
+                  </p>
+                  <p className="pending-reports">
+                    <strong>Pending:</strong> {reportStatistics.pending}
+                  </p>
+                  <p className="resolved-reports">
+                    <strong>Resolved:</strong> {reportStatistics.resolved}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="date-selector">
@@ -167,10 +212,17 @@ function Employer() {
                   </div>
 
                   {attendanceData.map((record, index) => (
-                    <div className="attendance-row" key={index}>
+                    <div
+                      className="attendance-row"
+                      key={`${record.workerUsername || "unknown"}-${
+                        record.date || index
+                      }`}
+                    >
                       <div>{record.workerUsername}</div>
                       <div>
-                        {new Date(record.date).toLocaleDateString("en-GB")}
+                        {record.date
+                          ? new Date(record.date).toLocaleDateString("en-GB")
+                          : "N/A"}
                       </div>
                       <div
                         className={
