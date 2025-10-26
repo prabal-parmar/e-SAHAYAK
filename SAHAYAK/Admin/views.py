@@ -136,8 +136,15 @@ def get_worker_data(request, username):
                                                           "contact_number",
                                                           workerUsername=F("user__username"),
                                                           workerName=Concat(F("user__first_name"), Value(' '), F("user__last_name")))
-    
-    return Response({"message": "All Worker Data sent", "worker": worker}, status=status.HTTP_200_OK)
+    wor = WorkerModel.objects.filter(user=user).first()
+    pending_reports = ReportWorkerModel.objects.filter(worker=wor, status="pending").all().count()
+    resolved_reports = ReportWorkerModel.objects.filter(worker=wor, status="resolved").all().count()
+    reports = {
+        "pending": pending_reports,
+        "resolved": resolved_reports,
+        "total": int(pending_reports) + int(resolved_reports)
+    }
+    return Response({"message": "All Worker Data sent", "worker": worker, "reports": reports}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUser])
