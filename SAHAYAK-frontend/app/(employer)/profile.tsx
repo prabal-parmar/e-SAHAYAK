@@ -127,7 +127,7 @@ export default function EmployerProfilePage() {
     useEffect(() => {
       Toast.show({
         type: "error",
-        text1: "Session Expired 😔",
+        text1: "Session Expired",
         text2: "Please log in to continue.",
       });
       router.replace("/login");
@@ -147,14 +147,15 @@ export default function EmployerProfilePage() {
       setEmployer(data);
       Toast.show({
         type: "success",
-        text1: "Profile Updated ✅",
+        text1: "Profile Updated",
         text2: "Your profile has been saved successfully.",
       });
     } catch (error: any) {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Profile Update Failed",
+        text2: "An unexpected error occurred.",
       });
     }
   };

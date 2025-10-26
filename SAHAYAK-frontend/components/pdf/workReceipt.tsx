@@ -1,7 +1,6 @@
 import React from "react";
 import * as Print from "expo-print";
 import * as FileSystem from "expo-file-system/legacy";
-import * as MediaLibrary from "expo-media-library";
 import { Asset } from "expo-asset";
 import Toast from "react-native-toast-message";
 import * as SecureStore from "expo-secure-store";
@@ -19,17 +18,8 @@ type ReceiptData = {
   amount: number;
 };
 
-export const generatePDF = async (
-  receiptData: ReceiptData,
-  logoUri: number
-) => {
+export const generatePDF = async (receiptData: ReceiptData) => {
   try {
-    const asset = Asset.fromModule(logoUri);
-    await asset.downloadAsync();
-    const base64Logo = await FileSystem.readAsStringAsync(asset.localUri!, {
-      encoding: "base64",
-    });
-
     const html = `
         <!DOCTYPE html>
         <html lang="en">
@@ -52,10 +42,6 @@ export const generatePDF = async (
                 color: white;
                 padding: 10px 0;
                 border-radius: 10px;
-              }
-              .header img {
-                height: 60px;
-                margin-bottom: 5px;
               }
               .header h1 {
                 margin: 0;
@@ -101,9 +87,7 @@ export const generatePDF = async (
           </head>
           <body>
             <div class="header">
-              <img src="data:image/png;base64,${base64Logo}" alt="logo" />
-              <h1>SRAM</h1>
-              <p class="sub-header">Shramik Rights and Account Management</p>
+              <h1 style="margin-bottom: 5px;">SRAM (Shramik Rights and Account Management) App</h1>
               <p class="sub-header">Government of Madhya Pradesh</p>
             </div>
 
@@ -151,18 +135,18 @@ export const generatePDF = async (
           FileSystem as any
         ).StorageAccessFramework.requestDirectoryPermissionsAsync();
         if (!permissions.granted) {
-          Toast.show({ type: "error", text1: "Permission denied!" });
+          Toast.show({ type: "error", text1: "Permission denied" });
           return;
         }
         directoryUri = permissions.directoryUri;
-        await SecureStore.setItemAsync("pdfDownloadDirectoryUri", directoryUri? directoryUri: "downloads");
+        await SecureStore.setItemAsync("pdfDownloadDirectoryUri", directoryUri);
       }
 
       if (!directoryUri) {
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "Could not determine download directory.",
+          text2: "Unable to determine download location.",
         });
         return;
       }
@@ -186,11 +170,14 @@ export const generatePDF = async (
       Toast.show({
         type: "success",
         text1: "PDF Saved",
-        text2: `Saved to Downloads folder`,
       });
     }
   } catch (error: any) {
     console.error("PDF Generation Error:", error);
-    Toast.show({ type: "error", text1: "Something went wrong!" });
+    Toast.show({
+      type: "error",
+      text1: "PDF Generation Failed",
+      text2: "An unexpected error occurred.",
+    });
   }
 };

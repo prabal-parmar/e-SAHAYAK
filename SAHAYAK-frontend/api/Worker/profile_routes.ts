@@ -13,7 +13,7 @@ export const fetchWorkerProfile = async () => {
         Toast.show({
             type: "error",
             text1: "Profile Fetch Failed 😔",
-            text2: error.message || "Could not load worker profile.",
+            text2: "Could not load worker profile.",
         });
     }
 }
@@ -33,7 +33,7 @@ export const updateWorkerProfile = async (data: FrontendData) => {
         Toast.show({
             type: "error",
             text1: "Profile Update Failed 😔",
-            text2: error.message || "Could not update worker profile.",
+            text2: "Could not update worker profile.",
         });
     }
 }

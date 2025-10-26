@@ -83,10 +83,19 @@ function WorkerDropdownModal<T extends { username?: string }>({
   const [searchText, setSearchText] = useState("");
 
   const filteredData = useMemo(() => {
-    if (!searchText.trim()) return data;
-    return data.filter((item: any) =>
-      item.username?.toLowerCase().includes(searchText.toLowerCase())
-    );
+    const dataToFilter = searchText.trim()
+      ? data.filter((item: any) =>
+          item.username?.toLowerCase().includes(searchText.toLowerCase())
+        )
+      : data;
+
+    return dataToFilter.sort((a, b) => {
+      const nameA = a.username?.toLowerCase() || "";
+      const nameB = b.username?.toLowerCase() || "";
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
   }, [searchText, data]);
 
   return (
@@ -101,7 +110,7 @@ function WorkerDropdownModal<T extends { username?: string }>({
         activeOpacity={1}
         onPress={onClose}
       >
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, { maxHeight: "70%" }]}>
           <Text style={styles.modalTitle}>{title}</Text>
 
           <View style={styles.searchBarContainer}>
@@ -127,7 +136,7 @@ function WorkerDropdownModal<T extends { username?: string }>({
 
           <FlatList
             data={filteredData}
-            keyExtractor={(_, index) => index.toString()}
+            keyExtractor={(item) => item.username || item.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.modalItem}
@@ -324,7 +333,8 @@ export default function AttendancePage() {
       console.log("failed to fetch workers", error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Fetching Workers",
+        text2: "Unable to load worker data.",
       });
     }
   };
@@ -343,8 +353,8 @@ export default function AttendancePage() {
     if (!clockInTime || !selectedWorker || !selectedShift) {
       Toast.show({
         type: "info",
-        text1: "Missing Info 📝",
-        text2: "Please select worker, shift, and clock-in time.",
+        text1: "Missing Information",
+        text2: "Please select a worker, shift, and clock-in time.",
       });
       return null;
     }
@@ -366,20 +376,21 @@ export default function AttendancePage() {
         setOriginalShift(null);
         Toast.show({
           type: "success",
-          text1: "Clock-In Recorded ✅",
-          text2: `Clock-in for ${selectedWorker.username} successful.`,
+          text1: "Clock-In Recorded",
+          text2: `Clock-in for ${selectedWorker.username} successful.`, // Keeping this as it's specific and informative
         });
       } else {
         Toast.show({
           type: "error",
-          text1: "Something Went Wrong!",
+          text1: "Clock-In Failed",
+          text2: "An unexpected error occurred.",
         });
       }
     } catch (error: any) {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Clock-In Failed",
         text2: error.response?.data?.detail || "Could not record clock-in.",
       });
     }
@@ -443,7 +454,7 @@ export default function AttendancePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Loading Worker Details",
         text2: error.message || "Could not load worker details.",
       });
     }
@@ -458,7 +469,7 @@ export default function AttendancePage() {
     ) {
       Toast.show({
         type: "info",
-        text1: "Missing Info 📝",
+        text1: "Missing Information",
         text2: "Please ensure worker has clock-in/out times and a shift.",
       });
       return null;
@@ -478,8 +489,8 @@ export default function AttendancePage() {
       const amount = await addFullAttendanceData(data);
       Toast.show({
         type: "success",
-        text1: "Attendance Submitted ✅",
-        text2: `Worker to collect ₹${amount.amount} from you!`,
+        text1: "Attendance Submitted",
+        text2: `Worker to collect ₹${amount.amount} from you!`, // Keeping this as it's specific and informative
       });
       await fetchAllWorkers();
       setSelectedShift(null);
@@ -492,7 +503,7 @@ export default function AttendancePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Attendance Submission Failed",
         text2: error.response?.data?.detail || "Could not submit attendance.",
       });
     }
@@ -502,15 +513,15 @@ export default function AttendancePage() {
     if (!clockInTime || !selectedWorker || !selectedShift) {
       Toast.show({
         type: "info",
-        text1: "Missing Info 📝",
-        text2: "Please select worker, shift, and clock-in time.",
+        text1: "Missing Information",
+        text2: "Please select a worker, shift, and clock-in time.",
       });
       return null;
     }
     if (clockOutTime <= clockInTime) {
       Toast.show({
         type: "error",
-        text1: "Invalid Time ⏰",
+        text1: "Invalid Time",
         text2: "Clock-out time must be after clock-in time.",
       });
       return null;
@@ -526,20 +537,21 @@ export default function AttendancePage() {
         fetchAllWorkers();
         Toast.show({
           type: "success",
-          text1: "Clock-Out Recorded ✅",
-          text2: `Clock-out for ${selectedWorker.username} successful.`,
+          text1: "Clock-Out Recorded",
+          text2: `Clock-out for ${selectedWorker.username} successful.`, // Keeping this as it's specific and informative
         });
       } else {
         Toast.show({
           type: "error",
-          text1: "Something Went Wrong!",
+          text1: "Clock-Out Failed",
+          text2: "An unexpected error occurred.",
         });
       }
     } catch (error: any) {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Clock-Out Failed",
         text2: error.response?.data?.detail || "Could not record clock-out.",
       });
     }
@@ -555,7 +567,7 @@ export default function AttendancePage() {
     ) {
       Toast.show({
         type: "info",
-        text1: "Missing Info 📝",
+        text1: "Missing Information",
         text2:
           "Please ensure main shift is complete and select overtime clock-in time.",
       });
@@ -564,7 +576,7 @@ export default function AttendancePage() {
     if (clockOutTime >= overtimeClockInTime) {
       Toast.show({
         type: "error",
-        text1: "Invalid Time ⏰",
+        text1: "Invalid Time",
         text2: "Overtime clock-in must be after regular clock-out time.",
       });
       return null;
@@ -584,20 +596,21 @@ export default function AttendancePage() {
         setOriginalShift(null);
         Toast.show({
           type: "success",
-          text1: "Overtime Clock-In Recorded ✅",
-          text2: `Overtime clock-in for ${selectedWorker.username} successful.`,
+          text1: "Overtime Clock-In Recorded",
+          text2: `Overtime clock-in for ${selectedWorker.username} successful.`, // Keeping this as it's specific and informative
         });
       } else {
         Toast.show({
           type: "error",
-          text1: "Something Went Wrong!",
+          text1: "Overtime Clock-In Failed",
+          text2: "An unexpected error occurred.",
         });
       }
     } catch (error: any) {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Overtime Clock-In Failed",
         text2:
           error.response?.data?.detail || "Could not record overtime clock-in.",
       });
@@ -614,7 +627,7 @@ export default function AttendancePage() {
     ) {
       Toast.show({
         type: "info",
-        text1: "Missing Info 📝",
+        text1: "Missing Information",
         text2: "Please ensure worker has overtime clock-in time.",
       });
       return null;
@@ -622,7 +635,7 @@ export default function AttendancePage() {
     if (overtimeClockInTime >= overtimeClockOutTime) {
       Toast.show({
         type: "error",
-        text1: "Invalid Time ⏰",
+        text1: "Invalid Time",
         text2: "Overtime clock-out must be after overtime clock-in.",
       });
       return null;
@@ -642,20 +655,21 @@ export default function AttendancePage() {
         setOriginalShift(null);
         Toast.show({
           type: "success",
-          text1: "Overtime Clock-Out Recorded ✅",
-          text2: `Overtime clock-out for ${selectedWorker.username} successful.`,
+          text1: "Overtime Clock-Out Recorded",
+          text2: `Overtime clock-out for ${selectedWorker.username} successful.`, // Keeping this as it's specific and informative
         });
       } else {
         Toast.show({
           type: "error",
-          text1: "Something Went Wrong!",
+          text1: "Overtime Clock-Out Failed",
+          text2: "An unexpected error occurred.",
         });
       }
     } catch (error: any) {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Overtime Clock-Out Failed",
         text2:
           error.response?.data?.detail ||
           "Could not record overtime clock-out.",

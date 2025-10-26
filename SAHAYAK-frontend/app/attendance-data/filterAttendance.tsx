@@ -131,7 +131,7 @@ export default function App() {
     );
     Toast.show({
       type: "success",
-      text1: "PDF Downloaded ✅",
+      text1: "PDF Downloaded",
       text2: "Attendance report saved.",
     });
   };
@@ -144,7 +144,7 @@ export default function App() {
     if (!selectedDate) {
       Toast.show({
         type: "info",
-        text1: "No Date Selected 📅",
+        text1: "No Date Selected",
         text2: "Please select a date first.",
       });
       return null;
@@ -166,7 +166,8 @@ export default function App() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Fetching Data",
+        text2: "An unexpected error occurred.",
       });
     }
   };

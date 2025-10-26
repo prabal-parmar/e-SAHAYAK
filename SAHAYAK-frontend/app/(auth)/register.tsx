@@ -62,8 +62,8 @@ export default function RegistrationPage() {
     if (username.length < 5) {
       Toast.show({
         type: "info",
-        text1: "Username Too Short 📏",
-        text2: "Username must be at least 5 characters long.",
+        text1: "Username Too Short",
+        text2: "Please enter a username with at least 5 characters.",
       });
       return null;
     }
@@ -71,8 +71,8 @@ export default function RegistrationPage() {
     if (!usernameRegex.test(data.username)) {
       Toast.show({
         type: "error",
-        text1: "Invalid Username 🚫",
-        text2: "Username can only contain letters, numbers, and underscores.",
+        text1: "Invalid Username",
+        text2: "Username must contain only letters, numbers, and underscores.",
       });
       return null;
     }
@@ -88,13 +88,26 @@ export default function RegistrationPage() {
       password &&
       selectedRole === "Worker"
     ) {
-      await registerWorker(data);
-      emptyForm();
-      router.replace("/login");
+      const response = await registerWorker(data);
+
+      if (response.success) {
+        Toast.show({
+          type: "success",
+          text1: "Registration Successful",
+          text2: "Please login to continue.",
+        });
+        emptyForm();
+        router.replace("/login");
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Registration Failed",
+        });
+      }
     } else {
       Toast.show({
         type: "info",
-        text1: "Missing Fields 📝",
+        text1: "Missing Fields",
         text2: "Please fill in all required fields.",
       });
     }
@@ -113,8 +126,8 @@ export default function RegistrationPage() {
     if (data.username.length < 5) {
       Toast.show({
         type: "info",
-        text1: "Username Too Short 📏",
-        text2: "Username must be at least 5 characters long.",
+        text1: "Username Too Short",
+        text2: "Please enter a username with at least 5 characters.",
       });
       return null;
     }
@@ -122,8 +135,8 @@ export default function RegistrationPage() {
     if (data.contactNumber.length < 10) {
       Toast.show({
         type: "info",
-        text1: "Invalid Contact 📞",
-        text2: "Mobile number must be 10 digits long.",
+        text1: "Invalid Contact Number",
+        text2: "Please enter a 10-digit mobile number.",
       });
       return null;
     }
@@ -136,13 +149,25 @@ export default function RegistrationPage() {
       orgName &&
       selectedRole === "Employer"
     ) {
-      await registerEmployer(data);
-      emptyForm();
-      router.replace("/login");
+      const response = await registerEmployer(data);
+      if (response.success) {
+        Toast.show({
+          type: "success",
+          text1: "Registration Successful",
+          text2: "Please login to continue.",
+        });
+        emptyForm();
+        router.replace("/login");
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Registration Failed",
+        });
+      }
     } else {
       Toast.show({
         type: "info",
-        text1: "Missing Fields 📝",
+        text1: "Missing Fields",
         text2: "Please fill in all required fields.",
       });
     }
@@ -459,7 +484,12 @@ export default function RegistrationPage() {
           colors={["#FF9933", "#138808"]}
           style={StyleSheet.absoluteFill}
         >
-          <ScrollView contentContainerStyle={register.scrollContainer}>
+          <ScrollView
+            contentContainerStyle={[
+              register.scrollContainer,
+              { paddingTop: "18%", paddingBottom: "20%" },
+            ]}
+          >
             {selectedRole ? renderRegistrationForm() : renderLandingSelection()}
           </ScrollView>
         </LinearGradient>

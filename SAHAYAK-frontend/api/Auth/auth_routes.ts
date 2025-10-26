@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import apiClient, { setAuthCallbacks } from "./axiosInstance";
-import Config from "react-native-config";
+import Toast from "react-native-toast-message";
 
 type RegisterData = Record<string, any>;
 
@@ -39,8 +39,8 @@ async function saveTokens(accessToken: string, refreshToken: string, role: strin
   try {
     await SecureStore.setItemAsync("accessToken", accessToken);
     await SecureStore.setItemAsync("refreshToken", refreshToken);
-    await SecureStore.setItemAsync("role", role);
-    await SecureStore.setItemAsync("userId", userId);
+    await SecureStore.setItemAsync("role", String(role));
+    await SecureStore.setItemAsync("userId", String(userId));
     console.log("Tokens saved securely");
   } catch (e) {
     console.error("Failed to save tokens", e);
@@ -65,11 +65,11 @@ export const employerLogin = async (username: string, password: string) => {
       await saveTokens(response.data.access, response.data.refresh, response.data.role, response.data.userId);
       return { success: true, role: response.data.role };
     }
-    // This part should ideally not be reached if backend returns 200 for successful login
-    return { success: false, error: response.data?.detail || "Invalid credentials" };
+
+    return { success: false, error: "Invalid credentials" };
   } catch (error: any) {
     console.error("Employer Login Failed:", error.response?.status, error.response?.data, error.message);
-    return { success: false, error: error.response?.data?.detail || "Network error or invalid credentials." };
+    return { success: false, error: error.response?.data.error || "Something went wrong!" };
   }
 };
 
@@ -83,16 +83,16 @@ export const workerLogin = async (username: string, password: string) => {
       await saveTokens(response.data.access, response.data.refresh, response.data.role, response.data.userId);
       return { success: true, role: response.data.role };
     }
-    return { success: false, error: response.data?.detail || "Invalid credentials" };
+    return { success: false, error: "Invalid credentials" };
   } catch (error: any) {
-    console.error("Worker Login Failed:", error.response?.status, error.response?.data, error.message);
-    return { success: false, error: error.response?.data?.detail || "Network error or invalid credentials." };
+    // console.error("Worker Login Failed:", error.response?.status, error.response?.data, error.message);
+    return { success: false, error: error.response?.data || "Something went wrong!" };
   }
 };
 
 export const registerWorker = async (data: RegisterData) => {
   try {
-    await apiClient.post(`/register-worker/`, {
+    const response = await apiClient.post(`/register-worker/`, {
       first_name: data["firstName"],
       last_name: data["lastName"],
       username: data["username"],
@@ -102,16 +102,23 @@ export const registerWorker = async (data: RegisterData) => {
       skill: data["skill"],
       address: data["address"],
     });
-    return { success: true };
+    if(response.data.error){
+      // console.log(response.data.error)
+      return {success: false, error: response.data.error}
+    }
+    else {
+      // console.log(response.data)
+      return { success: true };
+    }
   } catch (error: any) {
-    console.error("Worker Registration Failed:", error.response?.status, error.response?.data, error.message);
-    return { success: false, error: error.response?.data?.detail || "Something went wrong" };
+    return { success: false, error: error.response?.data.error || "Something went wrong!" };
   }
 };
 
 export const registerEmployer = async (data: RegisterData) => {
   try {
-    await apiClient.post(`/register-employer/`, {
+    console.log("Hittted")
+    const response = await apiClient.post(`/register-employer/`, {
       org_name: data["orgName"],
       username: data["username"],
       password: data["password"],
@@ -119,10 +126,18 @@ export const registerEmployer = async (data: RegisterData) => {
       contact_number: data["contactNumber"],
       location: data["location"],
     });
-    return { success: true };
+    if(response.data.error){
+      // console.log(response.data.error)
+      return {success: false, error: response.data.error}
+    }
+    else {
+      // console.log(response.data)
+      return { success: true };
+    }
+    
   } catch (error: any) {
     console.error("Employer Registration Failed:", error.response?.status, error.response?.data, error.message);
-    return { success: false, error: error.response?.data?.detail || "Something went wrong" };
+    return { success: false, error: error.response?.data.error || "Something went wrong!" };
   }
 };
 
@@ -135,6 +150,6 @@ export const changeUserPassword = async (oldPassword: string, newPassword: strin
     return { success: true };
   } catch (error: any) {
     console.error("Change Password Failed:", error.response?.status, error.response?.data, error.message);
-    return { success: false, error: error.response?.data?.detail || "Failed to change password." };
+    return { success: false, error: "Failed to change password." };
   }
 };

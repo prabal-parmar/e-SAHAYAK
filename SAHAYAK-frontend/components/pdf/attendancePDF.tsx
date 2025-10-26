@@ -20,7 +20,7 @@ export const generateAttendancePDF = async (
 ) => {
   try {
     if (!data || data.length === 0)
-      throw new Error("No data provided for PDF generation.");
+      throw new Error("No attendance data available for PDF generation.");
 
     const html = `
       <html>
@@ -122,19 +122,19 @@ export const generateAttendancePDF = async (
           Toast.show({
             type: "error",
             text1: "Permission denied",
-            text2: "Please allow access to save file.",
+            text2: "Please grant access to save the file.",
           });
           return;
         }
         directoryUri = permissions.directoryUri;
-        await SecureStore.setItemAsync("pdfDownloadDirectoryUri", directoryUri ? directoryUri: "downloads");
+        await SecureStore.setItemAsync("pdfDownloadDirectoryUri", directoryUri);
       }
 
       if (!directoryUri) {
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "Could not determine download directory.",
+          text2: "Unable to determine download location.",
         });
         return;
       }
@@ -157,7 +157,7 @@ export const generateAttendancePDF = async (
 
       Toast.show({
         type: "success",
-        text1: "Attendance PDF Saved ✅"
+        text1: "Attendance PDF Saved",
       });
 
       if (await Sharing.isAvailableAsync()) {
@@ -176,8 +176,8 @@ export const generateAttendancePDF = async (
     console.error("PDF generation failed:", error);
     Toast.show({
       type: "error",
-      text1: "PDF Generation Failed 😔",
-      text2: error.message,
+      text1: "PDF Generation Failed",
+      text2: "An unexpected error occurred.",
     });
   }
 };

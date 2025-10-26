@@ -119,8 +119,8 @@ export default function EmployerHomePage() {
         console.log(error);
         Toast.show({
           type: "error",
-          text1: "Wage Fetch Failed 😔",
-          text2: error.message || "Could not load pending wages.",
+          text1: "Error Fetching Wages",
+          text2: "Unable to load pending wages.",
         });
       } finally {
         setLoadingWages(false);
@@ -137,7 +137,7 @@ export default function EmployerHomePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Payment Failed 😔",
+        text1: "Payment Failed",
         text2: "Could not mark salary as paid.",
       });
     }
@@ -168,7 +168,8 @@ export default function EmployerHomePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Fetching Working Workers",
+        text2: "Unable to load currently working workers.",
       });
     }
   };
@@ -181,7 +182,8 @@ export default function EmployerHomePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Fetching Employer Data",
+        text2: "Unable to load employer profile.",
       });
     }
   };

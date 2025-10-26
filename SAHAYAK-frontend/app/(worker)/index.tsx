@@ -111,7 +111,8 @@ export default function WorkerHomePage() {
       console.error("Error loading attendance data:", error);
       Toast.show({
         type: "error",
-        text1: "Something went wrong!",
+        text1: "Error Loading Attendance",
+        text2: "An unexpected error occurred while loading attendance data.",
       });
     } finally {
       setLoadingCalendar(false);
@@ -171,7 +172,8 @@ export default function WorkerHomePage() {
       console.error("Error updating status:", error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Updating Status",
+        text2: "An unexpected error occurred.",
       });
     }
   };
@@ -187,14 +189,15 @@ export default function WorkerHomePage() {
       setReceiptData(data.data);
       Toast.show({
         type: "success",
-        text1: "Receipt Data Loaded ✅",
+        text1: "Receipt Data Loaded",
         text2: "You can now download the receipt.",
       });
     } catch (error: any) {
       console.error("Error fetching receipt data:", error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Receipt Fetch Failed",
+        text2: "An unexpected error occurred.",
       });
     }
   };
@@ -205,13 +208,13 @@ export default function WorkerHomePage() {
       closeReportModal();
       Toast.show({
         type: "success",
-        text1: "Report Submitted ✅",
+        text1: "Report Submitted",
         text2: "Your report has been submitted.",
       });
     } else {
       Toast.show({
         type: "info",
-        text1: "Missing Info 📝",
+        text1: "Missing Information",
         text2: "Please select a reason for the report.",
       });
     }
@@ -373,10 +376,7 @@ export default function WorkerHomePage() {
                             style={styles.downloadButton}
                             onPress={() =>
                               receiptData
-                                ? generatePDF(
-                                    receiptData,
-                                    require("../../assets/images/logo.png")
-                                  )
+                                ? generatePDF(receiptData)
                                 : handleDownloadReceipt(work.id)
                             }
                           >

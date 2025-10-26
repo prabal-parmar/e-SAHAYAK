@@ -123,14 +123,15 @@ export default function WorkerProfilePage() {
       });
       Toast.show({
         type: "success",
-        text1: "Profile Updated ✅",
+        text1: "Profile Updated",
         text2: "Your profile has been saved successfully.",
       });
     } catch (error: any) {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Profile Update Failed",
+        text2: "An unexpected error occurred.",
       });
     }
   };
@@ -158,7 +159,8 @@ export default function WorkerProfilePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Something Went Wrong!",
+        text1: "Error Fetching Profile",
+        text2: "Unable to load profile data.",
       });
     }
   };
@@ -426,7 +428,7 @@ export default function WorkerProfilePage() {
             </View>
 
             {isEditing ? (
-              <View style={styles.actionsContainer}>
+              <View style={[styles.actionsContainer, {paddingBottom: "15%"}]}>
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
                   onPress={handleCancel}

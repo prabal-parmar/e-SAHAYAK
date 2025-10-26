@@ -11,6 +11,8 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
+  Modal,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { landingStyles, loginStyles } from "../../components/styles/authStyles";
@@ -90,6 +92,7 @@ const LoginSection = () => {
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -100,56 +103,77 @@ const LoginSection = () => {
   const workerIcon = <FontAwesome5 name="user-tie" size={24} color="#7A869A" />;
 
   const handelEmployerLogin = async () => {
-    if (Username && password) {
-      const response = await employerLogin(Username.trim().toLowerCase(), password);
+    setLoading(true);
+    try {
+      if (!Username || !password) {
+        Toast.show({
+          type: "info",
+          text1: "Missing Input",
+          text2: "Enter username and password.",
+        });
+        return;
+      }
+      const response = await employerLogin(
+        Username.trim().toLowerCase(),
+        password
+      );
       if (response && response.success) {
-
         if (response.role === "employer") {
           router.replace("/(employer)");
         } else {
-          console.log("Something went wrong!");
         }
       } else {
         Toast.show({
           type: "error",
-          text1: "Login Failed ❌",
+          text1: "Login Failed",
           text2: response?.error || "Invalid credentials.",
         });
-        return null;
       }
-    } else {
+    } catch (error) {
       Toast.show({
-        type: "info",
-        text1: "Missing Input 📝",
-        text2: "Enter username and password.",
+        type: "error",
+        text1: "Login Failed",
+        text2: "Network error or unexpected issue.",
       });
-      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
   const handelWorkerLogin = async () => {
-    if (Username && password) {
-      const response = await workerLogin(Username.trim().toLowerCase(), password);
+    setLoading(true);
+    try {
+      if (!Username || !password) {
+        Toast.show({
+          type: "info",
+          text1: "Missing Input",
+          text2: "Enter username and password.",
+        });
+        return;
+      }
+      const response = await workerLogin(
+        Username.trim().toLowerCase(),
+        password
+      );
       if (response && response.success) {
-
         if (response.role === "worker") {
           router.replace("/(worker)");
         }
       } else {
         Toast.show({
           type: "error",
-          text1: "Login Failed ❌",
+          text1: "Login Failed",
           text2: response?.error || "Invalid credentials.",
         });
-        return null;
       }
-    } else {
+    } catch (error) {
       Toast.show({
-        type: "info",
-        text1: "Missing Input 📝",
-        text2: "Enter username and password.",
+        type: "error",
+        text1: "Login Failed",
+        text2: "Network error or unexpected issue.",
       });
-      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -356,6 +380,14 @@ const LoginSection = () => {
           </Text>
         </View>
       </View>
+      {loading && (
+        <Modal transparent animationType="fade" visible={loading}>
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+            <Text style={styles.loadingText}>Logging In...</Text>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -373,8 +405,8 @@ const CombinedLoginPage = () => {
           <LinearGradient colors={["#FF9933", "#138808"]} style={{ flex: 1 }}>
             <ScrollView
               contentContainerStyle={{
-                paddingVertical: 40,
-                paddingHorizontal: 20,
+                paddingVertical: "10%",
+                paddingHorizontal: "5%",
               }}
             >
               <LandingSection />
@@ -387,5 +419,24 @@ const CombinedLoginPage = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.7)",
+    zIndex: 1000,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: "#FFFFFF",
+    fontSize: 18,
+  },
+});
 
 export default CombinedLoginPage;
