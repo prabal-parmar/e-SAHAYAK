@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 import logo from "./logo.png";
-import { getHourWage, updateHourWage } from "../api/workerRoutes/allWorkers";
+import { allWorkerStatsDayWise, getHourWage, updateHourWage } from "../api/workerRoutes/allWorkers";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  Title,
+} from "chart.js";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
 function Home() {
   const [hourlyWage, setHourlyWage] = useState(0);
   const [overtimeWage, setOvertimeWage] = useState(0);
   const [hourWage, setHourWage] = useState(0);
   const [extraWage, setExtraWage] = useState(0);
+  const [days, setDays] = useState(1);
+  const [stats, setStats] = useState({ shift1_count: 0, shift2_count: 0, overtime_count: 0 });
 
   const handleUpdate = async () => {
     setHourWage(hourlyWage);
@@ -20,9 +34,54 @@ function Home() {
       const data = await getHourWage();
       setHourWage(data.wages.hourWage);
       setExtraWage(data.wages.overtimeWage);
-    }
-    fetchHourWage()
-  }, [])
+    };
+    fetchHourWage();
+  }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await allWorkerStatsDayWise(days)
+        setStats(response.stats);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+    fetchStats();
+  }, [days]);
+
+  const chartData = {
+    labels: ["Shift 1", "Shift 2", "Overtime"],
+    datasets: [
+      {
+        label: "Number of Workers",
+        data: [stats.shift1_count, stats.shift2_count, stats.overtime_count],
+        backgroundColor: ["#4F46E5", "#10B981", "#F59E0B"],
+        borderRadius: 10,
+        barThickness: 60,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: `Worker Stats for Last ${days} Day(s)`, font: { size: 18 } },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1, font: { size: 13 } },
+        grid: { color: "#E5E7EB" },
+      },
+      x: {
+        ticks: { font: { size: 13 } },
+        grid: { display: false },
+      },
+    },
+  };
+
   return (
     <div className="home-container">
       <div className="hero-section">
@@ -59,6 +118,23 @@ function Home() {
             श्रम मंत्रालय, मध्यप्रदेश शासन, भोपाल <br /> ईमेल:
             labour@mp.gov.in | हेल्पलाइन: 1800-233-4567
           </p>
+        </div>
+      </div>
+
+      <div className="stats-section">
+        <div className="stats-header">
+          <h2>Worker Statistics</h2>
+          <select value={days} onChange={(e) => setDays(Number(e.target.value))}>
+            <option value={1}>1 Day</option>
+            <option value={5}>5 Days</option>
+            <option value={7}>7 Days</option>
+            <option value={15}>15 Days</option>
+            <option value={30}>30 Days</option>
+            <option value={365}>365 Days</option>
+          </select>
+        </div>
+        <div className="bar-container">
+          <Bar data={chartData} options={options} />
         </div>
       </div>
 

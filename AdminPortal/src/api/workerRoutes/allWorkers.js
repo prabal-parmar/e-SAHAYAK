@@ -50,3 +50,17 @@ export const updateHourWage = async (hourlyWage, overtimeWage) => {
     return {wages: {hourWage: 0, overtimeWage: 0}}
   }
 }
+
+export const allWorkerStatsDayWise = async (days) => {
+  try {
+    const response = await adminApi.get('stats/', {
+      params:{
+        time: days
+      }
+    })
+    return response.data
+  } catch (error) {
+      console.log("Error fetching wage:", error);
+      return {shift1_count: 0, shift2_count: 0, overtimeCount: 0}
+  }
+}
