@@ -12,8 +12,10 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from Users.models import CustomUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.db.models import F, Value
+from django.db.models import F, Value, Count, Q
 from django.db.models.functions import Concat
+from datetime import timedelta
+from django.utils import timezone
 # Create your views here.
 
 class IsAdminUser(BasePermission):
@@ -224,6 +226,19 @@ def wage_authority_for_admin(request):
         new_wage.save()
         return Response({"message": "Wage salary updated successfully"}, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def day_wise_stats(request):
+    time = int(request.GET.get("time", 1))
+    time_range = timezone.now() - timedelta(days=time)
+    data = WorkersWorkModel.objects.filter(date__gte=time_range)
+    stats = data.aggregate(
+        shift1_count=Count("id", filter=Q(attendance__shift="shift1")),
+        shift2_count=Count("id", filter=Q(attendance__shift="shift2")),
+        overtime_count=Count("id", filter=Q(attendance__overtime=True)),
+    )
+    return Response({"message": "Day wise stats sent to Admin", "stats": stats}, status=status.HTTP_200_OK)
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
