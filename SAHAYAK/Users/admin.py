@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, EmployerModel, WorkerModel
+from .models import CustomUser, EmployerModel, WorkerModel, EChowk, WorkerExtendedRegistration
 # Register your models here.
 
 @admin.register(CustomUser)
@@ -19,3 +19,13 @@ class WorkerAdmin(admin.ModelAdmin):
     list_display = [field.name for field in WorkerModel._meta.fields]  # show all fields
     search_fields = ("skill", "contact_number")  # quick search
     list_filter = ("gender",)  # filter by gender
+
+@admin.register(EChowk)
+class EChowkAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in EChowk._meta.fields]
+    search_fields = ("chowk_name", "chowk_code")
+
+@admin.register(WorkerExtendedRegistration)
+class WorkerExtendedRegistrationAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in WorkerExtendedRegistration._meta.fields]
+    search_fields = ("username", "registration_type")
