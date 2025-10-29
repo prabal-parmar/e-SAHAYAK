@@ -11,5 +11,7 @@ urlpatterns = [
     path('api/employer/', include('Employer.urls'), name="Employer Routes"),
     path('api/worker/', include('Worker.urls'), name="Worker Routes"),
     path('api/admin/', include('Admin.urls'), name="Admin Routes"),
+    path('api/worker/registration-types/', views.worker_registration_types, name="Worker Registration Types"),
+    path('api/worker/register-extended/', views.register_worker_extended, name="Register Worker Extended"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

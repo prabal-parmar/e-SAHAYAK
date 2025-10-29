@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import EmployerModel, WorkerModel
+from .models import EmployerModel, WorkerModel, EChowk, WorkerExtendedRegistration
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -48,3 +48,15 @@ class WorkerRegisterSerializer(serializers.ModelSerializer):
                                         last_name=last_name,)
         worker = WorkerModel.objects.create(user=user, **validated_data)
         return worker
+
+class EChowkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EChowk
+        fields = ["chowkId", "chowk_name", "chowk_code", "chowk_address", "pincode", "chowk_type", "chowk_email"]
+        read_only_fields = ["chowkId"]
+
+class WorkerExtendedRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkerExtendedRegistration
+        fields = ["username", "registration_type", "data", "created_at"]
+        read_only_fields = ["created_at"]

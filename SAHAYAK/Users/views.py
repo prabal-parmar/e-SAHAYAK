@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from .serializers import EmployerRegisterSerializer, WorkerRegisterSerializer
+from .serializers import EmployerRegisterSerializer, WorkerRegisterSerializer, EChowkSerializer, WorkerExtendedRegistrationSerializer
+from .models import EChowk, WorkerExtendedRegistration
 from uuid import uuid4
 from rest_framework.permissions import IsAuthenticated
 from .models import CustomUser, EmployerModel
@@ -109,6 +110,94 @@ def signup_worker(request):
         # print(serializer.errors)
         return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(["GET"])
+def worker_registration_types(request):
+    types = [
+        {
+            "key": "e_chowk",
+            "title": "e-CHOWK Registration",
+            "required_fields": [
+                {"name": "chowk_gp_code", "label": "Chowk/Ward/GP code", "type": "string", "required": True},
+                {"name": "chowk_name", "label": "Chowk Name", "type": "string", "required": True},
+                {"name": "chowk_address", "label": "Chowk Address (complete demography)", "type": "string", "required": True},
+                {"name": "gkyc_available", "label": "G-KYC of Chowk available?", "type": "boolean", "required": False},
+                {"name": "e_chowk_type", "label": "eChowk Type", "type": "string", "required": False},
+                {"name": "working_sector", "label": "Working sector (Niyojan)", "type": "string", "required": False},
+                {"name": "e_chowk_email", "label": "eChowk Email (if any)", "type": "string", "required": False}
+            ]
+        },
+        {
+            "key": "samagra",
+            "title": "Shramik Samagra [S]",
+            "required_fields": [
+                {"name": "samagra_id", "label": "Samagra ID", "type": "string", "required": True},
+                {"name": "family_head", "label": "Family Head", "type": "string", "required": False}
+            ]
+        },
+        {
+            "key": "esic",
+            "title": "ESIS/ESIC",
+            "required_fields": [
+                {"name": "esic_id", "label": "ESIC ID", "type": "string", "required": True},
+                {"name": "esic_branch", "label": "ESIC Branch", "type": "string", "required": False}
+            ]
+        },
+        {
+            "key": "health_card",
+            "title": "Shramik Health Card [H]",
+            "required_fields": [
+                {"name": "health_card_no", "label": "Health Card Number", "type": "string", "required": True},
+                {"name": "blood_group", "label": "Blood Group", "type": "string", "required": False}
+            ]
+        },
+        {
+            "key": "basic",
+            "title": "Basic Registration",
+            "required_fields": [
+                {"name": "first_name", "label": "First Name", "type": "string", "required": True},
+                {"name": "last_name", "label": "Last Name", "type": "string", "required": True},
+                {"name": "contact_number", "label": "Mobile", "type": "string", "required": True}
+            ]
+        }
+    ]
+    return Response({"types": types}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def register_worker_extended(request):
+    reg_type = request.data.get("registration_type")
+    if not reg_type:
+        return Response({"error": "registration_type is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    username = request.data.get("username")
+
+    if reg_type == "e_chowk":
+        echowk_payload = {
+            "chowk_name": request.data.get("chowk_name"),
+            "chowk_code": request.data.get("chowk_gp_code"),
+            "chowk_address": request.data.get("chowk_address"),
+            "pincode": request.data.get("pincode"),
+            "chowk_type": request.data.get("e_chowk_type") or "other",
+            "chowk_email": request.data.get("e_chowk_email"),
+        }
+        e_serializer = EChowkSerializer(data=echowk_payload)
+        if e_serializer.is_valid():
+            echowk = e_serializer.save()
+        else:
+            return Response({"error": e_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    ext_payload = {
+        "username": username or "",
+        "registration_type": reg_type,
+        "data": {k: v for k, v in request.data.items()},
+    }
+    wext = WorkerExtendedRegistrationSerializer(data=ext_payload)
+    if wext.is_valid():
+        wext.save()
+    else:
+        return Response({"error": wext.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"message": "Extended registration saved."}, status=status.HTTP_201_CREATED)
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def change_password(request):
