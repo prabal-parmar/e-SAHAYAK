@@ -130,8 +130,8 @@ export default function WorkerProfilePage() {
       console.log(error);
       Toast.show({
         type: "error",
-        text1: "Profile Update Failed",
-        text2: "An unexpected error occurred.",
+        text1: "Something Went Wrong!",
+        text2: "Could not update profile.",
       });
     }
   };
@@ -154,7 +154,7 @@ export default function WorkerProfilePage() {
       setContactNumber(data.contactNumber);
       setAddress(data.address);
       setGender(data.gender);
-      setWorker(data); // Also update context when fetching
+      setWorker(data);
     } catch (error: any) {
       console.log(error);
       Toast.show({
@@ -197,7 +197,6 @@ export default function WorkerProfilePage() {
   };
 
   const handleSaveChanges = async () => {
-    // console.log(gender as GenderKey)
     const data: WORKER = {
       firstName: firstName,
       lastName: lastName,
@@ -428,7 +427,7 @@ export default function WorkerProfilePage() {
             </View>
 
             {isEditing ? (
-              <View style={[styles.actionsContainer, {paddingBottom: "15%"}]}>
+              <View style={[styles.actionsContainer, { paddingBottom: "15%" }]}>
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
                   onPress={handleCancel}

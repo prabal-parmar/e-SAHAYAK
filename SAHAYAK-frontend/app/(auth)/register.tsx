@@ -457,6 +457,32 @@ export default function RegistrationPage() {
             </Text>
           </View>
 
+          {/* Advanced flow per diagram: dynamic registration by type */}
+          <View style={{ marginTop: 10, marginBottom: 8 }}>
+            <Link href="/clusterRegister" asChild>
+              <TouchableOpacity
+                style={{
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: "#93c5fd",
+                  backgroundColor: "#eff6ff",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#1d4ed8",
+                    fontWeight: "800",
+                    textAlign: "center",
+                  }}
+                >
+                  Advanced Worker Registration (Samagra / ESIC / Health Card)
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
           <TouchableOpacity
             style={register.registerButton}
             onPress={handelRegisterWorker}
